@@ -49,12 +49,12 @@
         <i class="fa fa-th-large text-primary text-2xl"></i>
         <h1 class="text-xl font-bold text-primary">我的物品库</h1>
       </div>
-
+      
       <!-- 移动端菜单按钮 -->
       <button id="menu-toggle" class="lg:hidden text-neutral">
         <i class="fa fa-bars text-xl"></i>
       </button>
-
+      
       <!-- 桌面端导航链接 -->
       <div class="hidden lg:flex items-center space-x-8">
         <a href="#home" class="text-neutral hover:text-primary transition-colors">首页</a>
@@ -66,7 +66,7 @@
         </button>
       </div>
     </div>
-
+    
     <!-- 移动端导航菜单 -->
     <div id="mobile-menu" class="lg:hidden hidden bg-white border-t">
       <div class="container mx-auto px-4 py-3 flex flex-col space-y-3">
@@ -149,7 +149,7 @@
           <h2 class="text-3xl font-bold text-neutral mb-4">按分类浏览</h2>
           <p class="text-gray-600 max-w-2xl mx-auto">探索你收藏的各类物品，点击分类查看详情</p>
         </div>
-
+        
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           <!-- 分类卡片 -->
           <div class="bg-white rounded-xl overflow-hidden shadow-md hover-scale card-shadow">
@@ -167,7 +167,7 @@
               </a>
             </div>
           </div>
-
+          
           <div class="bg-white rounded-xl overflow-hidden shadow-md hover-scale card-shadow">
             <div class="h-48 overflow-hidden">
               <img src="https://picsum.photos/seed/kitchen/500/300" alt="厨具" class="w-full h-full object-cover">
@@ -183,7 +183,7 @@
               </a>
             </div>
           </div>
-
+          
           <div class="bg-white rounded-xl overflow-hidden shadow-md hover-scale card-shadow">
             <div class="h-48 overflow-hidden">
               <img src="https://picsum.photos/seed/electronics/500/300" alt="电子产品" class="w-full h-full object-cover">
@@ -199,7 +199,7 @@
               </a>
             </div>
           </div>
-
+          
           <div class="bg-white rounded-xl overflow-hidden shadow-md hover-scale card-shadow">
             <div class="h-48 overflow-hidden">
               <img src="https://picsum.photos/seed/books/500/300" alt="书籍" class="w-full h-full object-cover">
@@ -216,7 +216,7 @@
             </div>
           </div>
         </div>
-
+        
         <div class="text-center mt-10">
           <button class="bg-white hover:bg-gray-100 text-primary border border-primary px-6 py-3 rounded-lg transition-colors inline-flex items-center">
             <i class="fa fa-plus mr-2"></i> 添加新分类
@@ -244,7 +244,7 @@
             </div>
           </div>
         </div>
-
+        
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           <!-- 物品卡片 -->
           <div class="bg-white rounded-xl overflow-hidden shadow-md hover-scale card-shadow">
@@ -272,7 +272,7 @@
               </div>
             </div>
           </div>
-
+          
           <div class="bg-white rounded-xl overflow-hidden shadow-md hover-scale card-shadow">
             <div class="relative">
               <div class="h-48 overflow-hidden">
@@ -298,7 +298,7 @@
               </div>
             </div>
           </div>
-
+          
           <div class="bg-white rounded-xl overflow-hidden shadow-md hover-scale card-shadow">
             <div class="relative">
               <div class="h-48 overflow-hidden">
@@ -324,7 +324,7 @@
               </div>
             </div>
           </div>
-
+          
           <div class="bg-white rounded-xl overflow-hidden shadow-md hover-scale card-shadow">
             <div class="relative">
               <div class="h-48 overflow-hidden">
@@ -361,7 +361,7 @@
           <h2 class="text-3xl font-bold text-neutral mb-4">添加新物品</h2>
           <p class="text-gray-600 max-w-2xl mx-auto">上传新物品到你的收藏中</p>
         </div>
-
+        
         <div class="max-w-3xl mx-auto bg-white rounded-xl shadow-md p-8">
           <form id="add-item-form" class="space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -369,7 +369,7 @@
                 <label for="item-name" class="block text-sm font-medium text-gray-700 mb-1">物品名称</label>
                 <input type="text" id="item-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors" placeholder="输入物品名称">
               </div>
-
+              
               <div>
                 <label for="item-category" class="block text-sm font-medium text-gray-700 mb-1">所属分类</label>
                 <select id="item-category" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors">
@@ -382,12 +382,12 @@
                 </select>
               </div>
             </div>
-
+            
             <div>
               <label for="item-description" class="block text-sm font-medium text-gray-700 mb-1">物品描述</label>
               <textarea id="item-description" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors" placeholder="描述物品的特点、用途等"></textarea>
             </div>
-
+            
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">上传照片</label>
               <div class="flex items-center justify-center w-full">
@@ -404,19 +404,19 @@
                 <img id="image-preview" class="max-w-full h-auto rounded-lg shadow-md" alt="物品预览图">
               </div>
             </div>
-
+            
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label for="item-brand" class="block text-sm font-medium text-gray-700 mb-1">品牌</label>
                 <input type="text" id="item-brand" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors" placeholder="输入品牌名称">
               </div>
-
+              
               <div>
                 <label for="item-purchase-date" class="block text-sm font-medium text-gray-700 mb-1">购买日期</label>
                 <input type="date" id="item-purchase-date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors">
               </div>
             </div>
-
+            
             <div class="pt-4">
               <button type="submit" class="w-full bg-primary hover:bg-primary/90 text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center">
                 <i class="fa fa-plus-circle mr-2"></i> 添加物品
@@ -435,7 +435,7 @@
           <p class="text-gray-600 mb-8">
             我的物品库是一个简单而实用的个人物品管理工具，帮助你记录和展示你拥有的所有物品。无论你是想整理衣橱、管理厨具，还是展示你的收藏品，这里都是理想的选择。
           </p>
-
+          
           <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
             <div class="bg-neutral-light rounded-xl p-6 hover-scale">
               <div class="text-primary text-3xl mb-4">
@@ -444,7 +444,7 @@
               <h3 class="text-xl font-semibold text-neutral mb-2">分类整理</h3>
               <p class="text-gray-600">将你的物品按类别整理，方便查找和管理</p>
             </div>
-
+            
             <div class="bg-neutral-light rounded-xl p-6 hover-scale">
               <div class="text-primary text-3xl mb-4">
                 <i class="fa fa-camera"></i>
@@ -452,7 +452,7 @@
               <h3 class="text-xl font-semibold text-neutral mb-2">图片展示</h3>
               <p class="text-gray-600">为每件物品上传照片，直观展示你的收藏</p>
             </div>
-
+            
             <div class="bg-neutral-light rounded-xl p-6 hover-scale">
               <div class="text-primary text-3xl mb-4">
                 <i class="fa fa-mobile"></i>
@@ -461,7 +461,7 @@
               <p class="text-gray-600">在任何设备上访问你的物品库，轻松管理</p>
             </div>
           </div>
-
+          
           <div class="pt-4">
             <h3 class="text-xl font-semibold text-neutral mb-4">开始使用</h3>
             <p class="text-gray-600 mb-6">
@@ -503,7 +503,7 @@
             </a>
           </div>
         </div>
-
+        
         <div>
           <h4 class="text-lg font-semibold mb-4">快速链接</h4>
           <ul class="space-y-2">
@@ -513,7 +513,7 @@
             <li><a href="#about" class="text-gray-400 hover:text-white transition-colors">关于</a></li>
           </ul>
         </div>
-
+        
         <div>
           <h4 class="text-lg font-semibold mb-4">分类</h4>
           <ul class="space-y-2">
@@ -524,7 +524,7 @@
             <li><a href="#" class="text-gray-400 hover:text-white transition-colors">其他</a></li>
           </ul>
         </div>
-
+        
         <div>
           <h4 class="text-lg font-semibold mb-4">联系我们</h4>
           <ul class="space-y-2">
@@ -543,7 +543,7 @@
           </ul>
         </div>
       </div>
-
+      
       <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
         <p>&copy; 2025 我的物品库. 保留所有权利.</p>
       </div>
@@ -557,23 +557,23 @@
         <button id="close-modal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
           <i class="fa fa-times"></i>
         </button>
-
+        
         <div class="text-center mb-6">
           <h3 class="text-2xl font-bold text-neutral">登录</h3>
           <p class="text-gray-600 mt-2">登录到你的物品库账户</p>
         </div>
-
+        
         <form id="login-form" class="space-y-4">
           <div>
             <label for="email" class="block text-sm font-medium text-gray-700 mb-1">邮箱</label>
             <input type="email" id="email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors" placeholder="输入你的邮箱">
           </div>
-
+          
           <div>
             <label for="password" class="block text-sm font-medium text-gray-700 mb-1">密码</label>
             <input type="password" id="password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors" placeholder="输入你的密码">
           </div>
-
+          
           <div class="flex items-center justify-between">
             <div class="flex items-center">
               <input type="checkbox" id="remember-me" class="mr-2">
@@ -581,12 +581,12 @@
             </div>
             <a href="#" class="text-sm text-primary hover:text-primary/80">忘记密码?</a>
           </div>
-
+          
           <button type="submit" class="w-full bg-primary hover:bg-primary/90 text-white font-medium py-3 px-4 rounded-lg transition-colors">
             登录
           </button>
         </form>
-
+        
         <div class="mt-6 text-center">
           <p class="text-gray-600">
             还没有账户? <a href="#" class="text-primary hover:text-primary/80 font-medium">注册</a>
@@ -601,3 +601,130 @@
     // 导航栏滚动效果
     const navbar = document.getElementById('navbar');
     window.addEventListener('scroll', () => {
+      if (window.scrollY > 50) {
+        navbar.classList.add('py-2');
+        navbar.classList.remove('py-3');
+      } else {
+        navbar.classList.add('py-3');
+        navbar.classList.remove('py-2');
+      }
+    });
+    
+    // 移动端菜单
+    const menuToggle = document.getElementById('menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    
+    menuToggle.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+    });
+    
+    // 登录模态框
+    const loginBtn = document.getElementById('login-btn');
+    const mobileLoginBtn = document.getElementById('mobile-login-btn');
+    const loginModal = document.getElementById('login-modal');
+    const closeModal = document.getElementById('close-modal');
+    const modalContent = document.getElementById('modal-content');
+    
+    function openModal() {
+      loginModal.classList.remove('hidden');
+      setTimeout(() => {
+        modalContent.classList.remove('scale-95', 'opacity-0');
+        modalContent.classList.add('scale-100', 'opacity-100');
+      }, 10);
+    }
+    
+    function closeModalFunc() {
+      modalContent.classList.remove('scale-100', 'opacity-100');
+      modalContent.classList.add('scale-95', 'opacity-0');
+      setTimeout(() => {
+        loginModal.classList.add('hidden');
+      }, 300);
+    }
+    
+    loginBtn.addEventListener('click', openModal);
+    mobileLoginBtn.addEventListener('click', openModal);
+    closeModal.addEventListener('click', closeModalFunc);
+    
+    loginModal.addEventListener('click', (e) => {
+      if (e.target === loginModal) {
+        closeModalFunc();
+      }
+    });
+    
+    // 图片预览
+    const fileUpload = document.getElementById('file-upload');
+    const previewContainer = document.getElementById('preview-container');
+    const imagePreview = document.getElementById('image-preview');
+    
+    fileUpload.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          imagePreview.src = event.target.result;
+          previewContainer.classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+    
+    // 表单提交
+    const addItemForm = document.getElementById('add-item-form');
+    const loginForm = document.getElementById('login-form');
+    
+    addItemForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      // 这里可以添加表单验证和提交逻辑
+      alert('物品添加成功！');
+      addItemForm.reset();
+      previewContainer.classList.add('hidden');
+    });
+    
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      // 这里可以添加登录验证和提交逻辑
+      alert('登录成功！');
+      closeModalFunc();
+    });
+    
+    // 平滑滚动
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        
+        const targetId = this.getAttribute('href');
+        const targetElement = document.querySelector(targetId);
+        
+        if (targetElement) {
+          window.scrollTo({
+            top: targetElement.offsetTop - 80,
+            behavior: 'smooth'
+          });
+          
+          // 如果是移动端，点击导航链接后关闭菜单
+          if (!mobileMenu.classList.contains('hidden')) {
+            mobileMenu.classList.add('hidden');
+          }
+        }
+      });
+    });
+    
+    // 物品轮播
+    const prevItem = document.getElementById('prev-item');
+    const nextItem = document.getElementById('next-item');
+    const itemCards = document.querySelectorAll('.grid-cols-1 > div');
+    
+    // 这里可以添加轮播逻辑
+    prevItem.addEventListener('click', () => {
+      // 上一个物品
+      alert('上一个物品');
+    });
+    
+    nextItem.addEventListener('click', () => {
+      // 下一个物品
+      alert('下一个物品');
+    });
+  </script>
+</body>
+</html>
+    
