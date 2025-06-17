@@ -825,6 +825,135 @@
       updateLogsTable();
       updateCounters();
       updateCharts();
+      
+      // 添加物品表单提交
+      document.getElementById('add-item-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const name = document.getElementById('item-name').value;
+        const scene = document.getElementById('item-scene').value;
+        const quantity = parseInt(document.getElementById('item-quantity').value);
+        const status = document.getElementById('item-status').value;
+        
+        if (!name) {
+          alert('请输入物品名称');
+          return;
+        }
+        
+        const newItem = {
+          id: Date.now(),
+          name,
+          scene,
+          quantity,
+          status,
+          createdAt: new Date().toISOString()
+        };
+        
+        itemsData.push(newItem);
+        addLog('添加', '物品', `添加了物品 "${name}"`);
+        
+        // 保存数据
+        DataManager.saveData({
+          items: itemsData,
+          relations: relationsData,
+          moods: moodsData,
+          logs: logsData
+        });
+        
+        // 更新UI
+        updateItemsTable();
+        updateCounters();
+        updateCharts();
+        closeModal('item');
+      });
+      
+      // 添加关系表单提交
+      document.getElementById('add-relation-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const name = document.getElementById('relation-name').value;
+        const platform = document.getElementById('relation-platform').value;
+        const type = document.getElementById('relation-type').value;
+        const frequency = document.getElementById('relation-frequency').value;
+        const note = document.getElementById('relation-note').value;
+        
+        if (!name) {
+          alert('请输入名称');
+          return;
+        }
+        
+        const newRelation = {
+          id: Date.now(),
+          name,
+          platform,
+          type,
+          frequency,
+          note,
+          createdAt: new Date().toISOString()
+        };
+        
+        relationsData.push(newRelation);
+        addLog('添加', '网络关系', `添加了关系 "${name}"`);
+        
+        // 保存数据
+        DataManager.saveData({
+          items: itemsData,
+          relations: relationsData,
+          moods: moodsData,
+          logs: logsData
+        });
+        
+        // 更新UI
+        updateRelationsTable();
+        updateCounters();
+        updateCharts();
+        closeModal('relation');
+      });
+      
+      // 添加心情表单提交
+      document.getElementById('add-mood-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const date = document.getElementById('mood-date').value;
+        const value = document.getElementById('mood-value').value;
+        const description = document.getElementById('mood-description').value;
+        
+        if (!date) {
+          alert('请选择日期');
+          alert('请选择日期');
+          return;
+        }
+        
+        if (!value) {
+          alert('请选择心情状态');
+          return;
+        }
+        
+        const newMood = {
+          id: Date.now(),
+          date,
+          value,
+          description,
+          createdAt: new Date().toISOString()
+        };
+        
+        moodsData.push(newMood);
+        addLog('添加', '心情记录', `记录了 ${date} 的心情状态为 "${value}"`);
+        
+        // 保存数据
+        DataManager.saveData({
+          items: itemsData,
+          relations: relationsData,
+          moods: moodsData,
+          logs: logsData
+        });
+        
+        // 更新UI
+        updateMoodsTable();
+        updateCounters();
+        updateCharts();
+        closeModal('mood');
+      });
     });
     
     // 初始化图表
@@ -834,4 +963,364 @@
       window.relationsChart = new Chart(relationsCtx, {
         type: 'bar',
         data: {
-          labels: ['朋友', '家人', '
+          labels: ['朋友', '家人', '同事', '同学', '合作伙伴', '其他'],
+          datasets: [{
+            label: '关系数量',
+            data: [0, 0, 0, 0, 0, 0],
+            backgroundColor: [
+              'rgba(54, 162, 235, 0.7)',
+              'rgba(75, 192, 192, 0.7)',
+              'rgba(153, 102, 255, 0.7)',
+              'rgba(255, 159, 64, 0.7)',
+              'rgba(255, 99, 132, 0.7)',
+              'rgba(255, 206, 86, 0.7)'
+            ],
+            borderColor: [
+              'rgba(54, 162, 235, 1)',
+              'rgba(75, 192, 192, 1)',
+              'rgba(153, 102, 255, 1)',
+              'rgba(255, 159, 64, 1)',
+              'rgba(255, 99, 132, 1)',
+              'rgba(255, 206, 86, 1)'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                precision: 0
+              }
+            }
+          }
+        }
+      });
+      
+      // 心情趋势图表
+      const moodsCtx = document.getElementById('moods-chart').getContext('2d');
+      window.moodsChart = new Chart(moodsCtx, {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [{
+            label: '心情状态',
+            data: [],
+            borderColor: 'rgba(153, 102, 255, 1)',
+            backgroundColor: 'rgba(153, 102, 255, 0.2)',
+            tension: 0.3,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: false,
+              min: 1,
+              max: 5,
+              ticks: {
+                callback: function(value) {
+                  const labels = ['', '非常难过', '难过', '一般', '开心', '非常开心'];
+                  return labels[value];
+                }
+              }
+            }
+          }
+        }
+      });
+      
+      // 心情分布图表
+      const moodsPieCtx = document.getElementById('moods-pie-chart').getContext('2d');
+      window.moodsPieChart = new Chart(moodsPieCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['非常开心', '开心', '一般', '难过', '非常难过'],
+          datasets: [{
+            data: [0, 0, 0, 0, 0],
+            backgroundColor: [
+              'rgba(255, 206, 86, 0.7)',
+              'rgba(75, 192, 192, 0.7)',
+              'rgba(220, 220, 220, 0.7)',
+              'rgba(54, 162, 235, 0.7)',
+              'rgba(255, 99, 132, 0.7)'
+            ],
+            borderColor: [
+              'rgba(255, 206, 86, 1)',
+              'rgba(75, 192, 192, 1)',
+              'rgba(220, 220, 220, 1)',
+              'rgba(54, 162, 235, 1)',
+              'rgba(255, 99, 132, 1)'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false
+        }
+      });
+    }
+    
+    // 更新图表数据
+    function updateCharts() {
+      // 更新关系图表
+      if (window.relationsChart) {
+        const friendCount = relationsData.filter(r => r.type === '朋友').length;
+        const familyCount = relationsData.filter(r => r.type === '家人').length;
+        const colleagueCount = relationsData.filter(r => r.type === '同事').length;
+        const classmateCount = relationsData.filter(r => r.type === '同学').length;
+        const partnerCount = relationsData.filter(r => r.type === '合作伙伴').length;
+        const otherCount = relationsData.filter(r => r.type === '其他').length;
+        
+        window.relationsChart.data.datasets[0].data = [
+          friendCount, 
+          familyCount, 
+          colleagueCount, 
+          classmateCount, 
+          partnerCount, 
+          otherCount
+        ];
+        window.relationsChart.update();
+      }
+      
+      // 更新心情图表
+      if (window.moodsChart && window.moodsPieChart) {
+        // 排序心情数据
+        const sortedMoods = [...moodsData].sort((a, b) => new Date(a.date) - new Date(b.date));
+        
+        // 转换心情值为数字
+        const moodValues = {
+          '非常难过': 1,
+          '难过': 2,
+          '一般': 3,
+          '开心': 4,
+          '非常开心': 5
+        };
+        
+        // 准备图表数据
+        const labels = sortedMoods.map(m => {
+          const date = new Date(m.date);
+          return `${date.getMonth() + 1}/${date.getDate()}`;
+        });
+        const data = sortedMoods.map(m => moodValues[m.value]);
+        
+        // 更新心情趋势图
+        window.moodsChart.data.labels = labels;
+        window.moodsChart.data.datasets[0].data = data;
+        window.moodsChart.update();
+        
+        // 计算心情分布
+        const moodDistribution = [0, 0, 0, 0, 0];
+        sortedMoods.forEach(m => {
+          const index = moodValues[m.value] - 1;
+          moodDistribution[index]++;
+        });
+        
+        // 更新心情分布图
+        window.moodsPieChart.data.datasets[0].data = moodDistribution;
+        window.moodsPieChart.update();
+      }
+    }
+    
+    // 更新物品表格
+    function updateItemsTable(filter = 'all') {
+      let filteredItems = itemsData;
+      
+      if (filter !== 'all') {
+        filteredItems = itemsData.filter(item => item.scene === filter);
+      }
+      
+      if (filteredItems.length === 0) {
+        tables.items.innerHTML = `
+          <tr class="text-center">
+            <td colspan="5" class="px-6 py-12 text-gray-500">暂无物品数据</td>
+          </tr>
+        `;
+        return;
+      }
+      
+      tables.items.innerHTML = '';
+      
+      filteredItems.forEach(item => {
+        const sceneColor = {
+          'wardrobe': 'text-wardrobe',
+          'bedroom': 'text-bedroom',
+          'living': 'text-living',
+          'kitchen': 'text-kitchen',
+          'bathroom': 'text-bathroom'
+        };
+        
+        const sceneIcon = {
+          'wardrobe': 'fa-tshirt',
+          'bedroom': 'fa-bed',
+          'living': 'fa-television',
+          'kitchen': 'fa-cutlery',
+          'bathroom': 'fa-bath'
+        };
+        
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="flex items-center">
+              <div class="h-8 w-8 bg-gray-100 rounded-full flex items-center justify-center mr-3">
+                <i class="fa ${sceneIcon[item.scene]} ${sceneColor[item.scene]}"></i>
+              </div>
+              <div>
+                <div class="text-sm font-medium text-gray-900">${item.name}</div>
+              </div>
+            </div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${sceneColor[item.scene]} bg-${item.scene}/10">
+              ${item.scene}
+            </span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="text-sm text-gray-900">${item.quantity}</div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            ${getStatusBadge(item.status)}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+            <button class="text-red-500 hover:text-red-700 mr-3" onclick="deleteItem(${item.id})">
+              <i class="fa fa-trash"></i> 删除
+            </button>
+          </td>
+        `;
+        tables.items.appendChild(row);
+      });
+    }
+    
+    // 获取状态徽章
+    function getStatusBadge(status) {
+      const badgeClasses = {
+        '可用': 'bg-green-100 text-green-800',
+        '已使用': 'bg-blue-100 text-blue-800',
+        '闲置': 'bg-gray-100 text-gray-800',
+        '维修中': 'bg-yellow-100 text-yellow-800'
+      };
+      
+      return `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${badgeClasses[status]}">${status}</span>`;
+    }
+    
+    // 更新关系表格
+    function updateRelationsTable() {
+      if (relationsData.length === 0) {
+        tables.relations.innerHTML = `
+          <tr class="text-center">
+            <td colspan="5" class="px-6 py-12 text-gray-500">暂无关系数据</td>
+          </tr>
+        `;
+        
+        document.getElementById('latest-relations').innerHTML = `
+          <p class="text-gray-500 text-center">暂无关系数据</p>
+        `;
+        return;
+      }
+      
+      tables.relations.innerHTML = '';
+      
+      relationsData.forEach(relation => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="flex items-center">
+              <div class="h-8 w-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                <i class="fa fa-user text-blue-500"></i>
+              </div>
+              <div>
+                <div class="text-sm font-medium text-gray-900">${relation.name}</div>
+              </div>
+            </div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="text-sm text-gray-900">${relation.platform}</div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="text-sm text-gray-900">${relation.type}</div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="text-sm text-gray-900">${relation.frequency}</div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+            <button class="text-red-500 hover:text-red-700" onclick="deleteRelation(${relation.id})">
+              <i class="fa fa-trash"></i> 删除
+            </button>
+          </td>
+        `;
+        tables.relations.appendChild(row);
+      });
+      
+      // 更新最近互动
+      const latestRelations = [...relationsData]
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .slice(0, 5);
+      
+      const latestRelationsContainer = document.getElementById('latest-relations');
+      latestRelationsContainer.innerHTML = '';
+      
+      latestRelations.forEach(relation => {
+        const frequencyColors = {
+          '每天': 'text-green-500',
+          '每周': 'text-blue-500',
+          '每月': 'text-purple-500',
+          '每季度': 'text-yellow-500',
+          '每年': 'text-orange-500',
+          '很少': 'text-red-500'
+        };
+        
+        const item = document.createElement('div');
+        item.className = 'flex items-center p-3 bg-gray-50 rounded-lg';
+        item.innerHTML = `
+          <div class="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+            <i class="fa fa-user text-blue-500"></i>
+          </div>
+          <div class="flex-1">
+            <div class="text-sm font-medium text-gray-900">${relation.name}</div>
+            <div class="text-xs text-gray-500">${relation.platform} · ${relation.type}</div>
+          </div>
+          <div class="text-xs ${frequencyColors[relation.frequency]}">
+            ${relation.frequency}
+          </div>
+        `;
+        latestRelationsContainer.appendChild(item);
+      });
+    }
+    
+    // 更新心情表格
+    function updateMoodsTable() {
+      if (moodsData.length === 0) {
+        tables.moods.innerHTML = `
+          <tr class="text-center">
+            <td colspan="4" class="px-6 py-12 text-gray-500">暂无心情记录</td>
+          </tr>
+        `;
+        return;
+      }
+      
+      tables.moods.innerHTML = '';
+      
+      // 按日期排序
+      const sortedMoods = [...moodsData].sort((a, b) => new Date(b.date) - new Date(a.date));
+      
+      sortedMoods.forEach(mood => {
+        const moodIcons = {
+          '非常开心': 'fa-smile-o text-yellow-400',
+          '开心': 'fa-smile-o text-yellow-300',
+          '一般': 'fa-meh-o text-gray-400',
+          '难过': 'fa-frown-o text-blue-400',
+          '非常难过': 'fa-frown-o text-blue-500'
+        };
+        
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="text-sm text-gray-900">${formatDate(mood.date)}</div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="flex items-center">
