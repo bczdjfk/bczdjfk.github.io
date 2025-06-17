@@ -1363,6 +1363,124 @@
       // 初始化模块切换功能
       setupModuleSwitching();
     });
+    // 修复1: 修复数据中台个人物品下载按钮功能
+document.getElementById('export-items-btn').addEventListener('click', function() {
+  if (items.length === 0) {
+    showNotification('没有物品数据可导出', 'info');
+    return;
+  }
+  
+  // 创建工作簿和工作表
+  const workbook = XLSX.utils.book_new();
+  const worksheet = XLSX.utils.json_to_sheet(items.map(item => ({
+    '名称': item.name,
+    '场景': getSceneName(item.scene),
+    '数量': item.quantity,
+    '状态': item.status
+  })));
+  
+  XLSX.utils.book_append_sheet(workbook, worksheet, '个人物品数据');
+  
+  // 创建压缩包
+  const zip = new JSZip();
+  const excelBlob = XLSX.write(workbook, { bookType: 'xlsx', type: 'blob' });
+  zip.file('个人物品数据.xlsx', excelBlob);
+  
+  // 处理图片
+  const imagePromises = items.map(async item => {
+    try {
+      if (item.image && item.image.startsWith('http')) {
+        const response = await fetch(item.image);
+        if (response.ok) {
+          const blob = await response.blob();
+          const imageName = `${item.name}.${getImageExtension(blob.type)}`;
+          zip.file(imageName, blob);
+        }
+      } else if (item.image && item.image.startsWith('data:')) {
+        const base64Data = item.image.split(',')[1];
+        const imageName = `${item.name}.png`;
+        zip.file(imageName, base64Data, { base64: true });
+      }
+    } catch (error) {
+      console.error(`无法获取图片: ${item.image}`, error);
+    }
+  });
+  
+  Promise.all(imagePromises).then(() => {
+    zip.generateAsync({ type: 'blob' }).then(blob => {
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = '个人物品数据与图片.zip';
+      link.click();
+      URL.revokeObjectURL(link.href);
+      showNotification('个人物品数据与图片导出成功！', 'success');
+    });
+  });
+});
+
+// 修复2: 删除网络关系中的统计表
+document.getElementById('relations-chart').remove();
+document.getElementById('relations-placeholder').remove();
+
+// 修复3: 解决中文输入显示为null的问题
+// 确保在表单提交时正确获取中文字段
+document.getElementById('add-item-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  
+  const formData = new FormData(this);
+  const item = {
+    id: Date.now(),
+    name: formData.get('item-name'), // 确保正确获取中文字段
+    scene: formData.get('item-scene'),
+    quantity: formData.get('item-quantity'),
+    status: formData.get('item-status'),
+    image: document.getElementById('item-image-preview').querySelector('img')?.src || 'https://picsum.photos/400/300?random=' + Math.random()
+  };
+  
+  // 保存到本地存储
+  items.push(item);
+  localStorage.setItem('items', JSON.stringify(items));
+  
+  // 更新UI
+  updateItemsGrid();
+  updateDataOverview();
+  showNotification('物品添加成功！', 'success');
+  
+  // 重置表单
+  this.reset();
+  document.getElementById('item-image-preview').innerHTML = '<i class="fa fa-image text-gray-400 text-4xl"></i>';
+  document.getElementById('add-item-modal').classList.add('hidden');
+});
+
+// 确保所有表单提交时正确处理中文字段
+document.getElementById('add-relation-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  
+  const formData = new FormData(this);
+  const relation = {
+    id: Date.now(),
+    name: formData.get('relation-name'), // 确保正确获取中文字段
+    platform: formData.get('relation-platform'),
+    type: formData.get('relation-type'),
+    frequency: formData.get('relation-frequency'),
+    note: formData.get('relation-note'),
+    image: document.getElementById('relation-image-preview').querySelector('img')?.src || 'https://picsum.photos/200/200?random=' + Date.now()
+  };
+  
+  // 保存到本地存储
+  relations.push(relation);
+  localStorage.setItem('relations', JSON.stringify(relations));
+  
+  // 更新UI
+  updateRelationsGrid();
+  updateDataOverview();
+  showNotification('关系添加成功！', 'success');
+  
+  // 重置表单
+  this.reset();
+  document.getElementById('relation-image-preview').innerHTML = '<i class="fa fa-user text-gray-400 text-4xl"></i>';
+  document.getElementById('add-relation-modal').classList.add('hidden');
+});  
   </script>
 </body>
 </html>
