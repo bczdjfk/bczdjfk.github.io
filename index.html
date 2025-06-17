@@ -3,25 +3,29 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Poppy的个人主页</title>
+  <title>个人数据看板</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
-  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
   <script>
     tailwind.config = {
       theme: {
         extend: {
           colors: {
-            primary: '#4F46E5',
-            secondary: '#EC4899',
-            neutral: '#1F2937',
-            'neutral-light': '#F3F4F6',
-            'mood-happy': '#4ADE80',
-            'mood-neutral': '#FACC15',
-            'mood-sad': '#F87171',
-            'mood-anxious': '#93C5FD',
-            'mood-excited': '#FB923C',
+            primary: '#165DFF',
+            secondary: '#00B42A',
+            warning: '#FF7D00',
+            danger: '#F53F3F',
+            dark: '#1D2129',
+            light: '#F2F3F5',
+            'primary-light': '#E8F3FF',
+            wardrobe: '#722ED1',
+            bedroom: '#F7BA1E',
+            living: '#13C2C2',
+            kitchen: '#52C41A',
+            bathroom: '#F5222D'
           },
           fontFamily: {
             inter: ['Inter', 'sans-serif'],
@@ -30,472 +34,547 @@
       }
     }
   </script>
+  
   <style type="text/tailwindcss">
     @layer utilities {
       .content-auto {
         content-visibility: auto;
       }
       .card-shadow {
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
       }
-      .hover-scale {
-        transition: transform 0.3s ease;
+      .card-hover {
+        transition: all 0.3s ease;
       }
-      .hover-scale:hover {
-        transform: scale(1.03);
+      .card-hover:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(22, 93, 255, 0.15);
       }
-      .glass-effect {
-        backdrop-filter: blur(10px);
-        background-color: rgba(255, 255, 255, 0.7);
+      .animate-fadeIn {
+        animation: fadeIn 0.5s ease-in-out;
       }
-      .text-shadow {
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
       }
-      .timeline-item {
-        position: relative;
-        padding-left: 2rem;
+      .tab-active {
+        @apply border-b-2 border-primary text-primary;
       }
-      .timeline-item::before {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 0.5rem;
-        width: 1rem;
-        height: 1rem;
-        border-radius: 50%;
-        background-color: currentColor;
-      }
-      .timeline-line {
-        position: absolute;
-        left: 0.5rem;
-        top: 1.5rem;
-        bottom: 0;
-        width: 2px;
-        background-color: #e5e7eb;
-      }
-      .scroll-indicator {
-        height: 3px;
-        background-color: #4F46E5;
-        position: fixed;
-        top: 0;
-        left: 0;
-        z-index: 100;
-        width: 0%;
+      .mood-selected {
+        @apply border-purple-500 bg-purple-50;
       }
     }
   </style>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body class="font-inter bg-gray-50 text-neutral min-h-screen flex flex-col">
-  <!-- 滚动指示器 -->
-  <div id="scroll-indicator" class="scroll-indicator"></div>
-
+<body class="font-inter bg-gray-50 text-dark">
   <!-- 导航栏 -->
-  <nav id="navbar" class="bg-white shadow-md fixed w-full z-50 transition-all duration-300">
+  <header class="fixed top-0 left-0 right-0 bg-white shadow-md z-50 transition-all duration-300" id="navbar">
     <div class="container mx-auto px-4 py-3 flex justify-between items-center">
       <div class="flex items-center space-x-2">
-        <i class="fa fa-user-circle text-primary text-2xl"></i>
-        <h1 class="text-xl font-bold text-primary">Poppy的个人主页</h1>
+        <i class="fa fa-line-chart text-primary text-2xl"></i>
+        <h1 class="text-xl font-bold text-primary">数据看板</h1>
       </div>
       
-      <!-- 移动端菜单按钮 -->
-      <button id="menu-toggle" class="lg:hidden text-neutral">
-        <i class="fa fa-bars text-xl"></i>
-      </button>
+      <nav class="hidden md:flex items-center space-x-8">
+        <a href="#items" class="text-gray-600 hover:text-primary transition-colors">个人物品</a>
+        <a href="#relations" class="text-gray-600 hover:text-primary transition-colors">网络关系</a>
+        <a href="#moods" class="text-gray-600 hover:text-primary transition-colors">心情记录</a>
+        <a href="#data-center" class="text-gray-600 hover:text-primary transition-colors">数据中台</a>
+      </nav>
       
-      <!-- 桌面端导航链接 -->
-      <div class="hidden lg:flex items-center space-x-8">
-        <a href="#home" class="text-neutral hover:text-primary transition-colors">首页</a>
-        <a href="#items" class="text-neutral hover:text-primary transition-colors">我的物品</a>
-        <a href="#network" class="text-neutral hover:text-primary transition-colors">我的网络</a>
-        <a href="#mood" class="text-neutral hover:text-primary transition-colors">我的情绪</a>
-        <a href="#about" class="text-neutral hover:text-primary transition-colors">关于</a>
-        <button id="data-center-btn" class="bg-secondary hover:bg-secondary/90 text-white px-4 py-2 rounded-lg transition-colors flex items-center">
-          <i class="fa fa-database mr-2"></i>数据中台
+      <div class="flex items-center space-x-4">
+        <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-100 transition-colors">
+          <i class="fa fa-moon-o text-gray-600"></i>
+        </button>
+        <button class="md:hidden" id="mobile-menu-button">
+          <i class="fa fa-bars text-gray-600 text-xl"></i>
         </button>
       </div>
     </div>
     
-    <!-- 移动端导航菜单 -->
-    <div id="mobile-menu" class="lg:hidden hidden bg-white border-t">
-      <div class="container mx-auto px-4 py-3 flex flex-col space-y-3">
-        <a href="#home" class="text-neutral hover:text-primary transition-colors py-2">首页</a>
-        <a href="#items" class="text-neutral hover:text-primary transition-colors py-2">我的物品</a>
-        <a href="#network" class="text-neutral hover:text-primary transition-colors py-2">我的网络</a>
-        <a href="#mood" class="text-neutral hover:text-primary transition-colors py-2">我的情绪</a>
-        <a href="#about" class="text-neutral hover:text-primary transition-colors py-2">关于</a>
-        <button id="mobile-data-center-btn" class="bg-secondary hover:bg-secondary/90 text-white px-4 py-2 rounded-lg transition-colors flex items-center">
-          <i class="fa fa-database mr-2"></i>数据中台
-        </button>
+    <!-- 移动端菜单 -->
+    <div id="mobile-menu" class="md:hidden hidden bg-white shadow-lg animate-fadeIn">
+      <div class="container mx-auto px-4 py-3 flex flex-col space-y-4">
+        <a href="#items" class="text-gray-600 hover:text-primary py-2 transition-colors">个人物品</a>
+        <a href="#relations" class="text-gray-600 hover:text-primary py-2 transition-colors">网络关系</a>
+        <a href="#moods" class="text-gray-600 hover:text-primary py-2 transition-colors">心情记录</a>
+        <a href="#data-center" class="text-gray-600 hover:text-primary py-2 transition-colors">数据中台</a>
       </div>
     </div>
-  </nav>
+  </header>
 
   <!-- 主内容区 -->
-  <main class="flex-grow pt-20">
-    <!-- 英雄区 -->
-    <section id="home" class="bg-gradient-to-r from-primary/10 to-secondary/10 py-16">
-      <div class="container mx-auto px-4">
-        <div class="flex flex-col md:flex-row items-center">
-          <div class="md:w-1/2 mb-8 md:mb-0">
-            <div class="glass-effect p-8 rounded-2xl card-shadow">
-              <h2 class="text-[clamp(2rem,5vw,3.5rem)] font-bold text-neutral leading-tight text-shadow">
-                你好，我是 <span class="text-primary">Poppy</span>
-              </h2>
-              <div class="flex items-center mt-4 mb-6">
-                <div class="bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium">
-                  <i class="fa fa-user-circle mr-2"></i>MBTI: INFP-T
-                </div>
-              </div>
-              <p class="text-lg text-gray-600 mb-8">
-                欢迎来到我的个人主页。这里展示了我的个人物品、社交网络和情绪记录。
-                希望你能在这里更好地了解我。
-              </p>
-              <div class="flex flex-wrap gap-4">
-                <a href="#items" class="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg transition-colors text-center flex items-center">
-                  <i class="fa fa-th-large mr-2"></i>我的物品
-                </a>
-                <a href="#network" class="bg-white hover:bg-gray-100 text-primary border border-primary px-6 py-3 rounded-lg transition-colors text-center flex items-center">
-                  <i class="fa fa-users mr-2"></i>我的网络
-                </a>
-                <a href="#mood" class="bg-secondary hover:bg-secondary/90 text-white px-6 py-3 rounded-lg transition-colors text-center flex items-center">
-                  <i class="fa fa-heart mr-2"></i>我的情绪
-                </a>
-              </div>
-            </div>
-          </div>
-          <div class="md:w-1/2 flex justify-center">
-            <div class="relative">
-              <img src="https://picsum.photos/seed/poppy/600/600" alt="Poppy的照片" class="rounded-full w-64 h-64 object-cover shadow-2xl border-4 border-white hover-scale">
-              <div class="absolute -bottom-4 -right-4 bg-white p-3 rounded-lg shadow-lg">
-                <div class="flex items-center space-x-2">
-                  <i class="fa fa-check-circle text-green-500 text-xl"></i>
-                  <span class="font-medium">INFP-T</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+  <main class="container mx-auto px-4 pt-24 pb-16">
+    <!-- 欢迎区域 -->
+    <section class="mb-12 text-center">
+      <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-4">个人数据管理中心</h2>
+      <p class="text-gray-600 max-w-2xl mx-auto">管理你的个人物品、追踪网络关系、记录心情变化，所有数据一目了然，轻松掌控</p>
     </section>
 
-    <!-- 统计数据 -->
-    <section class="bg-white py-12">
-      <div class="container mx-auto px-4">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-          <div class="bg-neutral-light rounded-xl p-6 text-center hover-scale">
-            <div class="text-4xl font-bold text-primary mb-2" id="items-count">0</div>
-            <div class="text-gray-600">衣橱物品</div>
+    <!-- 个人物品模块 -->
+    <section id="items" class="mb-16 scroll-mt-20">
+      <div class="bg-white rounded-xl p-6 card-shadow card-hover">
+        <div class="flex justify-between items-center mb-6">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-full bg-primary-light flex items-center justify-center">
+              <i class="fa fa-shopping-bag text-primary"></i>
+            </div>
+            <h3 class="text-xl font-semibold">个人物品</h3>
           </div>
-          <div class="bg-neutral-light rounded-xl p-6 text-center hover-scale">
-            <div class="text-4xl font-bold text-primary mb-2" id="network-count">0</div>
-            <div class="text-gray-600">社交关系</div>
-          </div>
-          <div class="bg-neutral-light rounded-xl p-6 text-center hover-scale">
-            <div class="text-4xl font-bold text-primary mb-2" id="mood-count">0</div>
-            <div class="text-gray-600">情绪记录</div>
-          </div>
-          <div class="bg-neutral-light rounded-xl p-6 text-center hover-scale">
-            <div class="text-4xl font-bold text-primary mb-2" id="thoughts-count">0</div>
-            <div class="text-gray-600">思考笔记</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 我的物品 -->
-    <section id="items" class="py-16 bg-gray-50">
-      <div class="container mx-auto px-4">
-        <div class="flex flex-col md:flex-row md:items-center justify-between mb-12">
-          <div>
-            <h2 class="text-3xl font-bold text-neutral mb-2">我的物品</h2>
-            <p class="text-gray-600 max-w-2xl">探索我的个人物品收藏，从衣橱到浴室，应有尽有</p>
-          </div>
-          <button id="manage-closet-btn" class="mt-4 md:mt-0 bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg transition-colors flex items-center">
-            <i class="fa fa-cog mr-2"></i>管理物品
+          <button id="add-item-btn" class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg transition-colors flex items-center">
+            <i class="fa fa-plus mr-2"></i> 添加物品
           </button>
         </div>
         
-        <div id="closet-items" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          <!-- 物品列表将通过JavaScript动态生成 -->
-          <div class="col-span-full text-center py-12 text-gray-500">您的衣橱是空的，点击"管理物品"添加物品</div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 我的网络 -->
-    <section id="network" class="py-16 bg-white">
-      <div class="container mx-auto px-4">
-        <div class="flex flex-col md:flex-row md:items-center justify-between mb-12">
-          <div>
-            <h2 class="text-3xl font-bold text-neutral mb-2">我的网络</h2>
-            <p class="text-gray-600 max-w-2xl">探索我的社交关系网络</p>
-          </div>
-          <button id="manage-network-btn" class="mt-4 md:mt-0 bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg transition-colors flex items-center">
-            <i class="fa fa-cog mr-2"></i>管理网络
-          </button>
+        <!-- 场景标签页 -->
+        <div class="border-b border-gray-200 mb-6">
+          <nav class="-mb-px flex space-x-8" id="items-tabs">
+            <button class="tab-active whitespace-nowrap py-4 px-1 border-b-2 border-primary text-sm font-medium text-primary" data-tab="all">全部</button>
+            <button class="whitespace-nowrap py-4 px-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300" data-tab="wardrobe">衣橱</button>
+            <button class="whitespace-nowrap py-4 px-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300" data-tab="bedroom">卧室</button>
+            <button class="whitespace-nowrap py-4 px-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300" data-tab="living">客厅</button>
+            <button class="whitespace-nowrap py-4 px-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300" data-tab="kitchen">厨房</button>
+            <button class="whitespace-nowrap py-4 px-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300" data-tab="bathroom">浴室</button>
+          </nav>
         </div>
         
-        <div class="bg-neutral-light rounded-xl p-6 max-w-6xl mx-auto">
-          <div class="mb-6">
-            <h3 class="text-xl font-semibold text-neutral mb-2">社交网络图</h3>
-            <p class="text-gray-600 text-sm">节点大小表示联系频率，连线粗细表示关系强度</p>
-          </div>
-          <div class="relative" style="height: 500px">
-            <svg id="network-graph" width="100%" height="100%"></svg>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <div class="bg-primary-light rounded-lg p-4 flex items-center">
+            <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mr-4">
+              <i class="fa fa-cubes text-primary text-xl"></i>
+            </div>
+            <div>
+              <p class="text-gray-500 text-sm">总物品数</p>
+              <p class="text-2xl font-bold text-primary" id="total-items">0</p>
+            </div>
           </div>
           
-          <div class="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div class="flex items-center">
-              <div class="w-3 h-3 rounded-full bg-primary mr-2"></div>
-              <span class="text-sm">家人</span>
+          <div class="bg-wardrobe/10 rounded-lg p-4 flex items-center">
+            <div class="w-12 h-12 rounded-full bg-wardrobe/20 flex items-center justify-center mr-4">
+              <i class="fa fa-tshirt text-wardrobe text-xl"></i>
             </div>
-            <div class="flex items-center">
-              <div class="w-3 h-3 rounded-full bg-secondary mr-2"></div>
-              <span class="text-sm">朋友</span>
+            <div>
+              <p class="text-gray-500 text-sm">衣橱物品</p>
+              <p class="text-2xl font-bold text-wardrobe" id="wardrobe-items">0</p>
             </div>
-            <div class="flex items-center">
-              <div class="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
-              <span class="text-sm">同事</span>
+          </div>
+          
+          <div class="bg-bedroom/10 rounded-lg p-4 flex items-center">
+            <div class="w-12 h-12 rounded-full bg-bedroom/20 flex items-center justify-center mr-4">
+              <i class="fa fa-bed text-bedroom text-xl"></i>
             </div>
-            <div class="flex items-center">
-              <div class="w-3 h-3 rounded-full bg-yellow-500 mr-2"></div>
-              <span class="text-sm">兴趣圈</span>
+            <div>
+              <p class="text-gray-500 text-sm">卧室物品</p>
+              <p class="text-2xl font-bold text-bedroom" id="bedroom-items">0</p>
+            </div>
+          </div>
+          
+          <div class="bg-living/10 rounded-lg p-4 flex items-center">
+            <div class="w-12 h-12 rounded-full bg-living/20 flex items-center justify-center mr-4">
+              <i class="fa fa-television text-living text-xl"></i>
+            </div>
+            <div>
+              <p class="text-gray-500 text-sm">客厅物品</p>
+              <p class="text-2xl font-bold text-living" id="living-items">0</p>
+            </div>
+          </div>
+          
+          <div class="bg-kitchen/10 rounded-lg p-4 flex items-center">
+            <div class="w-12 h-12 rounded-full bg-kitchen/20 flex items-center justify-center mr-4">
+              <i class="fa fa-cutlery text-kitchen text-xl"></i>
+            </div>
+            <div>
+              <p class="text-gray-500 text-sm">厨房物品</p>
+              <p class="text-2xl font-bold text-kitchen" id="kitchen-items">0</p>
+            </div>
+          </div>
+          
+          <div class="bg-bathroom/10 rounded-lg p-4 flex items-center">
+            <div class="w-12 h-12 rounded-full bg-bathroom/20 flex items-center justify-center mr-4">
+              <i class="fa fa-bath text-bathroom text-xl"></i>
+            </div>
+            <div>
+              <p class="text-gray-500 text-sm">浴室物品</p>
+              <p class="text-2xl font-bold text-bathroom" id="bathroom-items">0</p>
             </div>
           </div>
         </div>
         
-        <div id="network-contacts" class="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <!-- 联系人列表将通过JavaScript动态生成 -->
-          <div class="col-span-full text-center py-12 text-gray-500">您的社交网络是空的，点击"管理网络"添加联系人</div>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead>
+              <tr>
+                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">名称</th>
+                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">场景</th>
+                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">数量</th>
+                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200" id="items-table-body">
+              <!-- 物品数据将通过JavaScript动态填充 -->
+              <tr class="text-center">
+                <td colspan="5" class="px-6 py-12 text-gray-500">暂无物品数据</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </section>
 
-    <!-- 我的情绪 -->
-    <section id="mood" class="py-16 bg-gray-50">
-      <div class="container mx-auto px-4">
-        <div class="flex flex-col md:flex-row md:items-center justify-between mb-12">
-          <div>
-            <h2 class="text-3xl font-bold text-neutral mb-2">我的情绪</h2>
-            <p class="text-gray-600 max-w-2xl">记录我的情绪变化，探索内心世界</p>
+    <!-- 网络关系模块 -->
+    <section id="relations" class="mb-16 scroll-mt-20">
+      <div class="bg-white rounded-xl p-6 card-shadow card-hover">
+        <div class="flex justify-between items-center mb-6">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center">
+              <i class="fa fa-users text-blue-500"></i>
+            </div>
+            <h3 class="text-xl font-semibold">网络关系</h3>
           </div>
-          <button id="manage-mood-btn" class="mt-4 md:mt-0 bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg transition-colors flex items-center">
-            <i class="fa fa-cog mr-2"></i>管理情绪
+          <button id="add-relation-btn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors flex items-center">
+            <i class="fa fa-plus mr-2"></i> 添加关系
           </button>
         </div>
         
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
-          <!-- 情绪记录 -->
-          <div class="bg-white rounded-xl shadow-md p-6">
-            <div class="flex justify-between items-center mb-6">
-              <h3 class="text-xl font-semibold text-neutral">情绪记录</h3>
-              <div class="flex space-x-2">
-                <button id="filter-mood-all" class="px-3 py-1 text-sm bg-primary text-white rounded-full">全部</button>
-                <button id="filter-mood-happy" class="px-3 py-1 text-sm bg-mood-happy/20 text-mood-happy rounded-full">开心</button>
-                <button id="filter-mood-neutral" class="px-3 py-1 text-sm bg-mood-neutral/20 text-mood-neutral rounded-full">平静</button>
-                <button id="filter-mood-sad" class="px-3 py-1 text-sm bg-mood-sad/20 text-mood-sad rounded-full">悲伤</button>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div class="bg-white rounded-lg border border-gray-200 p-4">
+            <h4 class="font-medium mb-4">关系类型分布</h4>
+            <div class="h-64">
+              <canvas id="relations-chart"></canvas>
+            </div>
+          </div>
+          
+          <div class="bg-white rounded-lg border border-gray-200 p-4">
+            <h4 class="font-medium mb-4">最近互动</h4>
+            <div id="latest-relations" class="space-y-4 max-h-64 overflow-y-auto">
+              <!-- 最新关系将通过JavaScript动态填充 -->
+              <p class="text-gray-500 text-center">暂无关系数据</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead>
+              <tr>
+                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">名称</th>
+                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">平台</th>
+                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">关系类型</th>
+                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">互动频率</th>
+                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200" id="relations-table-body">
+              <!-- 关系数据将通过JavaScript动态填充 -->
+              <tr class="text-center">
+                <td colspan="5" class="px-6 py-12 text-gray-500">暂无关系数据</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 心情记录模块 -->
+    <section id="moods" class="mb-16 scroll-mt-20">
+      <div class="bg-white rounded-xl p-6 card-shadow card-hover">
+        <div class="flex justify-between items-center mb-6">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center">
+              <i class="fa fa-heart text-purple-500"></i>
+            </div>
+            <h3 class="text-xl font-semibold">心情记录</h3>
+          </div>
+          <button id="add-mood-btn" class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg transition-colors flex items-center">
+            <i class="fa fa-plus mr-2"></i> 记录心情
+          </button>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div class="bg-white rounded-lg border border-gray-200 p-4">
+            <h4 class="font-medium mb-4">心情趋势</h4>
+            <div class="h-64">
+              <canvas id="moods-chart"></canvas>
+            </div>
+          </div>
+          
+          <div class="bg-white rounded-lg border border-gray-200 p-4">
+            <h4 class="font-medium mb-4">心情分布</h4>
+            <div class="h-64">
+              <canvas id="moods-pie-chart"></canvas>
+            </div>
+          </div>
+        </div>
+        
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead>
+              <tr>
+                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">日期</th>
+                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">心情状态</th>
+                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">描述</th>
+                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200" id="moods-table-body">
+              <!-- 心情数据将通过JavaScript动态填充 -->
+              <tr class="text-center">
+                <td colspan="4" class="px-6 py-12 text-gray-500">暂无心情记录</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 数据中台模块 -->
+    <section id="data-center" class="mb-16 scroll-mt-20">
+      <div class="bg-white rounded-xl p-6 card-shadow card-hover">
+        <div class="flex items-center space-x-3 mb-6">
+          <div class="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center">
+            <i class="fa fa-database text-indigo-500"></i>
+          </div>
+          <h3 class="text-xl font-semibold">数据中台</h3>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <div class="bg-white rounded-lg border border-gray-200 p-4">
+            <h4 class="font-medium mb-4 flex items-center">
+              <i class="fa fa-shopping-bag text-primary mr-2"></i> 物品数据
+            </h4>
+            <div class="space-y-3">
+              <div>
+                <label class="text-sm text-gray-600">总记录数</label>
+                <p class="font-semibold" id="items-total-count">0</p>
               </div>
-            </div>
-            <div id="mood-timeline" class="relative pl-4">
-              <!-- 情绪时间线将通过JavaScript动态生成 -->
-              <div class="col-span-full text-center py-6 text-gray-500">您还没有情绪记录，点击"管理情绪"添加记录</div>
-            </div>
-            
-            <div class="mt-8 text-center">
-              <button id="load-more-moods" class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg transition-colors">
-                查看更多记录
+              <button class="w-full mt-3 py-2 px-4 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors" id="export-items-btn">
+                <i class="fa fa-download mr-2"></i> 导出数据
               </button>
             </div>
           </div>
           
-          <!-- 情绪统计 -->
-          <div class="bg-white rounded-xl shadow-md p-6">
-            <h3 class="text-xl font-semibold text-neutral mb-6">情绪统计</h3>
-            <div class="mb-6">
-              <canvas id="mood-chart" width="400" height="250"></canvas>
+          <div class="bg-white rounded-lg border border-gray-200 p-4">
+            <h4 class="font-medium mb-4 flex items-center">
+              <i class="fa fa-users text-blue-500 mr-2"></i> 网络关系数据
+            </h4>
+            <div class="space-y-3">
+              <div>
+                <label class="text-sm text-gray-600">总记录数</label>
+                <p class="font-semibold" id="relations-total-count">0</p>
+              </div>
+              <button class="w-full mt-3 py-2 px-4 bg-blue-500/10 text-blue-500 rounded-lg hover:bg-blue-500/20 transition-colors" id="export-relations-btn">
+                <i class="fa fa-download mr-2"></i> 导出数据
+              </button>
             </div>
-            <div class="grid grid-cols-2 gap-4">
-              <div class="bg-neutral-light rounded-lg p-4">
-                <div class="text-sm text-gray-500 mb-1">最常出现的情绪</div>
-                <div class="flex items-center">
-                  <div class="w-4 h-4 rounded-full bg-mood-happy mr-2"></div>
-                  <span class="font-medium">无记录</span>
-                </div>
+          </div>
+          
+          <div class="bg-white rounded-lg border border-gray-200 p-4">
+            <h4 class="font-medium mb-4 flex items-center">
+              <i class="fa fa-heart text-purple-500 mr-2"></i> 心情记录数据
+            </h4>
+            <div class="space-y-3">
+              <div>
+                <label class="text-sm text-gray-600">总记录数</label>
+                <p class="font-semibold" id="moods-total-count">0</p>
               </div>
-              <div class="bg-neutral-light rounded-lg p-4">
-                <div class="text-sm text-gray-500 mb-1">情绪稳定性</div>
-                <div class="flex items-center">
-                  <div class="w-4 h-4 rounded-full bg-yellow-500 mr-2"></div>
-                  <span class="font-medium">无记录</span>
-                </div>
-              </div>
+              <button class="w-full mt-3 py-2 px-4 bg-purple-500/10 text-purple-500 rounded-lg hover:bg-purple-500/20 transition-colors" id="export-moods-btn">
+                <i class="fa fa-download mr-2"></i> 导出数据
+              </button>
             </div>
           </div>
         </div>
-      </div>
-    </section>
-
-    <!-- 关于部分 -->
-    <section id="about" class="py-16 bg-white">
-      <div class="container mx-auto px-4">
-        <div class="max-w-3xl mx-auto text-center">
-          <h2 class="text-3xl font-bold text-neutral mb-6">关于我的主页</h2>
-          <p class="text-gray-600 mb-8">
-            这是我的个人主页，展示了我的个人物品、社交网络和情绪记录。
-            作为一个INFP-T，我喜欢用这种方式记录和表达自己。
-          </p>
-          
-          <div class="pt-4">
-            <h3 class="text-xl font-semibold text-neutral mb-4">MBTI简介</h3>
-            <p class="text-gray-600 mb-6">
-              INFP-T（调停者型人格）是16型人格中最具理想主义和诗意的类型之一。
-              我们敏感、富有同情心，总是在寻找生命的意义和目的。
-            </p>
-            <div class="bg-neutral-light rounded-xl p-6 max-w-xl mx-auto text-left">
-              <h4 class="font-semibold text-neutral mb-2">INFP-T的特点：</h4>
-              <ul class="list-disc list-inside space-y-2 text-gray-600">
-                <li>富有创造力和想象力</li>
-                <li>对他人的感受非常敏感</li>
-                <li>理想主义，追求内心的价值观</li>
-                <li>喜欢独处，需要时间来反思</li>
-                <li>对艺术、音乐和文学有浓厚兴趣</li>
-                <li>可能过于敏感或容易受到伤害</li>
-              </ul>
-            </div>
+        
+        <div class="mb-6">
+          <h4 class="font-medium mb-4 flex items-center">
+            <i class="fa fa-upload text-indigo-500 mr-2"></i> 批量导入数据
+          </h4>
+          <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-indigo-500 transition-colors">
+            <input type="file" id="import-data" class="hidden" accept=".json,.csv">
+            <label for="import-data" class="cursor-pointer">
+              <i class="fa fa-cloud-upload text-3xl text-gray-400 mb-2"></i>
+              <p class="text-gray-500">拖放 JSON 或 CSV 文件到此处，或<span class="text-indigo-500">点击上传</span></p>
+            </label>
+          </div>
+        </div>
+        
+        <div>
+          <h4 class="font-medium mb-4 flex items-center">
+            <i class="fa fa-history text-indigo-500 mr-2"></i> 数据操作日志
+          </h4>
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead>
+                <tr>
+                  <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作时间</th>
+                  <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作类型</th>
+                  <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">数据类型</th>
+                  <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作详情</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200" id="logs-table-body">
+                <!-- 日志数据将通过JavaScript动态填充 -->
+                <tr class="text-center">
+                  <td colspan="4" class="px-6 py-12 text-gray-500">暂无操作日志</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
     </section>
   </main>
 
-  <!-- 衣橱管理模态框 -->
-  <div id="closet-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center">
-    <div class="bg-white rounded-xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
-      <div class="flex justify-between items-center mb-6">
-        <h3 class="text-xl font-bold text-neutral">添加新物品</h3>
-        <button id="close-closet-modal" class="text-gray-400 hover:text-gray-600">
+  <!-- 页脚 -->
+  <footer class="bg-white border-t border-gray-200 py-8">
+    <div class="container mx-auto px-4">
+      <div class="flex flex-col md:flex-row justify-between items-center">
+        <div class="mb-4 md:mb-0">
+          <div class="flex items-center space-x-2">
+            <i class="fa fa-line-chart text-primary text-xl"></i>
+            <span class="font-bold text-lg">数据看板</span>
+          </div>
+          <p class="text-gray-500 text-sm mt-1">个人数据管理中心</p>
+        </div>
+        
+        <div class="flex space-x-6">
+          <a href="#" class="text-gray-500 hover:text-primary transition-colors">
+            <i class="fa fa-github text-xl"></i>
+          </a>
+          <a href="#" class="text-gray-500 hover:text-primary transition-colors">
+            <i class="fa fa-twitter text-xl"></i>
+          </a>
+          <a href="#" class="text-gray-500 hover:text-primary transition-colors">
+            <i class="fa fa-linkedin text-xl"></i>
+          </a>
+        </div>
+      </div>
+      
+      <div class="border-t border-gray-200 mt-6 pt-6 text-center text-gray-500 text-sm">
+        <p>© 2025 数据看板. 保留所有权利.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 模态框 - 添加物品 -->
+  <div id="add-item-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-xl max-w-md w-full mx-4 p-6 animate-fadeIn">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-xl font-semibold">添加新物品</h3>
+        <button id="close-item-modal" class="text-gray-400 hover:text-gray-600">
           <i class="fa fa-times text-xl"></i>
         </button>
       </div>
       
       <form id="add-item-form">
         <div class="mb-4">
-          <label for="item-name" class="block text-sm font-medium text-gray-700 mb-1">物品名称</label>
-          <input type="text" id="item-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" placeholder="例如：白色T恤">
+          <label class="block text-sm font-medium text-gray-700 mb-1" for="item-name">名称</label>
+          <input type="text" id="item-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors" placeholder="输入物品名称">
         </div>
         
         <div class="mb-4">
-          <label for="item-category" class="block text-sm font-medium text-gray-700 mb-1">物品类别</label>
-          <select id="item-category" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
-            <option value="top">上衣</option>
-            <option value="bottom">下装</option>
-            <option value="dress">连衣裙</option>
-            <option value="outerwear">外套</option>
-            <option value="shoes">鞋子</option>
-            <option value="accessory">配饰</option>
+          <label class="block text-sm font-medium text-gray-700 mb-1" for="item-scene">场景</label>
+          <select id="item-scene" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors">
+            <option value="wardrobe">衣橱</option>
+            <option value="bedroom">卧室</option>
+            <option value="living">客厅</option>
+            <option value="kitchen">厨房</option>
+            <option value="bathroom">浴室</option>
           </select>
         </div>
         
         <div class="mb-4">
-          <label for="item-color" class="block text-sm font-medium text-gray-700 mb-1">颜色</label>
-          <input type="text" id="item-color" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" placeholder="例如：蓝色">
+          <label class="block text-sm font-medium text-gray-700 mb-1" for="item-quantity">数量</label>
+          <input type="number" id="item-quantity" min="1" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors" placeholder="输入物品数量" value="1">
         </div>
         
         <div class="mb-4">
-          <label for="item-brand" class="block text-sm font-medium text-gray-700 mb-1">品牌</label>
-          <input type="text" id="item-brand" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" placeholder="例如：ZARA">
-        </div>
-        
-        <div class="mb-4">
-          <label for="item-price" class="block text-sm font-medium text-gray-700 mb-1">价格</label>
-          <input type="number" id="item-price" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" placeholder="例如：299">
-        </div>
-        
-        <div class="mb-6">
-          <label class="block text-sm font-medium text-gray-700 mb-1">上传图片</label>
-          <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-            <input type="file" id="item-image" class="hidden" accept="image/*">
-            <label for="item-image" class="cursor-pointer">
-              <div class="flex flex-col items-center">
-                <i class="fa fa-cloud-upload text-3xl text-gray-400 mb-2"></i>
-                <p class="text-gray-500">点击上传图片或拖拽到此处</p>
-                <p class="text-xs text-gray-400 mt-1">支持 JPG, PNG 格式</p>
-              </div>
-            </label>
-            <div id="image-preview" class="mt-4 hidden">
-              <img id="preview-image" src="" alt="预览图" class="max-w-full h-auto rounded-lg">
-            </div>
-          </div>
+          <label class="block text-sm font-medium text-gray-700 mb-1" for="item-status">状态</label>
+          <select id="item-status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors">
+            <option value="可用">可用</option>
+            <option value="已使用">已使用</option>
+            <option value="闲置">闲置</option>
+            <option value="维修中">维修中</option>
+          </select>
         </div>
         
         <div class="flex justify-end space-x-3">
-          <button type="button" id="cancel-add-item" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">取消</button>
-          <button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90">添加物品</button>
+          <button type="button" id="cancel-item-btn" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">取消</button>
+          <button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">保存</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- 社交网络管理模态框 -->
-  <div id="network-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center">
-    <div class="bg-white rounded-xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
-      <div class="flex justify-between items-center mb-6">
-        <h3 class="text-xl font-bold text-neutral">添加新联系人</h3>
-        <button id="close-network-modal" class="text-gray-400 hover:text-gray-600">
+  <!-- 模态框 - 添加网络关系 -->
+  <div id="add-relation-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-xl max-w-md w-full mx-4 p-6 animate-fadeIn">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-xl font-semibold">添加新关系</h3>
+        <button id="close-relation-modal" class="text-gray-400 hover:text-gray-600">
           <i class="fa fa-times text-xl"></i>
         </button>
       </div>
       
-      <form id="add-person-form">
+      <form id="add-relation-form">
         <div class="mb-4">
-          <label for="person-name" class="block text-sm font-medium text-gray-700 mb-1">姓名</label>
-          <input type="text" id="person-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" placeholder="例如：张三">
+          <label class="block text-sm font-medium text-gray-700 mb-1" for="relation-name">名称</label>
+          <input type="text" id="relation-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="输入名称">
         </div>
         
         <div class="mb-4">
-          <label for="person-relationship" class="block text-sm font-medium text-gray-700 mb-1">关系</label>
-          <select id="person-relationship" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
-            <option value="family">家人</option>
-            <option value="friend">朋友</option>
-            <option value="colleague">同事</option>
-            <option value="interest">兴趣圈</option>
+          <label class="block text-sm font-medium text-gray-700 mb-1" for="relation-platform">平台</label>
+          <select id="relation-platform" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+            <option value="微信">微信</option>
+            <option value="微博">微博</option>
+            <option value="QQ">QQ</option>
+            <option value="LinkedIn">LinkedIn</option>
+            <option value="其他">其他</option>
           </select>
         </div>
         
         <div class="mb-4">
-          <label for="person-contact" class="block text-sm font-medium text-gray-700 mb-1">联系方式</label>
-          <input type="text" id="person-contact" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" placeholder="例如：13800138000">
-        </div>
-        
-        <div class="mb-4">
-          <label for="person-frequency" class="block text-sm font-medium text-gray-700 mb-1">联系频率</label>
-          <select id="person-frequency" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
-            <option value="daily">每天</option>
-            <option value="weekly">每周</option>
-            <option value="monthly">每月</option>
-            <option value="rarely">很少</option>
+          <label class="block text-sm font-medium text-gray-700 mb-1" for="relation-type">关系类型</label>
+          <select id="relation-type" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+            <option value="朋友">朋友</option>
+            <option value="家人">家人</option>
+            <option value="同事">同事</option>
+            <option value="同学">同学</option>
+            <option value="合作伙伴">合作伙伴</option>
+            <option value="其他">其他</option>
           </select>
         </div>
         
-        <div class="mb-6">
-          <label for="person-notes" class="block text-sm font-medium text-gray-700 mb-1">备注</label>
-          <textarea id="person-notes" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" placeholder="关于这个人的一些备注..."></textarea>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1" for="relation-frequency">互动频率</label>
+          <select id="relation-frequency" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+            <option value="每天">每天</option>
+            <option value="每周">每周</option>
+            <option value="每月">每月</option>
+            <option value="每季度">每季度</option>
+            <option value="每年">每年</option>
+            <option value="很少">很少</option>
+          </select>
+        </div>
+        
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1" for="relation-note">备注</label>
+          <textarea id="relation-note" rows="2" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="输入备注信息"></textarea>
         </div>
         
         <div class="flex justify-end space-x-3">
-          <button type="button" id="cancel-add-person" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">取消</button>
-          <button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90">添加联系人</button>
+          <button type="button" id="cancel-relation-btn" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">取消</button>
+          <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">保存</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- 情绪管理模态框 -->
-  <div id="mood-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center">
-    <div class="bg-white rounded-xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
-      <div class="flex justify-between items-center mb-6">
-        <h3 class="text-xl font-bold text-neutral">记录情绪</h3>
+  <!-- 模态框 - 添加心情记录 -->
+  <div id="add-mood-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-xl max-w-md w-full mx-4 p-6 animate-fadeIn">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-xl font-semibold">记录心情</h3>
         <button id="close-mood-modal" class="text-gray-400 hover:text-gray-600">
           <i class="fa fa-times text-xl"></i>
         </button>
@@ -503,51 +582,92 @@
       
       <form id="add-mood-form">
         <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700 mb-1">情绪类型</label>
-          <div class="grid grid-cols-4 gap-2">
-            <button type="button" class="mood-type-btn bg-mood-happy/20 hover:bg-mood-happy/30 text-mood-happy p-3 rounded-lg transition-colors active" data-type="happy">
-              <i class="fa fa-smile-o text-xl"></i>
-              <div class="text-sm mt-1">开心</div>
-            </button>
-            <button type="button" class="mood-type-btn bg-mood-neutral/20 hover:bg-mood-neutral/30 text-mood-neutral p-3 rounded-lg transition-colors" data-type="neutral">
-              <i class="fa fa-meh-o text-xl"></i>
-              <div class="text-sm mt-1">平静</div>
-            </button>
-            <button type="button" class="mood-type-btn bg-mood-sad/20 hover:bg-mood-sad/30 text-mood-sad p-3 rounded-lg transition-colors" data-type="sad">
-              <i class="fa fa-frown-o text-xl"></i>
-              <div class="text-sm mt-1">悲伤</div>
-            </button>
-            <button type="button" class="mood-type-btn bg-mood-anxious/20 hover:bg-mood-anxious/30 text-mood-anxious p-3 rounded-lg transition-colors" data-type="anxious">
-              <i class="fa fa-worried-o text-xl"></i>
-              <div class="text-sm mt-1">焦虑</div>
-            </button>
+          <label class="block text-sm font-medium text-gray-700 mb-1" for="mood-date">日期</label>
+          <input type="date" id="mood-date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors">
+        </div>
+        
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">心情状态</label>
+          <div class="grid grid-cols-5 gap-2">
+            <div class="mood-option cursor-pointer p-2 rounded-lg text-center border-2 border-gray-200 hover:border-purple-300 transition-colors" data-value="非常开心">
+              <i class="fa fa-smile-o text-2xl text-yellow-400"></i>
+              <p class="text-xs mt-1">非常开心</p>
+            </div>
+            <div class="mood-option cursor-pointer p-2 rounded-lg text-center border-2 border-gray-200 hover:border-purple-300 transition-colors" data-value="开心">
+              <i class="fa fa-smile-o text-2xl text-yellow-300"></i>
+              <p class="text-xs mt-1">开心</p>
+            </div>
+            <div class="mood-option cursor-pointer p-2 rounded-lg text-center border-2 border-gray-200 hover:border-purple-300 transition-colors" data-value="一般">
+              <i class="fa fa-meh-o text-2xl text-gray-400"></i>
+              <p class="text-xs mt-1">一般</p>
+            </div>
+            <div class="mood-option cursor-pointer p-2 rounded-lg text-center border-2 border-gray-200 hover:border-purple-300 transition-colors" data-value="难过">
+              <i class="fa fa-frown-o text-2xl text-blue-400"></i>
+              <p class="text-xs mt-1">难过</p>
+            </div>
+            <div class="mood-option cursor-pointer p-2 rounded-lg text-center border-2 border-gray-200 hover:border-purple-300 transition-colors" data-value="非常难过">
+              <i class="fa fa-frown-o text-2xl text-blue-500"></i>
+              <p class="text-xs mt-1">非常难过</p>
+            </div>
           </div>
-          <input type="hidden" id="mood-type" value="happy">
+          <input type="hidden" id="mood-value" value="">
         </div>
         
         <div class="mb-4">
-          <label for="mood-date" class="block text-sm font-medium text-gray-700 mb-1">日期</label>
-          <input type="date" id="mood-date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" value="">
-        </div>
-        
-        <div class="mb-4">
-          <label for="mood-time" class="block text-sm font-medium text-gray-700 mb-1">时间</label>
-          <input type="time" id="mood-time" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" value="">
-        </div>
-        
-        <div class="mb-6">
-          <label for="mood-notes" class="block text-sm font-medium text-gray-700 mb-1">心情描述</label>
-          <textarea id="mood-notes" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" placeholder="今天感觉如何？发生了什么..."></textarea>
+          <label class="block text-sm font-medium text-gray-700 mb-1" for="mood-description">描述</label>
+          <textarea id="mood-description" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors" placeholder="描述一下今天的心情..."></textarea>
         </div>
         
         <div class="flex justify-end space-x-3">
-          <button type="button" id="cancel-add-mood" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">取消</button>
-          <button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90">记录情绪</button>
+          <button type="button" id="cancel-mood-btn" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">取消</button>
+          <button type="submit" class="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors">保存</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- 数据中台模态框 -->
-  <div id="data-center-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center">
+  <script>
+    // 数据存储
+    let itemsData = [];
+    let relationsData = [];
+    let moodsData = [];
+    let logsData = [];
     
+    // DOM元素
+    const modals = {
+      item: {
+        modal: document.getElementById('add-item-modal'),
+        form: document.getElementById('add-item-form'),
+        closeBtn: document.getElementById('close-item-modal'),
+        cancelBtn: document.getElementById('cancel-item-btn')
+      },
+      relation: {
+        modal: document.getElementById('add-relation-modal'),
+        form: document.getElementById('add-relation-form'),
+        closeBtn: document.getElementById('close-relation-modal'),
+        cancelBtn: document.getElementById('cancel-relation-btn')
+      },
+      mood: {
+        modal: document.getElementById('add-mood-modal'),
+        form: document.getElementById('add-mood-form'),
+        closeBtn: document.getElementById('close-mood-modal'),
+        cancelBtn: document.getElementById('cancel-mood-btn')
+      }
+    };
+    
+    const tables = {
+      items: document.getElementById('items-table-body'),
+      relations: document.getElementById('relations-table-body'),
+      moods: document.getElementById('moods-table-body'),
+      logs: document.getElementById('logs-table-body')
+    };
+    
+    const counters = {
+      items: {
+        total: document.getElementById('total-items'),
+        wardrobe: document.getElementById('wardrobe-items'),
+        bedroom: document.getElementById('bedroom-items'),
+        living: document.getElementById('living-items'),
+        kitchen: document.getElementById('kitchen-items'),
+        bathroom: document.getElementById('bathroom-items'),
+        totalCount: document.getElementById
