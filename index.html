@@ -7,63 +7,18 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
-  <!-- 引入SheetJS库处理Excel文件 -->
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  
-  <!-- Tailwind配置 -->
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            primary: '#4F46E5',
-            secondary: '#EC4899',
-            tertiary: '#10B981',
-          },
-          fontFamily: {
-            sans: ['Inter', 'system-ui', 'sans-serif'],
-          },
-        },
-      }
-    }
-  </script>
-  
-  <style type="text/tailwindcss">
-    @layer utilities {
-      .content-auto {
-        content-visibility: auto;
-      }
-      .card-shadow {
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-      }
-      .btn-hover {
-        transition: all 0.3s ease;
-      }
-      .btn-hover:hover {
-        transform: translateY(-2px);
-      }
-      .mood-emoji {
-        transition: transform 0.3s ease;
-      }
-      .mood-emoji:hover {
-        transform: scale(1.2);
-      }
-    }
-  </style>
 </head>
 <body class="font-sans bg-gray-50 text-gray-800">
   <header class="fixed top-0 left-0 right-0 bg-white shadow-md z-50">
     <div class="container mx-auto px-4 py-3 flex justify-between items-center">
       <div class="flex items-center">
-        <i class="fa fa-user-circle text-primary text-2xl"></i>
-        <h1 class="text-xl font-bold ml-2">Poppy的个人主页</h1>
+        <i class="fa fa-line-chart text-primary text-xl"></i>
+        <h1 class="text-xl font-bold ml-2">数据看板</h1>
       </div>
       <nav class="hidden md:flex space-x-6">
-        <a href="#home" class="text-gray-600 hover:text-primary">首页</a>
         <a href="#items" class="text-gray-600 hover:text-primary">个人物品</a>
         <a href="#relations" class="text-gray-600 hover:text-primary">网络关系</a>
         <a href="#moods" class="text-gray-600 hover:text-primary">心情记录</a>
-        <a href="#data-center" class="text-gray-600 hover:text-primary">数据中台</a>
       </nav>
       <button id="mobile-menu-button" class="md:hidden">
         <i class="fa fa-bars text-xl"></i>
@@ -71,69 +26,19 @@
     </div>
     <div id="mobile-menu" class="md:hidden hidden bg-white shadow-lg">
       <div class="container mx-auto px-4 py-3 flex flex-col space-y-4">
-        <a href="#home" class="text-gray-600 hover:text-primary py-2">首页</a>
         <a href="#items" class="text-gray-600 hover:text-primary py-2">个人物品</a>
         <a href="#relations" class="text-gray-600 hover:text-primary py-2">网络关系</a>
         <a href="#moods" class="text-gray-600 hover:text-primary py-2">心情记录</a>
-        <a href="#data-center" class="text-gray-600 hover:text-primary py-2">数据中台</a>
       </div>
     </div>
   </header>
 
   <main class="container mx-auto px-4 pt-24 pb-16">
-    <!-- 首页 -->
-    <section id="home" class="mb-12 grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <div class="lg:col-span-1 bg-white rounded-lg p-6 shadow-md">
-        <h3 class="text-xl font-bold mb-4">关于我</h3>
-        <div class="space-y-4">
-          <div class="flex items-center">
-            <i class="fa fa-user text-primary w-6"></i>
-            <span>Poppy</span>
-          </div>
-          <div class="flex items-center">
-            <i class="fa fa-briefcase text-primary w-6"></i>
-            <span>前端开发者</span>
-          </div>
-          <div class="flex items-center">
-            <i class="fa fa-heart text-primary w-6"></i>
-            <span>设计、旅行、摄影</span>
-          </div>
-          <div class="flex items-center">
-            <i class="fa fa-envelope text-primary w-6"></i>
-            <span>poppy@example.com</span>
-          </div>
-          <div class="pt-4">
-            <h4 class="font-medium mb-2">个人简介</h4>
-            <p class="text-gray-600">
-              热爱生活的前端开发者，喜欢探索新技术和设计美学。平时喜欢收集各种小物件，记录生活中的美好瞬间。
-            </p>
-          </div>
-        </div>
-      </div>
-      
-      <div class="lg:col-span-2 bg-white rounded-lg p-6 shadow-md">
-        <h3 class="text-xl font-bold mb-4">个人照片</h3>
-        <div class="relative">
-          <div id="profile-picture" class="w-full h-64 md:h-80 bg-gray-200 rounded-lg overflow-hidden flex items-center justify-center">
-            <img src="https://picsum.photos/800/400" alt="个人照片" class="w-full h-full object-cover">
-          </div>
-          <button id="change-photo-btn" class="absolute bottom-4 right-4 bg-primary text-white px-4 py-2 rounded-full shadow-md btn-hover">
-            <i class="fa fa-camera"></i> 更换照片
-          </button>
-        </div>
-      </div>
-    </section>
-
-    <!-- 个人物品 -->
     <section id="items" class="mb-12">
       <div class="bg-white rounded-lg p-6 shadow-md">
         <div class="flex justify-between items-center mb-6">
           <h3 class="text-xl font-bold">个人物品</h3>
-          <div class="flex space-x-2">
-            <button id="add-item-btn" class="bg-primary text-white px-4 py-2 rounded btn-hover">
-              <i class="fa fa-plus"></i> 添加物品
-            </button>
-          </div>
+          <button id="add-item-btn" class="bg-primary text-white px-4 py-2 rounded">添加物品</button>
         </div>
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
@@ -141,8 +46,8 @@
               <tr>
                 <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">名称</th>
                 <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">场景</th>
-                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">当前位置</th>
-                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">价格</th>
+                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">数量</th>
+                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
                 <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
               </tr>
             </thead>
@@ -156,28 +61,26 @@
       </div>
     </section>
 
-    <!-- 网络关系 -->
     <section id="relations" class="mb-12">
       <div class="bg-white rounded-lg p-6 shadow-md">
         <div class="flex justify-between items-center mb-6">
           <h3 class="text-xl font-bold">网络关系</h3>
-          <button id="add-relation-btn" class="bg-blue-500 text-white px-4 py-2 rounded btn-hover">
-            <i class="fa fa-plus"></i> 添加关系
-          </button>
+          <button id="add-relation-btn" class="bg-blue-500 text-white px-4 py-2 rounded">添加关系</button>
         </div>
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
             <thead>
               <tr>
                 <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">名称</th>
-                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">关系</th>
-                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">相识于</th>
+                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">平台</th>
+                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">关系类型</th>
+                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">互动频率</th>
                 <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
               </tr>
             </thead>
             <tbody id="relations-table-body">
               <tr class="text-center">
-                <td colspan="4" class="px-6 py-12 text-gray-500">暂无关系数据</td>
+                <td colspan="5" class="px-6 py-12 text-gray-500">暂无关系数据</td>
               </tr>
             </tbody>
           </table>
@@ -185,14 +88,11 @@
       </div>
     </section>
 
-    <!-- 心情记录 -->
     <section id="moods" class="mb-12">
       <div class="bg-white rounded-lg p-6 shadow-md">
         <div class="flex justify-between items-center mb-6">
           <h3 class="text-xl font-bold">心情记录</h3>
-          <button id="add-mood-btn" class="bg-purple-500 text-white px-4 py-2 rounded btn-hover">
-            <i class="fa fa-plus"></i> 记录心情
-          </button>
+          <button id="add-mood-btn" class="bg-purple-500 text-white px-4 py-2 rounded">记录心情</button>
         </div>
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
@@ -213,73 +113,23 @@
         </div>
       </div>
     </section>
-
-    <!-- 数据中台 -->
-    <section id="data-center" class="mb-12">
-      <div class="bg-white rounded-lg p-6 shadow-md">
-        <h3 class="text-xl font-bold mb-6">数据中台</h3>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div class="bg-blue-50 p-4 rounded-lg">
-            <h4 class="font-bold text-blue-700 mb-4">数据导出</h4>
-            <div class="space-y-4">
-              <button id="export-items-btn" class="w-full bg-blue-600 text-white px-4 py-2 rounded btn-hover">
-                <i class="fa fa-download"></i> 导出个人物品
-              </button>
-              <button id="export-relations-btn" class="w-full bg-blue-600 text-white px-4 py-2 rounded btn-hover">
-                <i class="fa fa-download"></i> 导出网络关系
-              </button>
-              <button id="export-moods-btn" class="w-full bg-blue-600 text-white px-4 py-2 rounded btn-hover">
-                <i class="fa fa-download"></i> 导出心情记录
-              </button>
-              <button id="export-all-btn" class="w-full bg-blue-700 text-white px-4 py-2 rounded btn-hover">
-                <i class="fa fa-download"></i> 导出全部数据
-              </button>
-            </div>
-          </div>
-          
-          <div class="bg-green-50 p-4 rounded-lg">
-            <h4 class="font-bold text-green-700 mb-4">数据导入</h4>
-            <div class="space-y-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">选择Excel文件</label>
-                <input type="file" id="import-file" accept=".xlsx, .xls" class="w-full border border-gray-300 rounded p-2">
-              </div>
-              <div class="flex space-x-2">
-                <button id="import-items-btn" class="flex-1 bg-green-600 text-white px-4 py-2 rounded btn-hover">
-                  <i class="fa fa-upload"></i> 导入个人物品
-                </button>
-                <button id="import-relations-btn" class="flex-1 bg-green-600 text-white px-4 py-2 rounded btn-hover">
-                  <i class="fa fa-upload"></i> 导入网络关系
-                </button>
-                <button id="import-moods-btn" class="flex-1 bg-green-600 text-white px-4 py-2 rounded btn-hover">
-                  <i class="fa fa-upload"></i> 导入心情记录
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
   </main>
 
   <footer class="bg-white border-t border-gray-200 py-6">
     <div class="container mx-auto px-4 text-center text-gray-500 text-sm">
-      <p>© 2025 Poppy的个人主页. 保留所有权利.</p>
+      <p>© 2025 数据看板. 保留所有权利.</p>
     </div>
   </footer>
 
-  <!-- 个人物品模态框 -->
   <div id="add-item-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
     <div class="bg-white rounded-lg max-w-md w-full mx-4 p-6">
       <div class="flex justify-between items-center mb-4">
-        <h3 class="text-xl font-bold" id="item-modal-title">添加新物品</h3>
+        <h3 class="text-xl font-bold">添加新物品</h3>
         <button id="close-item-modal" class="text-gray-400 hover:text-gray-600">
           <i class="fa fa-times"></i>
         </button>
       </div>
       <form id="add-item-form">
-        <input type="hidden" id="item-id" value="">
         <div class="mb-4">
           <label class="block text-sm font-medium text-gray-700 mb-1" for="item-name">名称</label>
           <input type="text" id="item-name" class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-primary focus:border-primary">
@@ -292,17 +142,20 @@
             <option value="living">客厅</option>
             <option value="kitchen">厨房</option>
             <option value="bathroom">浴室</option>
-            <option value="office">办公室</option>
-            <option value="other">其他</option>
           </select>
         </div>
         <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700 mb-1" for="item-location">当前位置</label>
-          <input type="text" id="item-location" class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-primary focus:border-primary">
+          <label class="block text-sm font-medium text-gray-700 mb-1" for="item-quantity">数量</label>
+          <input type="number" id="item-quantity" min="1" class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-primary focus:border-primary" value="1">
         </div>
         <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700 mb-1" for="item-price">价格 (元)</label>
-          <input type="number" id="item-price" min="0" step="0.01" class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-primary focus:border-primary">
+          <label class="block text-sm font-medium text-gray-700 mb-1" for="item-status">状态</label>
+          <select id="item-status" class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-primary focus:border-primary">
+            <option value="可用">可用</option>
+            <option value="已使用">已使用</option>
+            <option value="闲置">闲置</option>
+            <option value="维修中">维修中</option>
+          </select>
         </div>
         <div class="flex justify-end space-x-3">
           <button type="button" id="cancel-item-btn" class="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50">取消</button>
@@ -312,7 +165,6 @@
     </div>
   </div>
 
-  <!-- 网络关系模态框 -->
   <div id="add-relation-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
     <div class="bg-white rounded-lg max-w-md w-full mx-4 p-6">
       <div class="flex justify-between items-center mb-4">
@@ -322,13 +174,22 @@
         </button>
       </div>
       <form id="add-relation-form">
-        <input type="hidden" id="relation-id" value="">
         <div class="mb-4">
           <label class="block text-sm font-medium text-gray-700 mb-1" for="relation-name">名称</label>
           <input type="text" id="relation-name" class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
         </div>
         <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700 mb-1" for="relation-type">关系</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1" for="relation-platform">平台</label>
+          <select id="relation-platform" class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            <option value="微信">微信</option>
+            <option value="微博">微博</option>
+            <option value="QQ">QQ</option>
+            <option value="LinkedIn">LinkedIn</option>
+            <option value="其他">其他</option>
+          </select>
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1" for="relation-type">关系类型</label>
           <select id="relation-type" class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
             <option value="朋友">朋友</option>
             <option value="家人">家人</option>
@@ -339,8 +200,19 @@
           </select>
         </div>
         <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700 mb-1" for="relation-met">相识于</label>
-          <input type="text" id="relation-met" class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          <label class="block text-sm font-medium text-gray-700 mb-1" for="relation-frequency">互动频率</label>
+          <select id="relation-frequency" class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            <option value="每天">每天</option>
+            <option value="每周">每周</option>
+            <option value="每月">每月</option>
+            <option value="每季度">每季度</option>
+            <option value="每年">每年</option>
+            <option value="很少">很少</option>
+          </select>
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1" for="relation-note">备注</label>
+          <textarea id="relation-note" rows="2" class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
         </div>
         <div class="flex justify-end space-x-3">
           <button type="button" id="cancel-relation-btn" class="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50">取消</button>
@@ -350,7 +222,6 @@
     </div>
   </div>
 
-  <!-- 心情记录模态框 -->
   <div id="add-mood-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
     <div class="bg-white rounded-lg max-w-md w-full mx-4 p-6">
       <div class="flex justify-between items-center mb-4">
@@ -360,7 +231,6 @@
         </button>
       </div>
       <form id="add-mood-form">
-        <input type="hidden" id="mood-id" value="">
         <div class="mb-4">
           <label class="block text-sm font-medium text-gray-700 mb-1" for="mood-date">日期</label>
           <input type="date" id="mood-date" class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
@@ -368,23 +238,23 @@
         <div class="mb-4">
           <label class="block text-sm font-medium text-gray-700 mb-1">心情状态</label>
           <div class="grid grid-cols-5 gap-2">
-            <div class="mood-option cursor-pointer p-2 rounded-lg text-center border-2 border-gray-200 mood-emoji" data-value="非常开心">
+            <div class="mood-option cursor-pointer p-2 rounded-lg text-center border-2 border-gray-200" data-value="非常开心">
               <i class="fa fa-smile-o text-2xl text-yellow-400"></i>
               <p class="text-xs mt-1">非常开心</p>
             </div>
-            <div class="mood-option cursor-pointer p-2 rounded-lg text-center border-2 border-gray-200 mood-emoji" data-value="开心">
+            <div class="mood-option cursor-pointer p-2 rounded-lg text-center border-2 border-gray-200" data-value="开心">
               <i class="fa fa-smile-o text-2xl text-yellow-300"></i>
               <p class="text-xs mt-1">开心</p>
             </div>
-            <div class="mood-option cursor-pointer p-2 rounded-lg text-center border-2 border-gray-200 mood-emoji" data-value="一般">
+            <div class="mood-option cursor-pointer p-2 rounded-lg text-center border-2 border-gray-200" data-value="一般">
               <i class="fa fa-meh-o text-2xl text-gray-400"></i>
               <p class="text-xs mt-1">一般</p>
             </div>
-            <div class="mood-option cursor-pointer p-2 rounded-lg text-center border-2 border-gray-200 mood-emoji" data-value="难过">
+            <div class="mood-option cursor-pointer p-2 rounded-lg text-center border-2 border-gray-200" data-value="难过">
               <i class="fa fa-frown-o text-2xl text-blue-400"></i>
               <p class="text-xs mt-1">难过</p>
             </div>
-            <div class="mood-option cursor-pointer p-2 rounded-lg text-center border-2 border-gray-200 mood-emoji" data-value="非常难过">
+            <div class="mood-option cursor-pointer p-2 rounded-lg text-center border-2 border-gray-200" data-value="非常难过">
               <i class="fa fa-frown-o text-2xl text-blue-500"></i>
               <p class="text-xs mt-1">非常难过</p>
             </div>
@@ -403,124 +273,6 @@
     </div>
   </div>
 
-  <!-- 查看物品详情模态框 -->
-  <div id="view-item-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
-    <div class="bg-white rounded-lg max-w-md w-full mx-4 p-6">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-xl font-bold">物品详情</h3>
-        <button id="close-view-item-modal" class="text-gray-400 hover:text-gray-600">
-          <i class="fa fa-times"></i>
-        </button>
-      </div>
-      <div id="item-details" class="space-y-4">
-        <div>
-          <h4 class="font-medium text-gray-500">名称</h4>
-          <p id="detail-name" class="text-lg"></p>
-        </div>
-        <div>
-          <h4 class="font-medium text-gray-500">场景</h4>
-          <p id="detail-scene" class="text-lg"></p>
-        </div>
-        <div>
-          <h4 class="font-medium text-gray-500">当前位置</h4>
-          <p id="detail-location" class="text-lg"></p>
-        </div>
-        <div>
-          <h4 class="font-medium text-gray-500">价格</h4>
-          <p id="detail-price" class="text-lg"></p>
-        </div>
-        <div>
-          <h4 class="font-medium text-gray-500">创建时间</h4>
-          <p id="detail-created" class="text-lg"></p>
-        </div>
-      </div>
-      <div class="flex justify-end space-x-3 mt-6">
-        <button type="button" id="edit-item-btn" class="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90">
-          <i class="fa fa-edit"></i> 编辑
-        </button>
-        <button type="button" id="close-detail-btn" class="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50">
-          关闭
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 查看关系详情模态框 -->
-  <div id="view-relation-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
-    <div class="bg-white rounded-lg max-w-md w-full mx-4 p-6">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-xl font-bold">关系详情</h3>
-        <button id="close-view-relation-modal" class="text-gray-400 hover:text-gray-600">
-          <i class="fa fa-times"></i>
-        </button>
-      </div>
-      <div id="relation-details" class="space-y-4">
-        <div>
-          <h4 class="font-medium text-gray-500">名称</h4>
-          <p id="detail-relation-name" class="text-lg"></p>
-        </div>
-        <div>
-          <h4 class="font-medium text-gray-500">关系</h4>
-          <p id="detail-relation-type" class="text-lg"></p>
-        </div>
-        <div>
-          <h4 class="font-medium text-gray-500">相识于</h4>
-          <p id="detail-relation-met" class="text-lg"></p>
-        </div>
-        <div>
-          <h4 class="font-medium text-gray-500">创建时间</h4>
-          <p id="detail-relation-created" class="text-lg"></p>
-        </div>
-      </div>
-      <div class="flex justify-end space-x-3 mt-6">
-        <button type="button" id="edit-relation-btn" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-          <i class="fa fa-edit"></i> 编辑
-        </button>
-        <button type="button" id="close-relation-detail-btn" class="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50">
-          关闭
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 查看心情详情模态框 -->
-  <div id="view-mood-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
-    <div class="bg-white rounded-lg max-w-md w-full mx-4 p-6">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-xl font-bold">心情详情</h3>
-        <button id="close-view-mood-modal" class="text-gray-400 hover:text-gray-600">
-          <i class="fa fa-times"></i>
-        </button>
-      </div>
-      <div id="mood-details" class="space-y-4">
-        <div>
-          <h4 class="font-medium text-gray-500">日期</h4>
-          <p id="detail-mood-date" class="text-lg"></p>
-        </div>
-        <div>
-          <h4 class="font-medium text-gray-500">心情状态</h4>
-          <p id="detail-mood-value" class="text-lg"></p>
-        </div>
-        <div>
-          <h4 class="font-medium text-gray-500">描述</h4>
-          <p id="detail-mood-description" class="text-lg"></p>
-        </div>
-        <div>
-          <h4 class="font-medium text-gray-500">创建时间</h4>
-          <p id="detail-mood-created" class="text-lg"></p>
-        </div>
-      </div>
-      <div class="flex justify-end space-x-3 mt-6">
-        <button type="button" id="edit-mood-btn" class="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600">
-          <i class="fa fa-edit"></i> 编辑
-        </button>
-        <button type="button" id="close-mood-detail-btn" class="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50">
-          关闭
-        </button>
-      </div>
-    </div>
-  </div>
-
   <script>
     // 数据存储和管理
     const DataManager = {
@@ -536,7 +288,6 @@
             moods: moods ? JSON.parse(moods) : []
           };
         } catch (error) {
-          console.error('加载数据失败:', error);
           return { items: [], relations: [], moods: [] };
         }
       },
@@ -564,8 +315,7 @@
         modal: document.getElementById('add-item-modal'),
         form: document.getElementById('add-item-form'),
         closeBtn: document.getElementById('close-item-modal'),
-        cancelBtn: document.getElementById('cancel-item-btn'),
-        title: document.getElementById('item-modal-title')
+        cancelBtn: document.getElementById('cancel-item-btn')
       },
       relation: {
         modal: document.getElementById('add-relation-modal'),
@@ -578,44 +328,172 @@
         form: document.getElementById('add-mood-form'),
         closeBtn: document.getElementById('close-mood-modal'),
         cancelBtn: document.getElementById('cancel-mood-btn')
-      },
-      viewItem: {
-        modal: document.getElementById('view-item-modal'),
-        closeBtn: document.getElementById('close-view-item-modal'),
-        closeDetailBtn: document.getElementById('close-detail-btn'),
-        editBtn: document.getElementById('edit-item-btn')
-      },
-      viewRelation: {
-        modal: document.getElementById('view-relation-modal'),
-        closeBtn: document.getElementById('close-view-relation-modal'),
-        closeDetailBtn: document.getElementById('close-relation-detail-btn'),
-        editBtn: document.getElementById('edit-relation-btn')
-      },
-      viewMood: {
-        modal: document.getElementById('view-mood-modal'),
-        closeBtn: document.getElementById('close-view-mood-modal'),
-        closeDetailBtn: document.getElementById('close-mood-detail-btn'),
-        editBtn: document.getElementById('edit-mood-btn')
       }
     };
     
-    // 显示/隐藏模态框函数
-    function showModal(modal) {
-      modal.modal.classList.remove('hidden');
+    const tables = {
+      items: document.getElementById('items-table-body'),
+      relations: document.getElementById('relations-table-body'),
+      moods: document.getElementById('moods-table-body')
+    };
+    
+    // 模态框控制函数
+    function openModal(modalType) {
+      modals[modalType].modal.classList.remove('hidden');
       document.body.style.overflow = 'hidden';
-    }
-    
-    function hideModal(modal) {
-      modal.modal.classList.add('hidden');
-      document.body.style.overflow = '';
-    }
-    
-    // 渲染表格数据
-    function renderItemsTable() {
-      const tableBody = document.getElementById('items-table-body');
       
+      if (modalType === 'mood') {
+        document.getElementById('mood-date').valueAsDate = new Date();
+      }
+    }
+    
+    function closeModal(modalType) {
+      modals[modalType].modal.classList.add('hidden');
+      document.body.style.overflow = '';
+      modals[modalType].form.reset();
+      
+      if (modalType === 'mood') {
+        document.querySelectorAll('.mood-option').forEach(option => {
+          option.classList.remove('border-purple-500', 'bg-purple-50');
+        });
+        document.getElementById('mood-value').value = '';
+      }
+    }
+    
+    // 添加事件监听器
+    document.addEventListener('DOMContentLoaded', function() {
+      // 移动端菜单切换
+      document.getElementById('mobile-menu-button').addEventListener('click', function() {
+        document.getElementById('mobile-menu').classList.toggle('hidden');
+      });
+      
+      // 初始化数据显示
+      updateItemsTable();
+      updateRelationsTable();
+      updateMoodsTable();
+      
+      // 修复：将事件监听器移至DOM加载完成后
+      document.getElementById('add-item-btn').addEventListener('click', () => openModal('item'));
+      document.getElementById('add-relation-btn').addEventListener('click', () => openModal('relation'));
+      document.getElementById('add-mood-btn').addEventListener('click', () => openModal('mood'));
+      
+      modals.item.closeBtn.addEventListener('click', () => closeModal('item'));
+      modals.item.cancelBtn.addEventListener('click', () => closeModal('item'));
+      
+      modals.relation.closeBtn.addEventListener('click', () => closeModal('relation'));
+      modals.relation.cancelBtn.addEventListener('click', () => closeModal('relation'));
+      
+      modals.mood.closeBtn.addEventListener('click', () => closeModal('mood'));
+      modals.mood.cancelBtn.addEventListener('click', () => closeModal('mood'));
+      
+      // 心情选择事件
+      document.querySelectorAll('.mood-option').forEach(option => {
+        option.addEventListener('click', () => {
+          document.querySelectorAll('.mood-option').forEach(opt => {
+            opt.classList.remove('border-purple-500', 'bg-purple-50');
+          });
+          option.classList.add('border-purple-500', 'bg-purple-50');
+          document.getElementById('mood-value').value = option.getAttribute('data-value');
+        });
+      });
+      
+      // 添加物品表单提交
+      document.getElementById('add-item-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const name = document.getElementById('item-name').value;
+        const scene = document.getElementById('item-scene').value;
+        const quantity = parseInt(document.getElementById('item-quantity').value);
+        const status = document.getElementById('item-status').value;
+        
+        if (!name) {
+          alert('请输入物品名称');
+          return;
+        }
+        
+        const newItem = {
+          id: Date.now(),
+          name,
+          scene,
+          quantity,
+          status,
+          createdAt: new Date().toISOString()
+        };
+        
+        itemsData.push(newItem);
+        DataManager.saveData({ items: itemsData, relations: relationsData, moods: moodsData });
+        updateItemsTable();
+        closeModal('item');
+      });
+      
+      // 添加关系表单提交
+      document.getElementById('add-relation-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const name = document.getElementById('relation-name').value;
+        const platform = document.getElementById('relation-platform').value;
+        const type = document.getElementById('relation-type').value;
+        const frequency = document.getElementById('relation-frequency').value;
+        const note = document.getElementById('relation-note').value;
+        
+        if (!name) {
+          alert('请输入名称');
+          return;
+        }
+        
+        const newRelation = {
+          id: Date.now(),
+          name,
+          platform,
+          type,
+          frequency,
+          note,
+          createdAt: new Date().toISOString()
+        };
+        
+        relationsData.push(newRelation);
+        DataManager.saveData({ items: itemsData, relations: relationsData, moods: moodsData });
+        updateRelationsTable();
+        closeModal('relation');
+      });
+      
+      // 添加心情表单提交
+      document.getElementById('add-mood-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const date = document.getElementById('mood-date').value;
+        const value = document.getElementById('mood-value').value;
+        const description = document.getElementById('mood-description').value;
+        
+        if (!date) {
+          alert('请选择日期');
+          return;
+        }
+        
+        if (!value) {
+          alert('请选择心情状态');
+          return;
+        }
+        
+        const newMood = {
+          id: Date.now(),
+          date,
+          value,
+          description,
+          createdAt: new Date().toISOString()
+        };
+        
+        moodsData.push(newMood);
+        DataManager.saveData({ items: itemsData, relations: relationsData, moods: moodsData });
+        updateMoodsTable();
+        closeModal('mood');
+      });
+    });
+    
+    // 更新物品表格
+    function updateItemsTable() {
       if (itemsData.length === 0) {
-        tableBody.innerHTML = `
+        tables.items.innerHTML = `
           <tr class="text-center">
             <td colspan="5" class="px-6 py-12 text-gray-500">暂无物品数据</td>
           </tr>
@@ -623,120 +501,59 @@
         return;
       }
       
-      let html = '';
+      tables.items.innerHTML = '';
+      
       itemsData.forEach(item => {
-        html += `
-          <tr class="hover:bg-gray-50">
-            <td class="px-6 py-4 whitespace-nowrap">
-              <button class="text-primary hover:underline view-item-btn" data-id="${item.id}">
-                ${item.name}
-              </button>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">${item.scene}</td>
-            <td class="px-6 py-4 whitespace-nowrap">${item.location}</td>
-            <td class="px-6 py-4 whitespace-nowrap">${item.price}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-              <button class="text-primary hover:text-primary/80 mr-3 edit-item-btn" data-id="${item.id}">
-                <i class="fa fa-edit"></i> 编辑
-              </button>
-              <button class="text-red-500 hover:text-red-700 delete-item-btn" data-id="${item.id}">
-                <i class="fa fa-trash"></i> 删除
-              </button>
-            </td>
-          </tr>
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td class="px-6 py-4">${item.name}</td>
+          <td class="px-6 py-4">${item.scene}</td>
+          <td class="px-6 py-4">${item.quantity}</td>
+          <td class="px-6 py-4">${item.status}</td>
+          <td class="px-6 py-4">
+            <button class="text-red-500 hover:text-red-700" onclick="deleteItem(${item.id})">
+              <i class="fa fa-trash"></i> 删除
+            </button>
+          </td>
         `;
-      });
-      
-      tableBody.innerHTML = html;
-      
-      // 添加事件监听器
-      document.querySelectorAll('.view-item-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const id = btn.getAttribute('data-id');
-          viewItem(id);
-        });
-      });
-      
-      document.querySelectorAll('.edit-item-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const id = btn.getAttribute('data-id');
-          editItem(id);
-        });
-      });
-      
-      document.querySelectorAll('.delete-item-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const id = btn.getAttribute('data-id');
-          deleteItem(id);
-        });
+        tables.items.appendChild(row);
       });
     }
     
-    function renderRelationsTable() {
-      const tableBody = document.getElementById('relations-table-body');
-      
+    // 更新关系表格
+    function updateRelationsTable() {
       if (relationsData.length === 0) {
-        tableBody.innerHTML = `
+        tables.relations.innerHTML = `
           <tr class="text-center">
-            <td colspan="4" class="px-6 py-12 text-gray-500">暂无关系数据</td>
+            <td colspan="5" class="px-6 py-12 text-gray-500">暂无关系数据</td>
           </tr>
         `;
         return;
       }
       
-      let html = '';
+      tables.relations.innerHTML = '';
+      
       relationsData.forEach(relation => {
-        html += `
-          <tr class="hover:bg-gray-50">
-            <td class="px-6 py-4 whitespace-nowrap">
-              <button class="text-primary hover:underline view-relation-btn" data-id="${relation.id}">
-                ${relation.name}
-              </button>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">${relation.type}</td>
-            <td class="px-6 py-4 whitespace-nowrap">${relation.met}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-              <button class="text-primary hover:text-primary/80 mr-3 edit-relation-btn" data-id="${relation.id}">
-                <i class="fa fa-edit"></i> 编辑
-              </button>
-              <button class="text-red-500 hover:text-red-700 delete-relation-btn" data-id="${relation.id}">
-                <i class="fa fa-trash"></i> 删除
-              </button>
-            </td>
-          </tr>
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td class="px-6 py-4">${relation.name}</td>
+          <td class="px-6 py-4">${relation.platform}</td>
+          <td class="px-6 py-4">${relation.type}</td>
+          <td class="px-6 py-4">${relation.frequency}</td>
+          <td class="px-6 py-4">
+            <button class="text-red-500 hover:text-red-700" onclick="deleteRelation(${relation.id})">
+              <i class="fa fa-trash"></i> 删除
+            </button>
+          </td>
         `;
-      });
-      
-      tableBody.innerHTML = html;
-      
-      // 添加事件监听器
-      document.querySelectorAll('.view-relation-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const id = btn.getAttribute('data-id');
-          viewRelation(id);
-        });
-      });
-      
-      document.querySelectorAll('.edit-relation-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const id = btn.getAttribute('data-id');
-          editRelation(id);
-        });
-      });
-      
-      document.querySelectorAll('.delete-relation-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const id = btn.getAttribute('data-id');
-          deleteRelation(id);
-        });
+        tables.relations.appendChild(row);
       });
     }
     
-    function renderMoodsTable() {
-      const tableBody = document.getElementById('moods-table-body');
-      
+    // 更新心情表格
+    function updateMoodsTable() {
       if (moodsData.length === 0) {
-        tableBody.innerHTML = `
+        tables.moods.innerHTML = `
           <tr class="text-center">
             <td colspan="4" class="px-6 py-12 text-gray-500">暂无心情记录</td>
           </tr>
@@ -744,134 +561,51 @@
         return;
       }
       
-      let html = '';
-      moodsData.forEach(mood => {
-        const date = new Date(mood.date);
-        const formattedDate = date.toLocaleDateString('zh-CN');
-        
-        html += `
-          <tr class="hover:bg-gray-50">
-            <td class="px-6 py-4 whitespace-nowrap">${formattedDate}</td>
-            <td class="px-6 py-4 whitespace-nowrap">${getMoodIcon(mood.value)} ${mood.value}</td>
-            <td class="px-6 py-4">${mood.description}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-              <button class="text-primary hover:text-primary/80 mr-3 edit-mood-btn" data-id="${mood.id}">
-                <i class="fa fa-edit"></i> 编辑
-              </button>
-              <button class="text-red-500 hover:text-red-700 delete-mood-btn" data-id="${mood.id}">
-                <i class="fa fa-trash"></i> 删除
-              </button>
-            </td>
-          </tr>
+      tables.moods.innerHTML = '';
+      
+      // 按日期排序
+      const sortedMoods = [...moodsData].sort((a, b) => new Date(b.date) - new Date(a.date));
+      
+      sortedMoods.forEach(mood => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td class="px-6 py-4">${formatDate(mood.date)}</td>
+          <td class="px-6 py-4">${mood.value}</td>
+          <td class="px-6 py-4">${mood.description}</td>
+          <td class="px-6 py-4">
+            <button class="text-red-500 hover:text-red-700" onclick="deleteMood(${mood.id})">
+              <i class="fa fa-trash"></i> 删除
+            </button>
+          </td>
         `;
-      });
-      
-      tableBody.innerHTML = html;
-      
-      // 添加事件监听器
-      document.querySelectorAll('.edit-mood-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const id = btn.getAttribute('data-id');
-          editMood(id);
-        });
-      });
-      
-      document.querySelectorAll('.delete-mood-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const id = btn.getAttribute('data-id');
-          deleteMood(id);
-        });
+        tables.moods.appendChild(row);
       });
     }
     
-    // 获取心情图标
-    function getMoodIcon(value) {
-      switch(value) {
-        case '非常开心':
-          return '<i class="fa fa-smile-o text-yellow-400"></i>';
-        case '开心':
-          return '<i class="fa fa-smile-o text-yellow-300"></i>';
-        case '一般':
-          return '<i class="fa fa-meh-o text-gray-400"></i>';
-        case '难过':
-          return '<i class="fa fa-frown-o text-blue-400"></i>';
-        case '非常难过':
-          return '<i class="fa fa-frown-o text-blue-500"></i>';
-        default:
-          return '';
-      }
+    // 辅助函数
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
     }
     
-    // 物品操作
-    function addItem(e) {
-      e.preventDefault();
-      
-      const id = document.getElementById('item-id').value;
-      const name = document.getElementById('item-name').value;
-      const scene = document.getElementById('item-scene').value;
-      const location = document.getElementById('item-location').value;
-      const price = document.getElementById('item-price').value;
-      
-      if (!name || !price) {
-        alert('名称和价格不能为空');
-        return;
-      }
-      
-      const timestamp = new Date().toISOString();
-      
-      if (id) {
-        // 编辑
-        const index = itemsData.findIndex(item => item.id === id);
-        if (index !== -1) {
-          itemsData[index] = {
-            ...itemsData[index],
-            name,
-            scene,
-            location,
-            price,
-            updatedAt: timestamp
-          };
-        }
-      } else {
-        // 新增
-        itemsData.push({
-          id: 'item_' + Date.now(),
-          name,
-          scene,
-          location,
-          price,
-          createdAt: timestamp,
-          updatedAt: timestamp
-        });
-      }
-      
+    // 删除函数
+    function deleteItem(id) {
+      itemsData = itemsData.filter(item => item.id !== id);
       DataManager.saveData({ items: itemsData, relations: relationsData, moods: moodsData });
-      renderItemsTable();
-      hideModal(modals.item);
-      modals.item.form.reset();
-      document.getElementById('item-id').value = '';
-      modals.item.title.textContent = '添加新物品';
+      updateItemsTable();
     }
     
-    function editItem(id) {
-      const item = itemsData.find(item => item.id === id);
-      if (!item) return;
-      
-      document.getElementById('item-id').value = item.id;
-      document.getElementById('item-name').value = item.name;
-      document.getElementById('item-scene').value = item.scene;
-      document.getElementById('item-location').value = item.location;
-      document.getElementById('item-price').value = item.price;
-      
-      modals.item.title.textContent = '编辑物品';
-      showModal(modals.item);
+    function deleteRelation(id) {
+      relationsData = relationsData.filter(relation => relation.id !== id);
+      DataManager.saveData({ items: itemsData, relations: relationsData, moods: moodsData });
+      updateRelationsTable();
     }
     
-    function viewItem(id) {
-      const item = itemsData.find(item => item.id === id);
-      if (!item) return;
-      
-      document.getElementById('detail-name').textContent = item.name;
-      document.getElementById('detail-scene').textContent = item.scene;
-      document.getElementById('detail-location').textContent = item.location;
-      document.getElementById('detail-price').textContent = item.price + ' 元';
+    function deleteMood(id) {
+      moodsData = moodsData.filter(mood => mood.id !== id);
+      DataManager.saveData({ items: itemsData, relations: relationsData, moods: moodsData });
+      updateMoodsTable();
+    }
+  </script>
+</body>
+</html>
