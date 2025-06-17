@@ -627,11 +627,52 @@
   </div>
 
   <script>
-    // 数据存储
-    let itemsData = [];
-    let relationsData = [];
-    let moodsData = [];
-    let logsData = [];
+    // 数据存储和管理
+    const DataManager = {
+      // 从本地存储加载数据
+      loadData() {
+        try {
+          const items = localStorage.getItem('itemsData');
+          const relations = localStorage.getItem('relationsData');
+          const moods = localStorage.getItem('moodsData');
+          const logs = localStorage.getItem('logsData');
+          
+          return {
+            items: items ? JSON.parse(items) : [],
+            relations: relations ? JSON.parse(relations) : [],
+            moods: moods ? JSON.parse(moods) : [],
+            logs: logs ? JSON.parse(logs) : []
+          };
+        } catch (error) {
+          console.error('加载数据失败:', error);
+          return {
+            items: [],
+            relations: [],
+            moods: [],
+            logs: []
+          };
+        }
+      },
+      
+      // 保存数据到本地存储
+      saveData(data) {
+        try {
+          localStorage.setItem('itemsData', JSON.stringify(data.items));
+          localStorage.setItem('relationsData', JSON.stringify(data.relations));
+          localStorage.setItem('moodsData', JSON.stringify(data.moods));
+          localStorage.setItem('logsData', JSON.stringify(data.logs));
+        } catch (error) {
+          console.error('保存数据失败:', error);
+        }
+      }
+    };
+    
+    // 初始化数据
+    const loadedData = DataManager.loadData();
+    let itemsData = loadedData.items;
+    let relationsData = loadedData.relations;
+    let moodsData = loadedData.moods;
+    let logsData = loadedData.logs;
     
     // DOM元素
     const modals = {
@@ -772,10 +813,18 @@
           // 添加当前标签的活动状态
           tab.classList.add('tab-active');
           
-          // 过滤物品数据（这里只是UI演示，实际过滤逻辑需要在数据更新时实现）
+          // 过滤物品数据
           filterItems(tab.getAttribute('data-tab'));
         });
       });
+      
+      // 初始化数据显示
+      updateItemsTable();
+      updateRelationsTable();
+      updateMoodsTable();
+      updateLogsTable();
+      updateCounters();
+      updateCharts();
     });
     
     // 初始化图表
@@ -785,593 +834,4 @@
       window.relationsChart = new Chart(relationsCtx, {
         type: 'bar',
         data: {
-          labels: ['朋友', '家人', '同事', '同学', '合作伙伴', '其他'],
-          datasets: [{
-            label: '关系数量',
-            data: [0, 0, 0, 0, 0, 0],
-            backgroundColor: [
-              'rgba(54, 162, 235, 0.7)',
-              'rgba(75, 192, 192, 0.7)',
-              'rgba(153, 102, 255, 0.7)',
-              'rgba(255, 159, 64, 0.7)',
-              'rgba(255, 99, 132, 0.7)',
-              'rgba(255, 206, 86, 0.7)'
-            ],
-            borderColor: [
-              'rgba(54, 162, 235, 1)',
-              'rgba(75, 192, 192, 1)',
-              'rgba(153, 102, 255, 1)',
-              'rgba(255, 159, 64, 1)',
-              'rgba(255, 99, 132, 1)',
-              'rgba(255, 206, 86, 1)'
-            ],
-            borderWidth: 1
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            y: {
-              beginAtZero: true
-            }
-          }
-        }
-      });
-      
-      // 心情趋势图表
-      const moodsCtx = document.getElementById('moods-chart').getContext('2d');
-      window.moodsChart = new Chart(moodsCtx, {
-        type: 'line',
-        data: {
-          labels: [],
-          datasets: [{
-            label: '心情指数',
-            data: [],
-            borderColor: 'rgba(153, 102, 255, 1)',
-            backgroundColor: 'rgba(153, 102, 255, 0.1)',
-            tension: 0.3,
-            fill: true
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            y: {
-              beginAtZero: false,
-              min: 0,
-              max: 4,
-              ticks: {
-                callback: function(value) {
-                  const labels = ['非常难过', '难过', '一般', '开心', '非常开心'];
-                  return labels[value];
-                }
-              }
-            }
-          }
-        }
-      });
-      
-      // 心情分布图表
-      const moodsPieCtx = document.getElementById('moods-pie-chart').getContext('2d');
-      window.moodsPieChart = new Chart(moodsPieCtx, {
-        type: 'doughnut',
-        data: {
-          labels: ['非常开心', '开心', '一般', '难过', '非常难过'],
-          datasets: [{
-            data: [0, 0, 0, 0, 0],
-            backgroundColor: [
-              'rgba(255, 206, 86, 0.7)',
-              'rgba(75, 192, 192, 0.7)',
-              'rgba(220, 220, 220, 0.7)',
-              'rgba(54, 162, 235, 0.7)',
-              'rgba(255, 99, 132, 0.7)'
-            ],
-            borderColor: [
-              'rgba(255, 206, 86, 1)',
-              'rgba(75, 192, 192, 1)',
-              'rgba(220, 220, 220, 1)',
-              'rgba(54, 162, 235, 1)',
-              'rgba(255, 99, 132, 1)'
-            ],
-            borderWidth: 1
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              position: 'bottom'
-            }
-          }
-        }
-      });
-    }
-    
-    // 过滤物品
-    function filterItems(scene) {
-      // 更新物品表格
-      updateItemsTable(scene);
-    }
-    
-    // 更新物品表格
-    function updateItemsTable(scene = 'all') {
-      let filteredItems = itemsData;
-      
-      // 过滤场景
-      if (scene !== 'all') {
-        filteredItems = itemsData.filter(item => item.scene === scene);
-      }
-      
-      // 更新表格
-      if (filteredItems.length === 0) {
-        tables.items.innerHTML = `
-          <tr class="text-center">
-            <td colspan="5" class="px-6 py-12 text-gray-500">暂无物品数据</td>
-          </tr>
-        `;
-        return;
-      }
-      
-      let html = '';
-      filteredItems.forEach(item => {
-        html += `
-          <tr>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <div class="flex items-center">
-                <div class="h-8 w-8 rounded-full flex items-center justify-center bg-${getSceneColor(item.scene)}/10">
-                  <i class="fa fa-${getSceneIcon(item.scene)} text-${getSceneColor(item.scene)}"></i>
-                </div>
-                <div class="ml-3">
-                  <div class="text-sm font-medium text-gray-900">${item.name}</div>
-                </div>
-              </div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-${getSceneColor(item.scene)}/10 text-${getSceneColor(item.scene)}">
-                ${getSceneName(item.scene)}
-              </span>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <div class="text-sm text-gray-900">${item.quantity}</div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(item.status)}">
-                ${item.status}
-              </span>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-              <button class="text-red-500 hover:text-red-700 mr-3">
-                <i class="fa fa-trash"></i>
-              </button>
-              <button class="text-blue-500 hover:text-blue-700">
-                <i class="fa fa-edit"></i>
-              </button>
-            </td>
-          </tr>
-        `;
-      });
-      
-      tables.items.innerHTML = html;
-    }
-    
-    // 更新关系表格
-    function updateRelationsTable() {
-      if (relationsData.length === 0) {
-        tables.relations.innerHTML = `
-          <tr class="text-center">
-            <td colspan="5" class="px-6 py-12 text-gray-500">暂无关系数据</td>
-          </tr>
-        `;
-        return;
-      }
-      
-      let html = '';
-      relationsData.forEach(relation => {
-        html += `
-          <tr>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <div class="flex items-center">
-                <div class="h-8 w-8 rounded-full flex items-center justify-center bg-blue-50">
-                  <i class="fa fa-user text-blue-500"></i>
-                </div>
-                <div class="ml-3">
-                  <div class="text-sm font-medium text-gray-900">${relation.name}</div>
-                </div>
-              </div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                ${relation.platform}
-              </span>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <div class="text-sm text-gray-900">${relation.type}</div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <div class="text-sm text-gray-900">${relation.frequency}</div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-              <button class="text-red-500 hover:text-red-700 mr-3">
-                <i class="fa fa-trash"></i>
-              </button>
-              <button class="text-blue-500 hover:text-blue-700">
-                <i class="fa fa-edit"></i>
-              </button>
-            </td>
-          </tr>
-        `;
-      });
-      
-      tables.relations.innerHTML = html;
-    }
-    
-    // 更新心情表格
-    function updateMoodsTable() {
-      if (moodsData.length === 0) {
-        tables.moods.innerHTML = `
-          <tr class="text-center">
-            <td colspan="4" class="px-6 py-12 text-gray-500">暂无心情记录</td>
-          </tr>
-        `;
-        return;
-      }
-      
-      let html = '';
-      moodsData.forEach(mood => {
-        html += `
-          <tr>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <div class="text-sm text-gray-900">${formatDate(mood.date)}</div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <div class="flex items-center">
-                <div class="text-${getMoodColor(mood.value)} mr-2">
-                  ${getMoodIcon(mood.value)}
-                </div>
-                <div class="text-sm text-gray-900">${mood.value}</div>
-              </div>
-            </td>
-            <td class="px-6 py-4">
-              <div class="text-sm text-gray-900 truncate max-w-xs">${mood.description}</div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-              <button class="text-red-500 hover:text-red-700">
-                <i class="fa fa-trash"></i>
-              </button>
-            </td>
-          </tr>
-        `;
-      });
-      
-      tables.moods.innerHTML = html;
-    }
-    
-    // 更新日志表格
-    function updateLogsTable() {
-      if (logsData.length === 0) {
-        tables.logs.innerHTML = `
-          <tr class="text-center">
-            <td colspan="4" class="px-6 py-12 text-gray-500">暂无操作日志</td>
-          </tr>
-        `;
-        return;
-      }
-      
-      let html = '';
-      logsData.forEach(log => {
-        html += `
-          <tr>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <div class="text-sm text-gray-900">${formatDateTime(log.timestamp)}</div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getLogTypeClass(log.type)}">
-                ${log.type}
-              </span>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <div class="text-sm text-gray-900">${log.dataType}</div>
-            </td>
-            <td class="px-6 py-4">
-              <div class="text-sm text-gray-900">${log.details}</div>
-            </td>
-          </tr>
-        `;
-      });
-      
-      tables.logs.innerHTML = html;
-    }
-    
-    // 更新统计数据
-    function updateCounters() {
-      // 物品计数器
-      counters.items.total.textContent = itemsData.length;
-      counters.items.wardrobe.textContent = itemsData.filter(item => item.scene === 'wardrobe').length;
-      counters.items.bedroom.textContent = itemsData.filter(item => item.scene === 'bedroom').length;
-      counters.items.living.textContent = itemsData.filter(item => item.scene === 'living').length;
-      counters.items.kitchen.textContent = itemsData.filter(item => item.scene === 'kitchen').length;
-      counters.items.bathroom.textContent = itemsData.filter(item => item.scene === 'bathroom').length;
-      counters.items.totalCount.textContent = itemsData.length;
-      
-      // 关系计数器
-      counters.relations.totalCount.textContent = relationsData.length;
-      
-      // 心情计数器
-      counters.moods.totalCount.textContent = moodsData.length;
-    }
-    
-    // 更新图表
-    function updateCharts() {
-      // 更新关系图表
-      const relationTypes = ['朋友', '家人', '同事', '同学', '合作伙伴', '其他'];
-      const relationCounts = relationTypes.map(type => 
-        relationsData.filter(relation => relation.type === type).length
-      );
-      
-      if (window.relationsChart) {
-        window.relationsChart.data.datasets[0].data = relationCounts;
-        window.relationsChart.update();
-      }
-      
-      // 更新心情图表
-      if (window.moodsChart && moodsData.length > 0) {
-        // 按日期排序
-        const sortedMoods = [...moodsData].sort((a, b) => new Date(a.date) - new Date(b.date));
-        
-        // 准备数据
-        const labels = sortedMoods.map(mood => formatDate(mood.date));
-        const data = sortedMoods.map(mood => getMoodValue(mood.value));
-        
-        window.moodsChart.data.labels = labels;
-        window.moodsChart.data.datasets[0].data = data;
-        window.moodsChart.update();
-      }
-      
-      // 更新心情分布图表
-      const moodTypes = ['非常开心', '开心', '一般', '难过', '非常难过'];
-      const moodCounts = moodTypes.map(type => 
-        moodsData.filter(mood => mood.value === type).length
-      );
-      
-      if (window.moodsPieChart) {
-        window.moodsPieChart.data.datasets[0].data = moodCounts;
-        window.moodsPieChart.update();
-      }
-    }
-    
-    // 添加物品表单提交
-    modals.item.form.addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      const name = document.getElementById('item-name').value;
-      const scene = document.getElementById('item-scene').value;
-      const quantity = parseInt(document.getElementById('item-quantity').value);
-      const status = document.getElementById('item-status').value;
-      
-      if (!name) {
-        alert('请输入物品名称');
-        return;
-      }
-      
-      // 添加新物品
-      const newItem = {
-        id: Date.now(),
-        name,
-        scene,
-        quantity,
-        status
-      };
-      
-      itemsData.push(newItem);
-      
-      // 添加日志
-      addLog('添加', '物品', `添加了名为"${name}"的物品`);
-      
-      // 更新UI
-      updateItemsTable();
-      updateCounters();
-      updateCharts();
-      
-      // 关闭模态框
-      closeModal('item');
-    });
-    
-    // 添加关系表单提交
-    modals.relation.form.addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      const name = document.getElementById('relation-name').value;
-      const platform = document.getElementById('relation-platform').value;
-      const type = document.getElementById('relation-type').value;
-      const frequency = document.getElementById('relation-frequency').value;
-      const note = document.getElementById('relation-note').value;
-      
-      if (!name) {
-        alert('请输入名称');
-        return;
-      }
-      
-      // 添加新关系
-      const newRelation = {
-        id: Date.now(),
-        name,
-        platform,
-        type,
-        frequency,
-        note
-      };
-      
-      relationsData.push(newRelation);
-      
-      // 添加日志
-      addLog('添加', '关系', `添加了名为"${name}"的关系`);
-      
-      // 更新UI
-      updateRelationsTable();
-      updateCounters();
-      updateCharts();
-      
-      // 关闭模态框
-      closeModal('relation');
-    });
-    
-    // 添加心情表单提交
-    modals.mood.form.addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      const date = document.getElementById('mood-date').value;
-      const value = document.getElementById('mood-value').value;
-      const description = document.getElementById('mood-description').value;
-      
-      if (!date) {
-        alert('请选择日期');
-        return;
-      }
-      
-      if (!value) {
-        alert('请选择心情状态');
-        return;
-      }
-      
-      // 添加新心情
-      const newMood = {
-        id: Date.now(),
-        date,
-        value,
-        description
-      };
-      
-      moodsData.push(newMood);
-      
-      // 添加日志
-      addLog('添加', '心情', `记录了${formatDate(date)}的心情`);
-      
-      // 更新UI
-      updateMoodsTable();
-      updateCounters();
-      updateCharts();
-      updateCharts();
-      
-      // 关闭模态框
-      closeModal('mood');
-    });
-    
-    // 添加日志
-    function addLog(type, dataType, details) {
-      const log = {
-        id: Date.now(),
-        timestamp: new Date(),
-        type,
-        dataType,
-        details
-      };
-      
-      logsData.push(log);
-      updateLogsTable();
-    }
-    
-    // 工具函数
-    function getSceneColor(scene) {
-      const colors = {
-        'wardrobe': 'purple-500',
-        'bedroom': 'orange-400',
-        'living': 'cyan-500',
-        'kitchen': 'green-500',
-        'bathroom': 'red-500'
-      };
-      return colors[scene] || 'gray-500';
-    }
-    
-    function getSceneIcon(scene) {
-      const icons = {
-        'wardrobe': 'tshirt',
-        'bedroom': 'bed',
-        'living': 'television',
-        'kitchen': 'cutlery',
-        'bathroom': 'bath'
-      };
-      return icons[scene] || 'cube';
-    }
-    
-    function getSceneName(scene) {
-      const names = {
-        'wardrobe': '衣橱',
-        'bedroom': '卧室',
-        'living': '客厅',
-        'kitchen': '厨房',
-        'bathroom': '浴室'
-      };
-      return names[scene] || scene;
-    }
-    
-    function getStatusClass(status) {
-      const classes = {
-        '可用': 'bg-green-100 text-green-800',
-        '已使用': 'bg-blue-100 text-blue-800',
-        '闲置': 'bg-gray-100 text-gray-800',
-        '维修中': 'bg-red-100 text-red-800'
-      };
-      return classes[status] || 'bg-gray-100 text-gray-800';
-    }
-    
-    function getMoodColor(mood) {
-      const colors = {
-        '非常开心': 'yellow-400',
-        '开心': 'yellow-300',
-        '一般': 'gray-400',
-        '难过': 'blue-400',
-        '非常难过': 'blue-500'
-      };
-      return colors[mood] || 'gray-500';
-    }
-    
-    function getMoodIcon(mood) {
-      const icons = {
-        '非常开心': '<i class="fa fa-smile-o text-xl"></i>',
-        '开心': '<i class="fa fa-smile-o"></i>',
-        '一般': '<i class="fa fa-meh-o"></i>',
-        '难过': '<i class="fa fa-frown-o"></i>',
-        '非常难过': '<i class="fa fa-frown-o text-xl"></i>'
-      };
-      return icons[mood] || '<i class="fa fa-question-circle"></i>';
-    }
-    
-    function getMoodValue(mood) {
-      const values = {
-        '非常开心': 4,
-        '开心': 3,
-        '一般': 2,
-        '难过': 1,
-        '非常难过': 0
-      };
-      return values[mood] || 2;
-    }
-    
-    function getLogTypeClass(type) {
-      const classes = {
-        '添加': 'bg-green-100 text-green-800',
-        '修改': 'bg-blue-100 text-blue-800',
-        '删除': 'bg-red-100 text-red-800',
-        '导入': 'bg-indigo-100 text-indigo-800',
-        '导出': 'bg-purple-100 text-purple-800'
-      };
-      return classes[type] || 'bg-gray-100 text-gray-800';
-    }
-    
-    function formatDate(dateString) {
-      const date = new Date(dateString);
-      return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
-    }
-    
-    function formatDateTime(date) {
-      if (typeof date === 'string') {
-        date = new Date(date);
-      }
-      return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
-    }
-  </script>
-</body>
-</html>
+          labels: ['朋友', '家人', '
