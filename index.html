@@ -577,3 +577,301 @@
         modal: document.getElementById('add-mood-modal'),
         form: document.getElementById('add-mood-form'),
         closeBtn: document.getElementById('close-mood-modal'),
+        cancelBtn: document.getElementById('cancel-mood-btn')
+      },
+      viewItem: {
+        modal: document.getElementById('view-item-modal'),
+        closeBtn: document.getElementById('close-view-item-modal'),
+        closeDetailBtn: document.getElementById('close-detail-btn'),
+        editBtn: document.getElementById('edit-item-btn')
+      },
+      viewRelation: {
+        modal: document.getElementById('view-relation-modal'),
+        closeBtn: document.getElementById('close-view-relation-modal'),
+        closeDetailBtn: document.getElementById('close-relation-detail-btn'),
+        editBtn: document.getElementById('edit-relation-btn')
+      },
+      viewMood: {
+        modal: document.getElementById('view-mood-modal'),
+        closeBtn: document.getElementById('close-view-mood-modal'),
+        closeDetailBtn: document.getElementById('close-mood-detail-btn'),
+        editBtn: document.getElementById('edit-mood-btn')
+      }
+    };
+    
+    // 显示/隐藏模态框函数
+    function showModal(modal) {
+      modal.modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+    
+    function hideModal(modal) {
+      modal.modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+    
+    // 渲染表格数据
+    function renderItemsTable() {
+      const tableBody = document.getElementById('items-table-body');
+      
+      if (itemsData.length === 0) {
+        tableBody.innerHTML = `
+          <tr class="text-center">
+            <td colspan="5" class="px-6 py-12 text-gray-500">暂无物品数据</td>
+          </tr>
+        `;
+        return;
+      }
+      
+      let html = '';
+      itemsData.forEach(item => {
+        html += `
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap">
+              <button class="text-primary hover:underline view-item-btn" data-id="${item.id}">
+                ${item.name}
+              </button>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">${item.scene}</td>
+            <td class="px-6 py-4 whitespace-nowrap">${item.location}</td>
+            <td class="px-6 py-4 whitespace-nowrap">${item.price}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <button class="text-primary hover:text-primary/80 mr-3 edit-item-btn" data-id="${item.id}">
+                <i class="fa fa-edit"></i> 编辑
+              </button>
+              <button class="text-red-500 hover:text-red-700 delete-item-btn" data-id="${item.id}">
+                <i class="fa fa-trash"></i> 删除
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+      
+      tableBody.innerHTML = html;
+      
+      // 添加事件监听器
+      document.querySelectorAll('.view-item-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.getAttribute('data-id');
+          viewItem(id);
+        });
+      });
+      
+      document.querySelectorAll('.edit-item-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.getAttribute('data-id');
+          editItem(id);
+        });
+      });
+      
+      document.querySelectorAll('.delete-item-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.getAttribute('data-id');
+          deleteItem(id);
+        });
+      });
+    }
+    
+    function renderRelationsTable() {
+      const tableBody = document.getElementById('relations-table-body');
+      
+      if (relationsData.length === 0) {
+        tableBody.innerHTML = `
+          <tr class="text-center">
+            <td colspan="4" class="px-6 py-12 text-gray-500">暂无关系数据</td>
+          </tr>
+        `;
+        return;
+      }
+      
+      let html = '';
+      relationsData.forEach(relation => {
+        html += `
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap">
+              <button class="text-primary hover:underline view-relation-btn" data-id="${relation.id}">
+                ${relation.name}
+              </button>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">${relation.type}</td>
+            <td class="px-6 py-4 whitespace-nowrap">${relation.met}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <button class="text-primary hover:text-primary/80 mr-3 edit-relation-btn" data-id="${relation.id}">
+                <i class="fa fa-edit"></i> 编辑
+              </button>
+              <button class="text-red-500 hover:text-red-700 delete-relation-btn" data-id="${relation.id}">
+                <i class="fa fa-trash"></i> 删除
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+      
+      tableBody.innerHTML = html;
+      
+      // 添加事件监听器
+      document.querySelectorAll('.view-relation-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.getAttribute('data-id');
+          viewRelation(id);
+        });
+      });
+      
+      document.querySelectorAll('.edit-relation-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.getAttribute('data-id');
+          editRelation(id);
+        });
+      });
+      
+      document.querySelectorAll('.delete-relation-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.getAttribute('data-id');
+          deleteRelation(id);
+        });
+      });
+    }
+    
+    function renderMoodsTable() {
+      const tableBody = document.getElementById('moods-table-body');
+      
+      if (moodsData.length === 0) {
+        tableBody.innerHTML = `
+          <tr class="text-center">
+            <td colspan="4" class="px-6 py-12 text-gray-500">暂无心情记录</td>
+          </tr>
+        `;
+        return;
+      }
+      
+      let html = '';
+      moodsData.forEach(mood => {
+        const date = new Date(mood.date);
+        const formattedDate = date.toLocaleDateString('zh-CN');
+        
+        html += `
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap">${formattedDate}</td>
+            <td class="px-6 py-4 whitespace-nowrap">${getMoodIcon(mood.value)} ${mood.value}</td>
+            <td class="px-6 py-4">${mood.description}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <button class="text-primary hover:text-primary/80 mr-3 edit-mood-btn" data-id="${mood.id}">
+                <i class="fa fa-edit"></i> 编辑
+              </button>
+              <button class="text-red-500 hover:text-red-700 delete-mood-btn" data-id="${mood.id}">
+                <i class="fa fa-trash"></i> 删除
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+      
+      tableBody.innerHTML = html;
+      
+      // 添加事件监听器
+      document.querySelectorAll('.edit-mood-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.getAttribute('data-id');
+          editMood(id);
+        });
+      });
+      
+      document.querySelectorAll('.delete-mood-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.getAttribute('data-id');
+          deleteMood(id);
+        });
+      });
+    }
+    
+    // 获取心情图标
+    function getMoodIcon(value) {
+      switch(value) {
+        case '非常开心':
+          return '<i class="fa fa-smile-o text-yellow-400"></i>';
+        case '开心':
+          return '<i class="fa fa-smile-o text-yellow-300"></i>';
+        case '一般':
+          return '<i class="fa fa-meh-o text-gray-400"></i>';
+        case '难过':
+          return '<i class="fa fa-frown-o text-blue-400"></i>';
+        case '非常难过':
+          return '<i class="fa fa-frown-o text-blue-500"></i>';
+        default:
+          return '';
+      }
+    }
+    
+    // 物品操作
+    function addItem(e) {
+      e.preventDefault();
+      
+      const id = document.getElementById('item-id').value;
+      const name = document.getElementById('item-name').value;
+      const scene = document.getElementById('item-scene').value;
+      const location = document.getElementById('item-location').value;
+      const price = document.getElementById('item-price').value;
+      
+      if (!name || !price) {
+        alert('名称和价格不能为空');
+        return;
+      }
+      
+      const timestamp = new Date().toISOString();
+      
+      if (id) {
+        // 编辑
+        const index = itemsData.findIndex(item => item.id === id);
+        if (index !== -1) {
+          itemsData[index] = {
+            ...itemsData[index],
+            name,
+            scene,
+            location,
+            price,
+            updatedAt: timestamp
+          };
+        }
+      } else {
+        // 新增
+        itemsData.push({
+          id: 'item_' + Date.now(),
+          name,
+          scene,
+          location,
+          price,
+          createdAt: timestamp,
+          updatedAt: timestamp
+        });
+      }
+      
+      DataManager.saveData({ items: itemsData, relations: relationsData, moods: moodsData });
+      renderItemsTable();
+      hideModal(modals.item);
+      modals.item.form.reset();
+      document.getElementById('item-id').value = '';
+      modals.item.title.textContent = '添加新物品';
+    }
+    
+    function editItem(id) {
+      const item = itemsData.find(item => item.id === id);
+      if (!item) return;
+      
+      document.getElementById('item-id').value = item.id;
+      document.getElementById('item-name').value = item.name;
+      document.getElementById('item-scene').value = item.scene;
+      document.getElementById('item-location').value = item.location;
+      document.getElementById('item-price').value = item.price;
+      
+      modals.item.title.textContent = '编辑物品';
+      showModal(modals.item);
+    }
+    
+    function viewItem(id) {
+      const item = itemsData.find(item => item.id === id);
+      if (!item) return;
+      
+      document.getElementById('detail-name').textContent = item.name;
+      document.getElementById('detail-scene').textContent = item.scene;
+      document.getElementById('detail-location').textContent = item.location;
+      document.getElementById('detail-price').textContent = item.price + ' 元';
