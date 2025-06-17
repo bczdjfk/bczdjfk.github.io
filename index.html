@@ -3,9 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>我的个人物品库</title>
+  <title>Poppy的个人主页</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -15,6 +17,11 @@
             secondary: '#EC4899',
             neutral: '#1F2937',
             'neutral-light': '#F3F4F6',
+            'mood-happy': '#4ADE80',
+            'mood-neutral': '#FACC15',
+            'mood-sad': '#F87171',
+            'mood-anxious': '#93C5FD',
+            'mood-excited': '#FB923C',
           },
           fontFamily: {
             inter: ['Inter', 'sans-serif'],
@@ -37,6 +44,35 @@
       .hover-scale:hover {
         transform: scale(1.03);
       }
+      .glass-effect {
+        backdrop-filter: blur(10px);
+        background-color: rgba(255, 255, 255, 0.7);
+      }
+      .text-shadow {
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .timeline-item {
+        position: relative;
+        padding-left: 2rem;
+      }
+      .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0.5rem;
+        width: 1rem;
+        height: 1rem;
+        border-radius: 50%;
+        background-color: currentColor;
+      }
+      .timeline-line {
+        position: absolute;
+        left: 0.5rem;
+        top: 1.5rem;
+        bottom: 0;
+        width: 2px;
+        background-color: #e5e7eb;
+      }
     }
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -46,8 +82,8 @@
   <nav id="navbar" class="bg-white shadow-md fixed w-full z-50 transition-all duration-300">
     <div class="container mx-auto px-4 py-3 flex justify-between items-center">
       <div class="flex items-center space-x-2">
-        <i class="fa fa-th-large text-primary text-2xl"></i>
-        <h1 class="text-xl font-bold text-primary">我的物品库</h1>
+        <i class="fa fa-user-circle text-primary text-2xl"></i>
+        <h1 class="text-xl font-bold text-primary">Poppy的个人主页</h1>
       </div>
       
       <!-- 移动端菜单按钮 -->
@@ -58,8 +94,9 @@
       <!-- 桌面端导航链接 -->
       <div class="hidden lg:flex items-center space-x-8">
         <a href="#home" class="text-neutral hover:text-primary transition-colors">首页</a>
-        <a href="#categories" class="text-neutral hover:text-primary transition-colors">分类</a>
-        <a href="#add-item" class="text-neutral hover:text-primary transition-colors">添加物品</a>
+        <a href="#items" class="text-neutral hover:text-primary transition-colors">我的物品</a>
+        <a href="#network" class="text-neutral hover:text-primary transition-colors">我的网络</a>
+        <a href="#mood" class="text-neutral hover:text-primary transition-colors">我的情绪</a>
         <a href="#about" class="text-neutral hover:text-primary transition-colors">关于</a>
         <button id="login-btn" class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg transition-colors">
           <i class="fa fa-user-circle mr-2"></i>登录
@@ -71,8 +108,9 @@
     <div id="mobile-menu" class="lg:hidden hidden bg-white border-t">
       <div class="container mx-auto px-4 py-3 flex flex-col space-y-3">
         <a href="#home" class="text-neutral hover:text-primary transition-colors py-2">首页</a>
-        <a href="#categories" class="text-neutral hover:text-primary transition-colors py-2">分类</a>
-        <a href="#add-item" class="text-neutral hover:text-primary transition-colors py-2">添加物品</a>
+        <a href="#items" class="text-neutral hover:text-primary transition-colors py-2">我的物品</a>
+        <a href="#network" class="text-neutral hover:text-primary transition-colors py-2">我的网络</a>
+        <a href="#mood" class="text-neutral hover:text-primary transition-colors py-2">我的情绪</a>
         <a href="#about" class="text-neutral hover:text-primary transition-colors py-2">关于</a>
         <button id="mobile-login-btn" class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg transition-colors">
           <i class="fa fa-user-circle mr-2"></i>登录
@@ -88,28 +126,39 @@
       <div class="container mx-auto px-4">
         <div class="flex flex-col md:flex-row items-center">
           <div class="md:w-1/2 mb-8 md:mb-0">
-            <h2 class="text-[clamp(2rem,5vw,3.5rem)] font-bold text-neutral leading-tight">
-              管理你的<br><span class="text-primary">个人物品</span>收藏
-            </h2>
-            <p class="text-lg text-gray-600 mt-4 mb-8 max-w-lg">
-              轻松记录、展示和管理你的所有物品，无论是衣橱、厨具还是收藏品，一目了然。
-            </p>
-            <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-              <a href="#add-item" class="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg transition-colors text-center">
-                <i class="fa fa-plus-circle mr-2"></i>添加物品
-              </a>
-              <a href="#categories" class="bg-white hover:bg-gray-100 text-primary border border-primary px-6 py-3 rounded-lg transition-colors text-center">
-                <i class="fa fa-th-list mr-2"></i>浏览分类
-              </a>
+            <div class="glass-effect p-8 rounded-2xl card-shadow">
+              <h2 class="text-[clamp(2rem,5vw,3.5rem)] font-bold text-neutral leading-tight text-shadow">
+                你好，我是 <span class="text-primary">Poppy</span>
+              </h2>
+              <div class="flex items-center mt-4 mb-6">
+                <div class="bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium">
+                  <i class="fa fa-user-circle mr-2"></i>MBTI: INFP-T
+                </div>
+              </div>
+              <p class="text-lg text-gray-600 mb-8">
+                欢迎来到我的个人主页。这里展示了我的个人物品、社交网络和情绪记录。
+                希望你能在这里更好地了解我。
+              </p>
+              <div class="flex flex-wrap gap-4">
+                <a href="#items" class="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg transition-colors text-center flex items-center">
+                  <i class="fa fa-th-large mr-2"></i>我的物品
+                </a>
+                <a href="#network" class="bg-white hover:bg-gray-100 text-primary border border-primary px-6 py-3 rounded-lg transition-colors text-center flex items-center">
+                  <i class="fa fa-users mr-2"></i>我的网络
+                </a>
+                <a href="#mood" class="bg-secondary hover:bg-secondary/90 text-white px-6 py-3 rounded-lg transition-colors text-center flex items-center">
+                  <i class="fa fa-heart mr-2"></i>我的情绪
+                </a>
+              </div>
             </div>
           </div>
           <div class="md:w-1/2 flex justify-center">
             <div class="relative">
-              <img src="https://picsum.photos/seed/inventory/600/400" alt="个人物品管理" class="rounded-lg shadow-xl hover-scale">
+              <img src="https://picsum.photos/seed/poppy/600/600" alt="Poppy的照片" class="rounded-full w-64 h-64 object-cover shadow-2xl border-4 border-white hover-scale">
               <div class="absolute -bottom-4 -right-4 bg-white p-3 rounded-lg shadow-lg">
                 <div class="flex items-center space-x-2">
                   <i class="fa fa-check-circle text-green-500 text-xl"></i>
-                  <span class="font-medium">已添加 245 件物品</span>
+                  <span class="font-medium">INFP-T</span>
                 </div>
               </div>
             </div>
@@ -123,306 +172,139 @@
       <div class="container mx-auto px-4">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
           <div class="bg-neutral-light rounded-xl p-6 text-center hover-scale">
-            <div class="text-4xl font-bold text-primary mb-2">5</div>
-            <div class="text-gray-600">分类</div>
-          </div>
-          <div class="bg-neutral-light rounded-xl p-6 text-center hover-scale">
-            <div class="text-4xl font-bold text-primary mb-2">245</div>
-            <div class="text-gray-600">物品</div>
-          </div>
-          <div class="bg-neutral-light rounded-xl p-6 text-center hover-scale">
             <div class="text-4xl font-bold text-primary mb-2">128</div>
-            <div class="text-gray-600">衣服</div>
+            <div class="text-gray-600">衣橱物品</div>
           </div>
           <div class="bg-neutral-light rounded-xl p-6 text-center hover-scale">
             <div class="text-4xl font-bold text-primary mb-2">32</div>
             <div class="text-gray-600">厨具</div>
           </div>
+          <div class="bg-neutral-light rounded-xl p-6 text-center hover-scale">
+            <div class="text-4xl font-bold text-primary mb-2">5</div>
+            <div class="text-gray-600">家人</div>
+          </div>
+          <div class="bg-neutral-light rounded-xl p-6 text-center hover-scale">
+            <div class="text-4xl font-bold text-primary mb-2">12</div>
+            <div class="text-gray-600">好友</div>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- 分类浏览 -->
-    <section id="categories" class="py-16 bg-gray-50">
-      <div class="container mx-auto px-4">
-        <div class="text-center mb-12">
-          <h2 class="text-3xl font-bold text-neutral mb-4">按分类浏览</h2>
-          <p class="text-gray-600 max-w-2xl mx-auto">探索你收藏的各类物品，点击分类查看详情</p>
-        </div>
-        
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          <!-- 分类卡片 -->
-          <div class="bg-white rounded-xl overflow-hidden shadow-md hover-scale card-shadow">
-            <div class="h-48 overflow-hidden">
-              <img src="https://picsum.photos/seed/clothes/500/300" alt="衣橱" class="w-full h-full object-cover">
-            </div>
-            <div class="p-6">
-              <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-semibold text-neutral">衣橱</h3>
-                <span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm">128 件</span>
-              </div>
-              <p class="text-gray-600 mb-4">你的所有衣物，包括上衣、裤子、外套等</p>
-              <a href="#" class="text-primary hover:text-primary/80 font-medium flex items-center">
-                查看全部 <i class="fa fa-arrow-right ml-2"></i>
-              </a>
-            </div>
-          </div>
-          
-          <div class="bg-white rounded-xl overflow-hidden shadow-md hover-scale card-shadow">
-            <div class="h-48 overflow-hidden">
-              <img src="https://picsum.photos/seed/kitchen/500/300" alt="厨具" class="w-full h-full object-cover">
-            </div>
-            <div class="p-6">
-              <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-semibold text-neutral">厨具</h3>
-                <span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm">32 件</span>
-              </div>
-              <p class="text-gray-600 mb-4">厨房用具、餐具和烹饪相关物品</p>
-              <a href="#" class="text-primary hover:text-primary/80 font-medium flex items-center">
-                查看全部 <i class="fa fa-arrow-right ml-2"></i>
-              </a>
-            </div>
-          </div>
-          
-          <div class="bg-white rounded-xl overflow-hidden shadow-md hover-scale card-shadow">
-            <div class="h-48 overflow-hidden">
-              <img src="https://picsum.photos/seed/electronics/500/300" alt="电子产品" class="w-full h-full object-cover">
-            </div>
-            <div class="p-6">
-              <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-semibold text-neutral">电子产品</h3>
-                <span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm">45 件</span>
-              </div>
-              <p class="text-gray-600 mb-4">手机、电脑、相机等电子设备</p>
-              <a href="#" class="text-primary hover:text-primary/80 font-medium flex items-center">
-                查看全部 <i class="fa fa-arrow-right ml-2"></i>
-              </a>
-            </div>
-          </div>
-          
-          <div class="bg-white rounded-xl overflow-hidden shadow-md hover-scale card-shadow">
-            <div class="h-48 overflow-hidden">
-              <img src="https://picsum.photos/seed/books/500/300" alt="书籍" class="w-full h-full object-cover">
-            </div>
-            <div class="p-6">
-              <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-semibold text-neutral">书籍</h3>
-                <span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm">40 本</span>
-              </div>
-              <p class="text-gray-600 mb-4">你的藏书，包括小说、教材和工具书</p>
-              <a href="#" class="text-primary hover:text-primary/80 font-medium flex items-center">
-                查看全部 <i class="fa fa-arrow-right ml-2"></i>
-              </a>
-            </div>
-          </div>
-        </div>
-        
-        <div class="text-center mt-10">
-          <button class="bg-white hover:bg-gray-100 text-primary border border-primary px-6 py-3 rounded-lg transition-colors inline-flex items-center">
-            <i class="fa fa-plus mr-2"></i> 添加新分类
-          </button>
-        </div>
-      </div>
-    </section>
-
-    <!-- 最近添加的物品 -->
-    <section class="py-16 bg-white">
+    <!-- 我的物品 -->
+    <section id="items" class="py-16 bg-gray-50">
       <div class="container mx-auto px-4">
         <div class="flex flex-col md:flex-row md:items-center justify-between mb-12">
           <div>
-            <h2 class="text-3xl font-bold text-neutral mb-4">最近添加的物品</h2>
-            <p class="text-gray-600 max-w-2xl">查看你最近添加到收藏中的物品</p>
+            <h2 class="text-3xl font-bold text-neutral mb-2">我的物品</h2>
+            <p class="text-gray-600 max-w-2xl">探索我的个人物品收藏，从衣橱到浴室，应有尽有</p>
           </div>
-          <div class="mt-4 md:mt-0">
-            <div class="flex space-x-2">
-              <button id="prev-item" class="bg-white hover:bg-gray-100 text-neutral border border-gray-300 p-2 rounded-lg transition-colors">
-                <i class="fa fa-chevron-left"></i>
-              </button>
-              <button id="next-item" class="bg-white hover:bg-gray-100 text-neutral border border-gray-300 p-2 rounded-lg transition-colors">
-                <i class="fa fa-chevron-right"></i>
-              </button>
-            </div>
-          </div>
+          <button id="manage-closet-btn" class="mt-4 md:mt-0 bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg transition-colors flex items-center">
+            <i class="fa fa-cog mr-2"></i>管理衣橱
+          </button>
         </div>
         
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          <!-- 物品卡片 -->
-          <div class="bg-white rounded-xl overflow-hidden shadow-md hover-scale card-shadow">
-            <div class="relative">
-              <div class="h-48 overflow-hidden">
-                <img src="https://picsum.photos/seed/item1/500/300" alt="蓝色休闲外套" class="w-full h-full object-cover">
-              </div>
-              <div class="absolute top-3 right-3">
-                <button class="bg-white text-gray-500 hover:text-red-500 p-2 rounded-full shadow-md transition-colors">
-                  <i class="fa fa-heart-o"></i>
-                </button>
-              </div>
-              <div class="absolute top-3 left-3">
-                <span class="bg-primary text-white text-xs px-2 py-1 rounded">衣橱</span>
-              </div>
-            </div>
-            <div class="p-5">
-              <h3 class="text-lg font-semibold text-neutral mb-1">蓝色休闲外套</h3>
-              <p class="text-gray-600 text-sm mb-3">舒适的棉质外套，适合春秋季节穿着</p>
-              <div class="flex justify-between items-center">
-                <span class="text-sm font-medium">添加于 3天前</span>
-                <button class="text-primary hover:text-primary/80">
-                  <i class="fa fa-ellipsis-h"></i>
-                </button>
-              </div>
-            </div>
-          </div>
-          
-          <div class="bg-white rounded-xl overflow-hidden shadow-md hover-scale card-shadow">
-            <div class="relative">
-              <div class="h-48 overflow-hidden">
-                <img src="https://picsum.photos/seed/item2/500/300" alt="多功能料理锅" class="w-full h-full object-cover">
-              </div>
-              <div class="absolute top-3 right-3">
-                <button class="bg-white text-gray-500 hover:text-red-500 p-2 rounded-full shadow-md transition-colors">
-                  <i class="fa fa-heart-o"></i>
-                </button>
-              </div>
-              <div class="absolute top-3 left-3">
-                <span class="bg-secondary text-white text-xs px-2 py-1 rounded">厨具</span>
-              </div>
-            </div>
-            <div class="p-5">
-              <h3 class="text-lg font-semibold text-neutral mb-1">多功能料理锅</h3>
-              <p class="text-gray-600 text-sm mb-3">可煎、炒、烤、煮的多功能厨房电器</p>
-              <div class="flex justify-between items-center">
-                <span class="text-sm font-medium">添加于 1周前</span>
-                <button class="text-primary hover:text-primary/80">
-                  <i class="fa fa-ellipsis-h"></i>
-                </button>
-              </div>
-            </div>
-          </div>
-          
-          <div class="bg-white rounded-xl overflow-hidden shadow-md hover-scale card-shadow">
-            <div class="relative">
-              <div class="h-48 overflow-hidden">
-                <img src="https://picsum.photos/seed/item3/500/300" alt="摄影三脚架" class="w-full h-full object-cover">
-              </div>
-              <div class="absolute top-3 right-3">
-                <button class="bg-white text-gray-500 hover:text-red-500 p-2 rounded-full shadow-md transition-colors">
-                  <i class="fa fa-heart-o"></i>
-                </button>
-              </div>
-              <div class="absolute top-3 left-3">
-                <span class="bg-primary text-white text-xs px-2 py-1 rounded">电子产品</span>
-              </div>
-            </div>
-            <div class="p-5">
-              <h3 class="text-lg font-semibold text-neutral mb-1">摄影三脚架</h3>
-              <p class="text-gray-600 text-sm mb-3">轻便铝合金三脚架，适合旅行摄影</p>
-              <div class="flex justify-between items-center">
-                <span class="text-sm font-medium">添加于 2周前</span>
-                <button class="text-primary hover:text-primary/80">
-                  <i class="fa fa-ellipsis-h"></i>
-                </button>
-              </div>
-            </div>
-          </div>
-          
-          <div class="bg-white rounded-xl overflow-hidden shadow-md hover-scale card-shadow">
-            <div class="relative">
-              <div class="h-48 overflow-hidden">
-                <img src="https://picsum.photos/seed/item4/500/300" alt="设计模式" class="w-full h-full object-cover">
-              </div>
-              <div class="absolute top-3 right-3">
-                <button class="bg-white text-gray-500 hover:text-red-500 p-2 rounded-full shadow-md transition-colors">
-                  <i class="fa fa-heart-o"></i>
-                </button>
-              </div>
-              <div class="absolute top-3 left-3">
-                <span class="bg-secondary text-white text-xs px-2 py-1 rounded">书籍</span>
-              </div>
-            </div>
-            <div class="p-5">
-              <h3 class="text-lg font-semibold text-neutral mb-1">设计模式</h3>
-              <p class="text-gray-600 text-sm mb-3">软件开发中的经典设计模式指南</p>
-              <div class="flex justify-between items-center">
-                <span class="text-sm font-medium">添加于 2周前</span>
-                <button class="text-primary hover:text-primary/80">
-                  <i class="fa fa-ellipsis-h"></i>
-                </button>
-              </div>
-            </div>
-          </div>
+        <div id="closet-items" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <!-- 衣橱物品将通过JavaScript动态生成 -->
         </div>
       </div>
     </section>
 
-    <!-- 添加物品表单 -->
-    <section id="add-item" class="py-16 bg-gray-50">
+    <!-- 我的网络 -->
+    <section id="network" class="py-16 bg-white">
       <div class="container mx-auto px-4">
-        <div class="text-center mb-12">
-          <h2 class="text-3xl font-bold text-neutral mb-4">添加新物品</h2>
-          <p class="text-gray-600 max-w-2xl mx-auto">上传新物品到你的收藏中</p>
+        <div class="flex flex-col md:flex-row md:items-center justify-between mb-12">
+          <div>
+            <h2 class="text-3xl font-bold text-neutral mb-2">我的网络</h2>
+            <p class="text-gray-600 max-w-2xl">探索我的社交关系网络</p>
+          </div>
+          <button id="manage-network-btn" class="mt-4 md:mt-0 bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg transition-colors flex items-center">
+            <i class="fa fa-cog mr-2"></i>管理网络
+          </button>
         </div>
         
-        <div class="max-w-3xl mx-auto bg-white rounded-xl shadow-md p-8">
-          <form id="add-item-form" class="space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label for="item-name" class="block text-sm font-medium text-gray-700 mb-1">物品名称</label>
-                <input type="text" id="item-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors" placeholder="输入物品名称">
-              </div>
-              
-              <div>
-                <label for="item-category" class="block text-sm font-medium text-gray-700 mb-1">所属分类</label>
-                <select id="item-category" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors">
-                  <option value="">选择分类</option>
-                  <option value="clothes">衣橱</option>
-                  <option value="kitchen">厨具</option>
-                  <option value="electronics">电子产品</option>
-                  <option value="books">书籍</option>
-                  <option value="other">其他</option>
-                </select>
-              </div>
+        <div class="bg-neutral-light rounded-xl p-6 max-w-6xl mx-auto">
+          <div class="mb-6">
+            <h3 class="text-xl font-semibold text-neutral mb-2">社交网络图</h3>
+            <p class="text-gray-600 text-sm">节点大小表示联系频率，连线粗细表示关系强度</p>
+          </div>
+          <div class="relative" style="height: 500px">
+            <svg id="network-graph" width="100%" height="100%"></svg>
+          </div>
+          
+          <div class="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="flex items-center">
+              <div class="w-3 h-3 rounded-full bg-primary mr-2"></div>
+              <span class="text-sm">家人</span>
+            </div>
+            <div class="flex items-center">
+              <div class="w-3 h-3 rounded-full bg-secondary mr-2"></div>
+              <span class="text-sm">朋友</span>
+            </div>
+            <div class="flex items-center">
+              <div class="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
+              <span class="text-sm">同事</span>
+            </div>
+            <div class="flex items-center">
+              <div class="w-3 h-3 rounded-full bg-yellow-500 mr-2"></div>
+              <span class="text-sm">兴趣圈</span>
+            </div>
+          </div>
+        </div>
+        
+        <div id="network-contacts" class="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- 联系人列表将通过JavaScript动态生成 -->
+        </div>
+      </div>
+    </section>
+
+    <!-- 我的情绪 -->
+    <section id="mood" class="py-16 bg-gray-50">
+      <div class="container mx-auto px-4">
+        <div class="flex flex-col md:flex-row md:items-center justify-between mb-12">
+          <div>
+            <h2 class="text-3xl font-bold text-neutral mb-2">我的情绪</h2>
+            <p class="text-gray-600 max-w-2xl">记录我的情绪变化，探索内心世界</p>
+          </div>
+          <button id="add-mood-btn" class="mt-4 md:mt-0 bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg transition-colors flex items-center">
+            <i class="fa fa-plus mr-2"></i>记录情绪
+          </button>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+          <!-- 情绪记录 -->
+          <div class="bg-white rounded-xl shadow-md p-6">
+            <h3 class="text-xl font-semibold text-neutral mb-6">情绪记录</h3>
+            <div id="mood-timeline" class="relative pl-4">
+              <!-- 情绪时间线将通过JavaScript动态生成 -->
             </div>
             
-            <div>
-              <label for="item-description" class="block text-sm font-medium text-gray-700 mb-1">物品描述</label>
-              <textarea id="item-description" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors" placeholder="描述物品的特点、用途等"></textarea>
-            </div>
-            
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">上传照片</label>
-              <div class="flex items-center justify-center w-full">
-                <label for="file-upload" class="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
-                  <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                    <i class="fa fa-cloud-upload text-3xl text-gray-400 mb-2"></i>
-                    <p class="mb-2 text-sm text-gray-500"><span class="font-medium">点击上传照片</span> 或拖放文件</p>
-                    <p class="text-xs text-gray-400">支持 JPG, PNG, GIF 格式</p>
-                  </div>
-                  <input id="file-upload" type="file" class="hidden" accept="image/*" />
-                </label>
-              </div>
-              <div id="preview-container" class="mt-4 hidden">
-                <img id="image-preview" class="max-w-full h-auto rounded-lg shadow-md" alt="物品预览图">
-              </div>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label for="item-brand" class="block text-sm font-medium text-gray-700 mb-1">品牌</label>
-                <input type="text" id="item-brand" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors" placeholder="输入品牌名称">
-              </div>
-              
-              <div>
-                <label for="item-purchase-date" class="block text-sm font-medium text-gray-700 mb-1">购买日期</label>
-                <input type="date" id="item-purchase-date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors">
-              </div>
-            </div>
-            
-            <div class="pt-4">
-              <button type="submit" class="w-full bg-primary hover:bg-primary/90 text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center">
-                <i class="fa fa-plus-circle mr-2"></i> 添加物品
+            <div class="mt-8 text-center">
+              <button id="load-more-moods" class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg transition-colors">
+                查看更多记录
               </button>
             </div>
-          </form>
+          </div>
+          
+          <!-- 近期思考 -->
+          <div class="bg-white rounded-xl shadow-md p-6">
+            <div class="flex justify-between items-center mb-6">
+              <h3 class="text-xl font-semibold text-neutral">近期思考</h3>
+              <button id="add-thought-btn" class="text-primary hover:text-primary/80 text-sm flex items-center">
+                <i class="fa fa-plus mr-1"></i> 添加思考
+              </button>
+            </div>
+            
+            <div id="thoughts-list" class="space-y-6">
+              <!-- 思考列表将通过JavaScript动态生成 -->
+            </div>
+            
+            <div class="mt-8 text-center">
+              <button id="load-more-thoughts" class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg transition-colors">
+                查看所有思考
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -431,50 +313,156 @@
     <section id="about" class="py-16 bg-white">
       <div class="container mx-auto px-4">
         <div class="max-w-3xl mx-auto text-center">
-          <h2 class="text-3xl font-bold text-neutral mb-6">关于我的物品库</h2>
+          <h2 class="text-3xl font-bold text-neutral mb-6">关于我的主页</h2>
           <p class="text-gray-600 mb-8">
-            我的物品库是一个简单而实用的个人物品管理工具，帮助你记录和展示你拥有的所有物品。无论你是想整理衣橱、管理厨具，还是展示你的收藏品，这里都是理想的选择。
+            这是我的个人主页，展示了我的个人物品、社交网络和情绪记录。
+            作为一个INFP-T，我喜欢用这种方式记录和表达自己。
           </p>
           
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-            <div class="bg-neutral-light rounded-xl p-6 hover-scale">
-              <div class="text-primary text-3xl mb-4">
-                <i class="fa fa-tags"></i>
-              </div>
-              <h3 class="text-xl font-semibold text-neutral mb-2">分类整理</h3>
-              <p class="text-gray-600">将你的物品按类别整理，方便查找和管理</p>
-            </div>
-            
-            <div class="bg-neutral-light rounded-xl p-6 hover-scale">
-              <div class="text-primary text-3xl mb-4">
-                <i class="fa fa-camera"></i>
-              </div>
-              <h3 class="text-xl font-semibold text-neutral mb-2">图片展示</h3>
-              <p class="text-gray-600">为每件物品上传照片，直观展示你的收藏</p>
-            </div>
-            
-            <div class="bg-neutral-light rounded-xl p-6 hover-scale">
-              <div class="text-primary text-3xl mb-4">
-                <i class="fa fa-mobile"></i>
-              </div>
-              <h3 class="text-xl font-semibold text-neutral mb-2">随时随地</h3>
-              <p class="text-gray-600">在任何设备上访问你的物品库，轻松管理</p>
-            </div>
-          </div>
-          
           <div class="pt-4">
-            <h3 class="text-xl font-semibold text-neutral mb-4">开始使用</h3>
+            <h3 class="text-xl font-semibold text-neutral mb-4">MBTI简介</h3>
             <p class="text-gray-600 mb-6">
-              点击上方的"添加物品"按钮开始创建你的第一个物品，或选择分类浏览已有的物品。
+              INFP-T（调停者型人格）是16型人格中最具理想主义和诗意的类型之一。
+              我们敏感、富有同情心，总是在寻找生命的意义和目的。
             </p>
-            <a href="#add-item" class="inline-block bg-primary hover:bg-primary/90 text-white font-medium py-3 px-6 rounded-lg transition-colors">
-              开始添加物品
-            </a>
+            <div class="bg-neutral-light rounded-xl p-6 max-w-xl mx-auto text-left">
+              <h4 class="font-semibold text-neutral mb-2">INFP-T的特点：</h4>
+              <ul class="list-disc list-inside space-y-2 text-gray-600">
+                <li>富有创造力和想象力</li>
+                <li>对他人的感受非常敏感</li>
+                <li>理想主义，追求内心的价值观</li>
+                <li>喜欢独处，需要时间来反思</li>
+                <li>对艺术、音乐和文学有浓厚兴趣</li>
+                <li>可能过于敏感或容易受到伤害</li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
     </section>
   </main>
+
+  <!-- 衣橱管理模态框 -->
+  <div id="closet-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center">
+    <div class="bg-white rounded-xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="text-xl font-bold text-neutral">添加新物品</h3>
+        <button id="close-closet-modal" class="text-gray-400 hover:text-gray-600">
+          <i class="fa fa-times text-xl"></i>
+        </button>
+      </div>
+      
+      <form id="add-item-form">
+        <div class="mb-4">
+          <label for="item-name" class="block text-sm font-medium text-gray-700 mb-1">物品名称</label>
+          <input type="text" id="item-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" placeholder="例如：白色T恤">
+        </div>
+        
+        <div class="mb-4">
+          <label for="item-category" class="block text-sm font-medium text-gray-700 mb-1">物品类别</label>
+          <select id="item-category" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+            <option value="top">上衣</option>
+            <option value="bottom">下装</option>
+            <option value="dress">连衣裙</option>
+            <option value="outerwear">外套</option>
+            <option value="shoes">鞋子</option>
+            <option value="accessory">配饰</option>
+          </select>
+        </div>
+        
+        <div class="mb-4">
+          <label for="item-color" class="block text-sm font-medium text-gray-700 mb-1">颜色</label>
+          <input type="text" id="item-color" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" placeholder="例如：蓝色">
+        </div>
+        
+        <div class="mb-4">
+          <label for="item-brand" class="block text-sm font-medium text-gray-700 mb-1">品牌</label>
+          <input type="text" id="item-brand" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" placeholder="例如：ZARA">
+        </div>
+        
+        <div class="mb-4">
+          <label for="item-price" class="block text-sm font-medium text-gray-700 mb-1">价格</label>
+          <input type="number" id="item-price" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" placeholder="例如：299">
+        </div>
+        
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-1">上传图片</label>
+          <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+            <input type="file" id="item-image" class="hidden" accept="image/*">
+            <label for="item-image" class="cursor-pointer">
+              <div class="flex flex-col items-center">
+                <i class="fa fa-cloud-upload text-3xl text-gray-400 mb-2"></i>
+                <p class="text-gray-500">点击上传图片或拖拽到此处</p>
+                <p class="text-xs text-gray-400 mt-1">支持 JPG, PNG 格式</p>
+              </div>
+            </label>
+            <div id="image-preview" class="mt-4 hidden">
+              <img id="preview-image" src="" alt="预览图" class="max-w-full h-auto rounded-lg">
+            </div>
+          </div>
+        </div>
+        
+        <div class="flex justify-end space-x-3">
+          <button type="button" id="cancel-add-item" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">取消</button>
+          <button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90">添加物品</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 社交网络管理模态框 -->
+  <div id="network-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center">
+    <div class="bg-white rounded-xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="text-xl font-bold text-neutral">添加新联系人</h3>
+        <button id="close-network-modal" class="text-gray-400 hover:text-gray-600">
+          <i class="fa fa-times text-xl"></i>
+        </button>
+      </div>
+      
+      <form id="add-person-form">
+        <div class="mb-4">
+          <label for="person-name" class="block text-sm font-medium text-gray-700 mb-1">姓名</label>
+          <input type="text" id="person-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" placeholder="例如：张三">
+        </div>
+        
+        <div class="mb-4">
+          <label for="person-relationship" class="block text-sm font-medium text-gray-700 mb-1">关系</label>
+          <select id="person-relationship" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+            <option value="family">家人</option>
+            <option value="friend">朋友</option>
+            <option value="colleague">同事</option>
+            <option value="interest">兴趣圈</option>
+          </select>
+        </div>
+        
+        <div class="mb-4">
+          <label for="person-contact" class="block text-sm font-medium text-gray-700 mb-1">联系方式</label>
+          <input type="text" id="person-contact" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" placeholder="例如：13800138000">
+        </div>
+        
+        <div class="mb-4">
+          <label for="person-frequency" class="block text-sm font-medium text-gray-700 mb-1">联系频率</label>
+          <select id="person-frequency" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+            <option value="daily">每天</option>
+            <option value="weekly">每周</option>
+            <option value="monthly">每月</option>
+            <option value="rarely">很少</option>
+          </select>
+        </div>
+        
+        <div class="mb-6">
+          <label for="person-notes" class="block text-sm font-medium text-gray-700 mb-1">备注</label>
+          <textarea id="person-notes" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" placeholder="关于这个人的一些备注..."></textarea>
+        </div>
+        
+        <div class="flex justify-end space-x-3">
+          <button type="button" id="cancel-add-person" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">取消</button>
+          <button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90">添加联系人</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <!-- 页脚 -->
   <footer class="bg-neutral text-white py-12">
@@ -482,232 +470,83 @@
       <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
         <div>
           <div class="flex items-center space-x-2 mb-4">
-            <i class="fa fa-th-large text-primary text-2xl"></i>
-            <h3 class="text-xl font-bold">我的物品库</h3>
+            <i class="fa fa-user-circle text-primary text-2xl"></i>
+            <h3 class="text-xl font-bold">Poppy的个人主页</h3>
           </div>
           <p class="text-gray-400 mb-4">
-            简单而实用的个人物品管理工具，帮助你记录和展示所有物品。
+            记录生活，分享自我，探索内心世界。
           </p>
           <div class="flex space-x-4">
-            <a href="#" class="text-gray-400 hover:text-white transition-colors">
-              <i class="fa fa-facebook"></i>
-            </a>
-            <a href="#" class="text-gray-400 hover:text-white transition-colors">
-              <i class="fa fa-twitter"></i>
-            </a>
-            <a href="#" class="text-gray-400 hover:text-white transition-colors">
-              <i class="fa fa-instagram"></i>
-            </a>
-            <a href="#" class="text-gray-400 hover:text-white transition-colors">
-              <i class="fa fa-github"></i>
-            </a>
+            <a href="#" class="text-gray-400 hover:text-white"><i class="fa fa-instagram"></i></a>
+            <a href="#" class="text-gray-400 hover:text-white"><i class="fa fa-twitter"></i></a>
+            <a href="#" class="text-gray-400 hover:text-white"><i class="fa fa-linkedin"></i></a>
+            <a href="#" class="text-gray-400 hover:text-white"><i class="fa fa-pinterest"></i></a>
           </div>
         </div>
         
         <div>
           <h4 class="text-lg font-semibold mb-4">快速链接</h4>
           <ul class="space-y-2">
-            <li><a href="#home" class="text-gray-400 hover:text-white transition-colors">首页</a></li>
-            <li><a href="#categories" class="text-gray-400 hover:text-white transition-colors">分类</a></li>
-            <li><a href="#add-item" class="text-gray-400 hover:text-white transition-colors">添加物品</a></li>
-            <li><a href="#about" class="text-gray-400 hover:text-white transition-colors">关于</a></li>
+            <li><a href="#home" class="text-gray-400 hover:text-white">首页</a></li>
+            <li><a href="#items" class="text-gray-400 hover:text-white">我的物品</a></li>
+            <li><a href="#network" class="text-gray-400 hover:text-white">我的网络</a></li>
+            <li><a href="#mood" class="text-gray-400 hover:text-white">我的情绪</a></li>
+            <li><a href="#about" class="text-gray-400 hover:text-white">关于</a></li>
           </ul>
         </div>
         
         <div>
-          <h4 class="text-lg font-semibold mb-4">分类</h4>
+          <h4 class="text-lg font-semibold mb-4">联系我</h4>
           <ul class="space-y-2">
-            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">衣橱</a></li>
-            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">厨具</a></li>
-            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">电子产品</a></li>
-            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">书籍</a></li>
-            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">其他</a></li>
+            <li class="flex items-center text-gray-400">
+              <i class="fa fa-envelope mr-2"></i>
+              <span>poppy@example.com</span>
+            </li>
+            <li class="flex items-center text-gray-400">
+              <i class="fa fa-phone mr-2"></i>
+              <span>123-456-7890</span>
+            </li>
+            <li class="flex items-center text-gray-400">
+              <i class="fa fa-map-marker mr-2"></i>
+              <span>上海市浦东新区</span>
+            </li>
           </ul>
         </div>
         
         <div>
-          <h4 class="text-lg font-semibold mb-4">联系我们</h4>
-          <ul class="space-y-2">
-            <li class="flex items-center space-x-2">
-              <i class="fa fa-envelope-o text-gray-400"></i>
-              <a href="mailto:support@myinventory.com" class="text-gray-400 hover:text-white transition-colors">support@myinventory.com</a>
-            </li>
-            <li class="flex items-center space-x-2">
-              <i class="fa fa-phone text-gray-400"></i>
-              <span class="text-gray-400">+86 123 4567 8901</span>
-            </li>
-            <li class="flex items-center space-x-2">
-              <i class="fa fa-map-marker text-gray-400"></i>
-              <span class="text-gray-400">北京市朝阳区科技园</span>
-            </li>
-          </ul>
+          <h4 class="text-lg font-semibold mb-4">订阅更新</h4>
+          <p class="text-gray-400 mb-4">订阅我的博客，获取最新更新和思考</p>
+          <form class="flex">
+            <input type="email" placeholder="你的邮箱地址" class="px-4 py-2 rounded-l-lg w-full focus:outline-none">
+            <button type="submit" class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-r-lg">
+              <i class="fa fa-paper-plane"></i>
+            </button>
+          </form>
         </div>
       </div>
       
-      <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
-        <p>&copy; 2025 我的物品库. 保留所有权利.</p>
+      <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400 text-sm">
+        <p>&copy; 2025 Poppy的个人主页. 保留所有权利.</p>
       </div>
     </div>
   </footer>
 
-  <!-- JavaScript -->
   <script>
-    // 导航栏滚动效果
-    const navbar = document.getElementById('navbar');
-    window.addEventListener('scroll', () => {
-      if (window.scrollY > 50) {
-        navbar.classList.add('py-2', 'shadow-lg');
-        navbar.classList.remove('py-3', 'shadow-md');
-      } else {
-        navbar.classList.add('py-3', 'shadow-md');
-        navbar.classList.remove('py-2', 'shadow-lg');
-      }
-    });
-    
-    // 移动端菜单
-    const menuToggle = document.getElementById('menu-toggle');
-    const mobileMenu = document.getElementById('mobile-menu');
-    
-    menuToggle.addEventListener('click', () => {
-      mobileMenu.classList.toggle('hidden');
-    });
-    
-    // 登录模态框
-    const loginBtn = document.getElementById('login-btn');
-    const mobileLoginBtn = document.getElementById('mobile-login-btn');
-    const loginModal = document.getElementById('login-modal');
-    const closeModal = document.getElementById('close-modal');
-    const modalContent = document.getElementById('modal-content');
-    
-    function openModal() {
-      loginModal.classList.remove('hidden');
-      setTimeout(() => {
-        modalContent.classList.remove('scale-95', 'opacity-0');
-        modalContent.classList.add('scale-100', 'opacity-100');
-      }, 10);
-    }
-    
-    function closeModalFunc() {
-      modalContent.classList.remove('scale-100', 'opacity-100');
-      modalContent.classList.add('scale-95', 'opacity-0');
-      setTimeout(() => {
-        loginModal.classList.add('hidden');
-      }, 300);
-    }
-    
-    loginBtn.addEventListener('click', openModal);
-    mobileLoginBtn.addEventListener('click', openModal);
-    closeModal.addEventListener('click', closeModalFunc);
-    
-    loginModal.addEventListener('click', (e) => {
-      if (e.target === loginModal) {
-        closeModalFunc();
-      }
-    });
-    
-    // 图片预览
-    const fileUpload = document.getElementById('file-upload');
-    const previewContainer = document.getElementById('preview-container');
-    const imagePreview = document.getElementById('image-preview');
-    
-    fileUpload.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          imagePreview.src = event.target.result;
-          previewContainer.classList.remove('hidden');
-        };
-        reader.readAsDataURL(file);
-      }
-    });
-    
-    // 表单提交
-    const addItemForm = document.getElementById('add-item-form');
-    const loginForm = document.getElementById('login-form');
-    
-    addItemForm.addEventListener('submit', (e) => {
-      e.preventDefault();
+    // 页面加载完成后执行
+    document.addEventListener('DOMContentLoaded', function() {
+      // 示例数据
+      const closetItems = [
+        { id: 1, name: "白色纯棉T恤", category: "top", color: "白色", brand: "优衣库", price: 99, image: "https://picsum.photos/seed/item1/300/400" },
+        { id: 2, name: "蓝色牛仔裤", category: "bottom", color: "蓝色", brand: "Levi's", price: 399, image: "https://picsum.photos/seed/item2/300/400" },
+        { id: 3, name: "黑色连衣裙", category: "dress", color: "黑色", brand: "ZARA", price: 299, image: "https://picsum.photos/seed/item3/300/400" },
+        { id: 4, name: "灰色针织开衫", category: "outerwear", color: "灰色", brand: "H&M", price: 199, image: "https://picsum.photos/seed/item4/300/400" },
+        { id: 5, name: "白色运动鞋", category: "shoes", color: "白色", brand: "Nike", price: 799, image: "https://picsum.photos/seed/item5/300/400" },
+        { id: 6, name: "黑色皮革手包", category: "accessory", color: "黑色", brand: "Coach", price: 1299, image: "https://picsum.photos/seed/item6/300/400" }
+      ];
       
-      // 获取表单数据
-      const formData = {
-        name: document.getElementById('item-name').value,
-        category: document.getElementById('item-category').value,
-        description: document.getElementById('item-description').value,
-        brand: document.getElementById('item-brand').value,
-        purchaseDate: document.getElementById('item-purchase-date').value
-      };
-      
-      // 简单验证
-      if (!formData.name || !formData.category) {
-        alert('请填写物品名称和选择分类');
-        return;
-      }
-      
-      // 这里可以添加AJAX请求，将数据发送到服务器
-      console.log('表单数据:', formData);
-      
-      alert('物品添加成功！');
-      addItemForm.reset();
-      previewContainer.classList.add('hidden');
-    });
-    
-    loginForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      
-      // 获取登录数据
-      const loginData = {
-        email: document.getElementById('email').value,
-        password: document.getElementById('password').value
-      };
-      
-      // 简单验证
-      if (!loginData.email || !loginData.password) {
-        alert('请填写邮箱和密码');
-        return;
-      }
-      
-      // 这里可以添加登录验证逻辑
-      console.log('登录数据:', loginData);
-      
-      alert('登录成功！');
-      closeModalFunc();
-    });
-    
-    // 平滑滚动
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        
-        const targetId = this.getAttribute('href');
-        const targetElement = document.querySelector(targetId);
-        
-        if (targetElement) {
-          window.scrollTo({
-            top: targetElement.offsetTop - 80,
-            behavior: 'smooth'
-          });
-          
-          // 如果是移动端，点击导航链接后关闭菜单
-          if (!mobileMenu.classList.contains('hidden')) {
-            mobileMenu.classList.add('hidden');
-          }
-        }
-      });
-    });
-    
-    // 物品轮播（模拟功能）
-    const prevItem = document.getElementById('prev-item');
-    const nextItem = document.getElementById('next-item');
-    
-    // 实际项目中，这里可以实现真正的轮播逻辑
-    prevItem.addEventListener('click', () => {
-      alert('上一个物品（实际项目中会切换到上一组物品）');
-    });
-    
-    nextItem.addEventListener('click', () => {
-      alert('下一个物品（实际项目中会切换到下一组物品）');
-    });
-  </script>
-</body>
-</html>    
+      const contacts = [
+        { id: 1, name: "李明", relationship: "family", contact: "13800138001", frequency: "daily", notes: "我的哥哥，经常一起吃饭", image: "https://picsum.photos/seed/person1/200/200" },
+        { id: 2, name: "王芳", relationship: "friend", contact: "13800138002", frequency: "weekly", notes: "大学同学，兴趣相投", image: "https://picsum.photos/seed/person2/200/200" },
+        { id: 3, name: "张伟", relationship: "colleague", contact: "13800138003", frequency: "daily", notes: "工作伙伴，项目上的好帮手", image: "https://picsum.photos/seed/person3/200/200" },
+        { id: 4, name: "刘静", relationship: "interest", contact: "13800138004", frequency: "monthly", notes: "绘画俱乐部认识的朋友", image: "https://picsum.photos/seed/person4/200/200" },
+        { id: 5, name: "赵强", relationship: "family", contact: "13800138005", frequency: "weekly", notes: "我的父亲", image: "https://picsum
