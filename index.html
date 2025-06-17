@@ -73,11 +73,23 @@
         width: 2px;
         background-color: #e5e7eb;
       }
+      .scroll-indicator {
+        height: 3px;
+        background-color: #4F46E5;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 100;
+        width: 0%;
+      }
     }
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="font-inter bg-gray-50 text-neutral min-h-screen flex flex-col">
+  <!-- 滚动指示器 -->
+  <div id="scroll-indicator" class="scroll-indicator"></div>
+
   <!-- 导航栏 -->
   <nav id="navbar" class="bg-white shadow-md fixed w-full z-50 transition-all duration-300">
     <div class="container mx-auto px-4 py-3 flex justify-between items-center">
@@ -98,8 +110,8 @@
         <a href="#network" class="text-neutral hover:text-primary transition-colors">我的网络</a>
         <a href="#mood" class="text-neutral hover:text-primary transition-colors">我的情绪</a>
         <a href="#about" class="text-neutral hover:text-primary transition-colors">关于</a>
-        <button id="login-btn" class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg transition-colors">
-          <i class="fa fa-user-circle mr-2"></i>登录
+        <button id="data-center-btn" class="bg-secondary hover:bg-secondary/90 text-white px-4 py-2 rounded-lg transition-colors flex items-center">
+          <i class="fa fa-database mr-2"></i>数据中台
         </button>
       </div>
     </div>
@@ -112,8 +124,8 @@
         <a href="#network" class="text-neutral hover:text-primary transition-colors py-2">我的网络</a>
         <a href="#mood" class="text-neutral hover:text-primary transition-colors py-2">我的情绪</a>
         <a href="#about" class="text-neutral hover:text-primary transition-colors py-2">关于</a>
-        <button id="mobile-login-btn" class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg transition-colors">
-          <i class="fa fa-user-circle mr-2"></i>登录
+        <button id="mobile-data-center-btn" class="bg-secondary hover:bg-secondary/90 text-white px-4 py-2 rounded-lg transition-colors flex items-center">
+          <i class="fa fa-database mr-2"></i>数据中台
         </button>
       </div>
     </div>
@@ -172,20 +184,20 @@
       <div class="container mx-auto px-4">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
           <div class="bg-neutral-light rounded-xl p-6 text-center hover-scale">
-            <div class="text-4xl font-bold text-primary mb-2">128</div>
+            <div class="text-4xl font-bold text-primary mb-2" id="items-count">128</div>
             <div class="text-gray-600">衣橱物品</div>
           </div>
           <div class="bg-neutral-light rounded-xl p-6 text-center hover-scale">
-            <div class="text-4xl font-bold text-primary mb-2">32</div>
-            <div class="text-gray-600">厨具</div>
+            <div class="text-4xl font-bold text-primary mb-2" id="network-count">32</div>
+            <div class="text-gray-600">社交关系</div>
           </div>
           <div class="bg-neutral-light rounded-xl p-6 text-center hover-scale">
-            <div class="text-4xl font-bold text-primary mb-2">5</div>
-            <div class="text-gray-600">家人</div>
+            <div class="text-4xl font-bold text-primary mb-2" id="mood-count">5</div>
+            <div class="text-gray-600">情绪记录</div>
           </div>
           <div class="bg-neutral-light rounded-xl p-6 text-center hover-scale">
-            <div class="text-4xl font-bold text-primary mb-2">12</div>
-            <div class="text-gray-600">好友</div>
+            <div class="text-4xl font-bold text-primary mb-2" id="thoughts-count">12</div>
+            <div class="text-gray-600">思考笔记</div>
           </div>
         </div>
       </div>
@@ -200,12 +212,12 @@
             <p class="text-gray-600 max-w-2xl">探索我的个人物品收藏，从衣橱到浴室，应有尽有</p>
           </div>
           <button id="manage-closet-btn" class="mt-4 md:mt-0 bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg transition-colors flex items-center">
-            <i class="fa fa-cog mr-2"></i>管理衣橱
+            <i class="fa fa-cog mr-2"></i>管理物品
           </button>
         </div>
         
         <div id="closet-items" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          <!-- 衣橱物品将通过JavaScript动态生成 -->
+          <!-- 物品列表将通过JavaScript动态生成 -->
         </div>
       </div>
     </section>
@@ -266,15 +278,23 @@
             <h2 class="text-3xl font-bold text-neutral mb-2">我的情绪</h2>
             <p class="text-gray-600 max-w-2xl">记录我的情绪变化，探索内心世界</p>
           </div>
-          <button id="add-mood-btn" class="mt-4 md:mt-0 bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg transition-colors flex items-center">
-            <i class="fa fa-plus mr-2"></i>记录情绪
+          <button id="manage-mood-btn" class="mt-4 md:mt-0 bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg transition-colors flex items-center">
+            <i class="fa fa-cog mr-2"></i>管理情绪
           </button>
         </div>
         
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
           <!-- 情绪记录 -->
           <div class="bg-white rounded-xl shadow-md p-6">
-            <h3 class="text-xl font-semibold text-neutral mb-6">情绪记录</h3>
+            <div class="flex justify-between items-center mb-6">
+              <h3 class="text-xl font-semibold text-neutral">情绪记录</h3>
+              <div class="flex space-x-2">
+                <button id="filter-mood-all" class="px-3 py-1 text-sm bg-primary text-white rounded-full">全部</button>
+                <button id="filter-mood-happy" class="px-3 py-1 text-sm bg-mood-happy/20 text-mood-happy rounded-full">开心</button>
+                <button id="filter-mood-neutral" class="px-3 py-1 text-sm bg-mood-neutral/20 text-mood-neutral rounded-full">平静</button>
+                <button id="filter-mood-sad" class="px-3 py-1 text-sm bg-mood-sad/20 text-mood-sad rounded-full">悲伤</button>
+              </div>
+            </div>
             <div id="mood-timeline" class="relative pl-4">
               <!-- 情绪时间线将通过JavaScript动态生成 -->
             </div>
@@ -286,23 +306,27 @@
             </div>
           </div>
           
-          <!-- 近期思考 -->
+          <!-- 情绪统计 -->
           <div class="bg-white rounded-xl shadow-md p-6">
-            <div class="flex justify-between items-center mb-6">
-              <h3 class="text-xl font-semibold text-neutral">近期思考</h3>
-              <button id="add-thought-btn" class="text-primary hover:text-primary/80 text-sm flex items-center">
-                <i class="fa fa-plus mr-1"></i> 添加思考
-              </button>
+            <h3 class="text-xl font-semibold text-neutral mb-6">情绪统计</h3>
+            <div class="mb-6">
+              <canvas id="mood-chart" width="400" height="250"></canvas>
             </div>
-            
-            <div id="thoughts-list" class="space-y-6">
-              <!-- 思考列表将通过JavaScript动态生成 -->
-            </div>
-            
-            <div class="mt-8 text-center">
-              <button id="load-more-thoughts" class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg transition-colors">
-                查看所有思考
-              </button>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="bg-neutral-light rounded-lg p-4">
+                <div class="text-sm text-gray-500 mb-1">最常出现的情绪</div>
+                <div class="flex items-center">
+                  <div class="w-4 h-4 rounded-full bg-mood-happy mr-2"></div>
+                  <span class="font-medium">开心 (45%)</span>
+                </div>
+              </div>
+              <div class="bg-neutral-light rounded-lg p-4">
+                <div class="text-sm text-gray-500 mb-1">情绪稳定性</div>
+                <div class="flex items-center">
+                  <div class="w-4 h-4 rounded-full bg-yellow-500 mr-2"></div>
+                  <span class="font-medium">中等波动</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -464,89 +488,71 @@
     </div>
   </div>
 
-  <!-- 页脚 -->
-  <footer class="bg-neutral text-white py-12">
-    <div class="container mx-auto px-4">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-        <div>
-          <div class="flex items-center space-x-2 mb-4">
-            <i class="fa fa-user-circle text-primary text-2xl"></i>
-            <h3 class="text-xl font-bold">Poppy的个人主页</h3>
-          </div>
-          <p class="text-gray-400 mb-4">
-            记录生活，分享自我，探索内心世界。
-          </p>
-          <div class="flex space-x-4">
-            <a href="#" class="text-gray-400 hover:text-white"><i class="fa fa-instagram"></i></a>
-            <a href="#" class="text-gray-400 hover:text-white"><i class="fa fa-twitter"></i></a>
-            <a href="#" class="text-gray-400 hover:text-white"><i class="fa fa-linkedin"></i></a>
-            <a href="#" class="text-gray-400 hover:text-white"><i class="fa fa-pinterest"></i></a>
-          </div>
-        </div>
-        
-        <div>
-          <h4 class="text-lg font-semibold mb-4">快速链接</h4>
-          <ul class="space-y-2">
-            <li><a href="#home" class="text-gray-400 hover:text-white">首页</a></li>
-            <li><a href="#items" class="text-gray-400 hover:text-white">我的物品</a></li>
-            <li><a href="#network" class="text-gray-400 hover:text-white">我的网络</a></li>
-            <li><a href="#mood" class="text-gray-400 hover:text-white">我的情绪</a></li>
-            <li><a href="#about" class="text-gray-400 hover:text-white">关于</a></li>
-          </ul>
-        </div>
-        
-        <div>
-          <h4 class="text-lg font-semibold mb-4">联系我</h4>
-          <ul class="space-y-2">
-            <li class="flex items-center text-gray-400">
-              <i class="fa fa-envelope mr-2"></i>
-              <span>poppy@example.com</span>
-            </li>
-            <li class="flex items-center text-gray-400">
-              <i class="fa fa-phone mr-2"></i>
-              <span>123-456-7890</span>
-            </li>
-            <li class="flex items-center text-gray-400">
-              <i class="fa fa-map-marker mr-2"></i>
-              <span>上海市浦东新区</span>
-            </li>
-          </ul>
-        </div>
-        
-        <div>
-          <h4 class="text-lg font-semibold mb-4">订阅更新</h4>
-          <p class="text-gray-400 mb-4">订阅我的博客，获取最新更新和思考</p>
-          <form class="flex">
-            <input type="email" placeholder="你的邮箱地址" class="px-4 py-2 rounded-l-lg w-full focus:outline-none">
-            <button type="submit" class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-r-lg">
-              <i class="fa fa-paper-plane"></i>
+  <!-- 情绪管理模态框 -->
+  <div id="mood-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center">
+    <div class="bg-white rounded-xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="text-xl font-bold text-neutral">记录情绪</h3>
+        <button id="close-mood-modal" class="text-gray-400 hover:text-gray-600">
+          <i class="fa fa-times text-xl"></i>
+        </button>
+      </div>
+      
+      <form id="add-mood-form">
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">情绪类型</label>
+          <div class="grid grid-cols-4 gap-2">
+            <button type="button" class="mood-type-btn bg-mood-happy/20 hover:bg-mood-happy/30 text-mood-happy p-3 rounded-lg transition-colors" data-type="happy">
+              <i class="fa fa-smile-o text-xl"></i>
+              <div class="text-sm mt-1">开心</div>
             </button>
-          </form>
+            <button type="button" class="mood-type-btn bg-mood-neutral/20 hover:bg-mood-neutral/30 text-mood-neutral p-3 rounded-lg transition-colors" data-type="neutral">
+              <i class="fa fa-meh-o text-xl"></i>
+              <div class="text-sm mt-1">平静</div>
+            </button>
+            <button type="button" class="mood-type-btn bg-mood-sad/20 hover:bg-mood-sad/30 text-mood-sad p-3 rounded-lg transition-colors" data-type="sad">
+              <i class="fa fa-frown-o text-xl"></i>
+              <div class="text-sm mt-1">悲伤</div>
+            </button>
+            <button type="button" class="mood-type-btn bg-mood-anxious/20 hover:bg-mood-anxious/30 text-mood-anxious p-3 rounded-lg transition-colors" data-type="anxious">
+              <i class="fa fa-worried-o text-xl"></i>
+              <div class="text-sm mt-1">焦虑</div>
+            </button>
+          </div>
+          <input type="hidden" id="mood-type" value="happy">
         </div>
-      </div>
-      
-      <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400 text-sm">
-        <p>&copy; 2025 Poppy的个人主页. 保留所有权利.</p>
-      </div>
+        
+        <div class="mb-4">
+          <label for="mood-date" class="block text-sm font-medium text-gray-700 mb-1">日期</label>
+          <input type="date" id="mood-date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+        </div>
+        
+        <div class="mb-4">
+          <label for="mood-time" class="block text-sm font-medium text-gray-700 mb-1">时间</label>
+          <input type="time" id="mood-time" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+        </div>
+        
+        <div class="mb-6">
+          <label for="mood-notes" class="block text-sm font-medium text-gray-700 mb-1">心情描述</label>
+          <textarea id="mood-notes" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" placeholder="今天感觉如何？发生了什么..."></textarea>
+        </div>
+        
+        <div class="flex justify-end space-x-3">
+          <button type="button" id="cancel-add-mood" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">取消</button>
+          <button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90">记录情绪</button>
+        </div>
+      </form>
     </div>
-  </footer>
+  </div>
 
-  <script>
-    // 页面加载完成后执行
-    document.addEventListener('DOMContentLoaded', function() {
-      // 示例数据
-      const closetItems = [
-        { id: 1, name: "白色纯棉T恤", category: "top", color: "白色", brand: "优衣库", price: 99, image: "https://picsum.photos/seed/item1/300/400" },
-        { id: 2, name: "蓝色牛仔裤", category: "bottom", color: "蓝色", brand: "Levi's", price: 399, image: "https://picsum.photos/seed/item2/300/400" },
-        { id: 3, name: "黑色连衣裙", category: "dress", color: "黑色", brand: "ZARA", price: 299, image: "https://picsum.photos/seed/item3/300/400" },
-        { id: 4, name: "灰色针织开衫", category: "outerwear", color: "灰色", brand: "H&M", price: 199, image: "https://picsum.photos/seed/item4/300/400" },
-        { id: 5, name: "白色运动鞋", category: "shoes", color: "白色", brand: "Nike", price: 799, image: "https://picsum.photos/seed/item5/300/400" },
-        { id: 6, name: "黑色皮革手包", category: "accessory", color: "黑色", brand: "Coach", price: 1299, image: "https://picsum.photos/seed/item6/300/400" }
-      ];
+  <!-- 数据中台模态框 -->
+  <div id="data-center-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center">
+    <div class="bg-white rounded-xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="text-xl font-bold text-neutral">数据中台</h3>
+        <button id="close-data-center-modal" class="text-gray-400 hover:text-gray-600">
+          <i class="fa fa-times text-xl"></i>
+        </button>
+      </div>
       
-      const contacts = [
-        { id: 1, name: "李明", relationship: "family", contact: "13800138001", frequency: "daily", notes: "我的哥哥，经常一起吃饭", image: "https://picsum.photos/seed/person1/200/200" },
-        { id: 2, name: "王芳", relationship: "friend", contact: "13800138002", frequency: "weekly", notes: "大学同学，兴趣相投", image: "https://picsum.photos/seed/person2/200/200" },
-        { id: 3, name: "张伟", relationship: "colleague", contact: "13800138003", frequency: "daily", notes: "工作伙伴，项目上的好帮手", image: "https://picsum.photos/seed/person3/200/200" },
-        { id: 4, name: "刘静", relationship: "interest", contact: "13800138004", frequency: "monthly", notes: "绘画俱乐部认识的朋友", image: "https://picsum.photos/seed/person4/200/200" },
-        { id: 5, name: "赵强", relationship: "family", contact: "13800138005", frequency: "weekly", notes: "我的父亲", image: "https://picsum
+      
