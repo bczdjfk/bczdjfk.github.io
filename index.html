@@ -8,6 +8,7 @@
   <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script> <!-- 新增：用于压缩包处理 -->
   
   <!-- Tailwind配置 -->
   <script>
@@ -51,27 +52,27 @@
       .mood-indicator {
         @apply w-3 h-3 rounded-full inline-block mr-2;
       }
-      .mood-very-happy {
-        @apply mood-indicator bg-mood-very-happy;
-      }
-      .mood-happy {
-        @apply mood-indicator bg-mood-happy;
-      }
-      .mood-normal {
-        @apply mood-indicator bg-mood-normal;
-      }
-      .mood-sad {
-        @apply mood-indicator bg-mood-sad;
-      }
-      .mood-very-sad {
-        @apply mood-indicator bg-mood-very-sad;
-      }
       .scrollbar-hide::-webkit-scrollbar {
         display: none;
       }
       .scrollbar-hide {
         -ms-overflow-style: none;
         scrollbar-width: none;
+      }
+      .module {
+        display: none;
+      }
+      .module.active {
+        display: block;
+      }
+      .relation-card {
+        @apply bg-white rounded-lg overflow-hidden shadow hover:shadow-md transition-all duration-300 p-4 flex items-start;
+      }
+      .relation-card img {
+        @apply w-16 h-16 rounded-full object-cover mr-4;
+      }
+      .filtered-item {
+        @apply hidden;
       }
     }
   </style>
@@ -85,11 +86,11 @@
         <h1 class="text-xl font-bold ml-2">Poppy的个人主页</h1>
       </div>
       <nav class="hidden md:flex space-x-6">
-        <a href="#home" class="text-gray-600 hover:text-primary">首页</a>
-        <a href="#items" class="text-gray-600 hover:text-primary">个人物品</a>
-        <a href="#relations" class="text-gray-600 hover:text-primary">网络关系</a>
-        <a href="#moods" class="text-gray-600 hover:text-primary">心情记录</a>
-        <a href="#data-center" class="text-gray-600 hover:text-primary">数据中台</a>
+        <a href="#home" class="nav-link text-gray-600 hover:text-primary" data-target="home">首页</a>
+        <a href="#items" class="nav-link text-gray-600 hover:text-primary" data-target="items">个人物品</a>
+        <a href="#relations" class="nav-link text-gray-600 hover:text-primary" data-target="relations">网络关系</a>
+        <a href="#moods" class="nav-link text-gray-600 hover:text-primary" data-target="moods">心情记录</a>
+        <a href="#data-center" class="nav-link text-gray-600 hover:text-primary" data-target="data-center">数据中台</a>
       </nav>
       <button id="mobile-menu-button" class="md:hidden">
         <i class="fa fa-bars text-xl"></i>
@@ -98,19 +99,20 @@
     <!-- 移动端菜单 -->
     <div id="mobile-menu" class="md:hidden hidden bg-white shadow-lg">
       <div class="container mx-auto px-4 py-3 flex flex-col space-y-4">
-        <a href="#home" class="text-gray-600 hover:text-primary py-2">首页</a>
-        <a href="#items" class="text-gray-600 hover:text-primary py-2">个人物品</a>
-        <a href="#relations" class="text-gray-600 hover:text-primary py-2">网络关系</a>
-        <a href="#moods" class="text-gray-600 hover:text-primary py-2">心情记录</a>
-        <a href="#data-center" class="text-gray-600 hover:text-primary py-2">数据中台</a>
+        <a href="#home" class="mobile-nav-link text-gray-600 hover:text-primary py-2" data-target="home">首页</a>
+        <a href="#items" class="mobile-nav-link text-gray-600 hover:text-primary py-2" data-target="items">个人物品</a>
+        <a href="#relations" class="mobile-nav-link text-gray-600 hover:text-primary py-2" data-target="relations">网络关系</a>
+        <a href="#moods" class="mobile-nav-link text-gray-600 hover:text-primary py-2" data-target="moods">心情记录</a>
+        <a href="#data-center" class="mobile-nav-link text-gray-600 hover:text-primary py-2" data-target="data-center">数据中台</a>
       </div>
     </div>
   </header>
 
+
   <!-- 主要内容区 -->
   <main class="container mx-auto px-4 pt-24 pb-16">
     <!-- 首页 -->
-    <section id="home" class="mb-12">
+    <section id="home" class="module active mb-12">
       <div class="bg-white rounded-xl shadow-md overflow-hidden">
         <div class="grid md:grid-cols-3 gap-6">
           <!-- 个人介绍 -->
@@ -169,7 +171,7 @@
     </section>
     
     <!-- 个人物品 -->
-    <section id="items" class="mb-12">
+    <section id="items" class="module mb-12">
       <div class="bg-white rounded-xl shadow-md p-6">
         <div class="flex justify-between items-center mb-6">
           <h2 class="text-2xl font-bold">个人物品</h2>
@@ -180,22 +182,22 @@
         
         <!-- 物品分类标签 -->
         <div class="flex overflow-x-auto scrollbar-hide space-x-2 mb-6 pb-2">
-          <button class="category-btn active whitespace-nowrap px-4 py-2 bg-primary text-white rounded-full">
+          <button class="category-btn active whitespace-nowrap px-4 py-2 bg-primary text-white rounded-full" data-category="all">
             全部
           </button>
-          <button class="category-btn whitespace-nowrap px-4 py-2 bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition">
+          <button class="category-btn whitespace-nowrap px-4 py-2 bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition" data-category="wardrobe">
             衣橱
           </button>
-          <button class="category-btn whitespace-nowrap px-4 py-2 bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition">
+          <button class="category-btn whitespace-nowrap px-4 py-2 bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition" data-category="bedroom">
             卧室
           </button>
-          <button class="category-btn whitespace-nowrap px-4 py-2 bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition">
+          <button class="category-btn whitespace-nowrap px-4 py-2 bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition" data-category="living">
             客厅
           </button>
-          <button class="category-btn whitespace-nowrap px-4 py-2 bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition">
+          <button class="category-btn whitespace-nowrap px-4 py-2 bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition" data-category="kitchen">
             厨房
           </button>
-          <button class="category-btn whitespace-nowrap px-4 py-2 bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition">
+          <button class="category-btn whitespace-nowrap px-4 py-2 bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition" data-category="bathroom">
             浴室
           </button>
         </div>
@@ -212,7 +214,7 @@
     </section>
     
     <!-- 网络关系 -->
-    <section id="relations" class="mb-12">
+    <section id="relations" class="module mb-12">
       <div class="bg-white rounded-xl shadow-md p-6">
         <div class="flex justify-between items-center mb-6">
           <h2 class="text-2xl font-bold">网络关系</h2>
@@ -222,7 +224,7 @@
         </div>
         
         <!-- 关系图表 -->
-        <div class="relative bg-gray-50 rounded-lg p-4 h-[400px] border border-gray-200">
+        <div class="relative bg-gray-50 rounded-lg p-4 h-[300px] border border-gray-200 mb-6">
           <canvas id="relations-chart"></canvas>
           <div id="relations-placeholder" class="absolute inset-0 flex items-center justify-center flex-col">
             <i class="fa fa-users text-4xl mb-3 text-gray-300"></i>
@@ -230,33 +232,19 @@
           </div>
         </div>
         
-        <!-- 关系列表 -->
-        <div class="mt-6">
-          <h3 class="text-lg font-semibold mb-3">关系列表</h3>
-          <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-              <thead>
-                <tr>
-                  <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">名称</th>
-                  <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">平台</th>
-                  <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">关系类型</th>
-                  <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">互动频率</th>
-                  <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
-                </tr>
-              </thead>
-              <tbody id="relations-table-body">
-                <tr class="text-center">
-                  <td colspan="5" class="px-6 py-12 text-gray-500">暂无关系数据</td>
-                </tr>
-              </tbody>
-            </table>
+        <!-- 关系陈列 -->
+        <div id="relations-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- 关系卡片将通过JavaScript动态生成 -->
+          <div class="text-center text-gray-500 col-span-full py-12">
+            <i class="fa fa-users text-4xl mb-3 opacity-30"></i>
+            <p>暂无关系数据</p>
           </div>
         </div>
       </div>
     </section>
     
     <!-- 心情记录 -->
-    <section id="moods" class="mb-12">
+    <section id="moods" class="module mb-12">
       <div class="bg-white rounded-xl shadow-md p-6">
         <div class="flex justify-between items-center mb-6">
           <h2 class="text-2xl font-bold">心情记录</h2>
@@ -301,7 +289,7 @@
     </section>
     
     <!-- 数据中台 -->
-    <section id="data-center" class="mb-12">
+    <section id="data-center" class="module mb-12">
       <div class="bg-white rounded-xl shadow-md p-6">
         <div class="flex justify-between items-center mb-6">
           <h2 class="text-2xl font-bold">数据中台</h2>
@@ -318,15 +306,11 @@
               </div>
               <h3 class="text-lg font-semibold ml-3">个人物品数据</h3>
             </div>
-            <p class="text-gray-600 text-sm mb-4">管理您的个人物品数据，支持导入导出Excel文件</p>
+            <p class="text-gray-600 text-sm mb-4">管理您的个人物品数据，支持导出Excel文件和图片压缩包</p>
             <div class="flex space-x-2">
               <button id="export-items-btn" class="flex-1 py-2 bg-primary text-white rounded hover:bg-primary/90 transition">
-                <i class="fa fa-download mr-1"></i> 导出
+                <i class="fa fa-download mr-1"></i> 导出数据和图片
               </button>
-              <label for="import-items-file" class="flex-1 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition cursor-pointer text-center">
-                <i class="fa fa-upload mr-1"></i> 导入
-              </label>
-              <input type="file" id="import-items-file" accept=".xlsx, .xls" class="hidden">
             </div>
           </div>
           
@@ -338,15 +322,11 @@
               </div>
               <h3 class="text-lg font-semibold ml-3">网络关系数据</h3>
             </div>
-            <p class="text-gray-600 text-sm mb-4">管理您的网络关系数据，支持导入导出Excel文件</p>
+            <p class="text-gray-600 text-sm mb-4">管理您的网络关系数据，支持导出Excel文件</p>
             <div class="flex space-x-2">
               <button id="export-relations-btn" class="flex-1 py-2 bg-primary text-white rounded hover:bg-primary/90 transition">
                 <i class="fa fa-download mr-1"></i> 导出
               </button>
-              <label for="import-relations-file" class="flex-1 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition cursor-pointer text-center">
-                <i class="fa fa-upload mr-1"></i> 导入
-              </label>
-              <input type="file" id="import-relations-file" accept=".xlsx, .xls" class="hidden">
             </div>
           </div>
           
@@ -358,15 +338,11 @@
               </div>
               <h3 class="text-lg font-semibold ml-3">心情记录数据</h3>
             </div>
-            <p class="text-gray-600 text-sm mb-4">管理您的心情记录数据，支持导入导出Excel文件</p>
+            <p class="text-gray-600 text-sm mb-4">管理您的心情记录数据，支持导出Excel文件</p>
             <div class="flex space-x-2">
               <button id="export-moods-btn" class="flex-1 py-2 bg-primary text-white rounded hover:bg-primary/90 transition">
                 <i class="fa fa-download mr-1"></i> 导出
               </button>
-              <label for="import-moods-file" class="flex-1 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition cursor-pointer text-center">
-                <i class="fa fa-upload mr-1"></i> 导入
-              </label>
-              <input type="file" id="import-moods-file" accept=".xlsx, .xls" class="hidden">
             </div>
           </div>
         </div>
@@ -410,12 +386,14 @@
     </section>
   </main>
 
+
   <!-- 页脚 -->
   <footer class="bg-white border-t border-gray-200 py-6">
     <div class="container mx-auto px-4 text-center text-gray-500 text-sm">
       <p>© 2025 Poppy的个人主页. 保留所有权利.</p>
     </div>
   </footer>
+
 
   <!-- 添加物品模态框 -->
   <div id="add-item-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
@@ -431,12 +409,12 @@
       <form id="add-item-form" class="p-5">
         <div class="mb-4">
           <label class="block text-sm font-medium text-gray-700 mb-1" for="item-name">名称</label>
-          <input type="text" id="item-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+          <input type="text" id="item-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" required>
         </div>
         
         <div class="mb-4">
           <label class="block text-sm font-medium text-gray-700 mb-1" for="item-scene">场景</label>
-          <select id="item-scene" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+          <select id="item-scene" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" required>
             <option value="wardrobe">衣橱</option>
             <option value="bedroom">卧室</option>
             <option value="living">客厅</option>
@@ -447,12 +425,12 @@
         
         <div class="mb-4">
           <label class="block text-sm font-medium text-gray-700 mb-1" for="item-quantity">数量</label>
-          <input type="number" id="item-quantity" min="1" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" value="1">
+          <input type="number" id="item-quantity" min="1" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" value="1" required>
         </div>
         
         <div class="mb-4">
           <label class="block text-sm font-medium text-gray-700 mb-1" for="item-status">状态</label>
-          <select id="item-status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+          <select id="item-status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" required>
             <option value="可用">可用</option>
             <option value="已使用">已使用</option>
             <option value="闲置">闲置</option>
@@ -469,7 +447,7 @@
             <label for="item-image" class="inline-block px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition cursor-pointer">
               <i class="fa fa-upload mr-2"></i> 选择图片
             </label>
-            <input type="file" id="item-image" accept="image/*" class="hidden">
+            <input type="file" id="item-image" accept="image/*" class="hidden" required>
           </div>
         </div>
         
@@ -480,6 +458,7 @@
       </form>
     </div>
   </div>
+
 
   <!-- 添加关系模态框 -->
   <div id="add-relation-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
@@ -495,12 +474,12 @@
       <form id="add-relation-form" class="p-5">
         <div class="mb-4">
           <label class="block text-sm font-medium text-gray-700 mb-1" for="relation-name">名称</label>
-          <input type="text" id="relation-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+          <input type="text" id="relation-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" required>
         </div>
         
         <div class="mb-4">
           <label class="block text-sm font-medium text-gray-700 mb-1" for="relation-platform">平台</label>
-          <select id="relation-platform" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+          <select id="relation-platform" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" required>
             <option value="微信">微信</option>
             <option value="微博">微博</option>
             <option value="QQ">QQ</option>
@@ -511,7 +490,7 @@
         
         <div class="mb-4">
           <label class="block text-sm font-medium text-gray-700 mb-1" for="relation-type">关系类型</label>
-          <select id="relation-type" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+          <select id="relation-type" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" required>
             <option value="朋友">朋友</option>
             <option value="家人">家人</option>
             <option value="同事">同事</option>
@@ -523,7 +502,7 @@
         
         <div class="mb-4">
           <label class="block text-sm font-medium text-gray-700 mb-1" for="relation-frequency">互动频率</label>
-          <select id="relation-frequency" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+          <select id="relation-frequency" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" required>
             <option value="每天">每天</option>
             <option value="每周">每周</option>
             <option value="每月">每月</option>
@@ -535,7 +514,7 @@
         
         <div class="mb-4">
           <label class="block text-sm font-medium text-gray-700 mb-1" for="relation-note">备注</label>
-          <textarea id="relation-note" rows="2" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"></textarea>
+          <textarea id="relation-note" rows="2" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" placeholder="记录与对方的关系备注..."></textarea>
         </div>
         
         <div class="mb-4">
@@ -558,6 +537,7 @@
       </form>
     </div>
   </div>
+
 
   <!-- 添加心情模态框 -->
   <div id="add-mood-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
@@ -595,12 +575,12 @@
               <p class="text-xs mt-1">非常难过</p>
             </button>
           </div>
-          <input type="hidden" id="selected-mood" name="mood">
+          <input type="hidden" id="selected-mood" name="mood" required>
         </div>
         
         <div class="mb-4">
           <label class="block text-sm font-medium text-gray-700 mb-1" for="mood-date">日期</label>
-          <input type="date" id="mood-date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+          <input type="date" id="mood-date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" required>
         </div>
         
         <div class="mb-4">
@@ -616,6 +596,7 @@
     </div>
   </div>
 
+
   <script>
     // 等待DOM加载完成
     document.addEventListener('DOMContentLoaded', function() {
@@ -627,61 +608,111 @@
       // 初始化图表
       let relationsChart = null;
       
+      // 模块切换功能
+      function setupModuleSwitching() {
+        // 桌面端导航
+        const navLinks = document.querySelectorAll('.nav-link');
+        navLinks.forEach(link => {
+          link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const target = this.getAttribute('data-target');
+            switchModule(target);
+          });
+        });
+        
+        // 移动端导航
+        const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+        mobileNavLinks.forEach(link => {
+          link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const target = this.getAttribute('data-target');
+            switchModule(target);
+            
+            // 关闭移动端菜单
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+              mobileMenu.classList.add('hidden');
+            }
+          });
+        });
+      }
+      
+      // 切换模块显示
+      function switchModule(moduleName) {
+        // 隐藏所有模块
+        const modules = document.querySelectorAll('.module');
+        modules.forEach(module => {
+          module.classList.remove('active');
+        });
+        
+        // 显示目标模块
+        const targetModule = document.getElementById(moduleName);
+        if (targetModule) {
+          targetModule.classList.add('active');
+        }
+        
+        // 更新导航链接样式
+        updateNavLinkStyles(moduleName);
+      }
+      
+      // 更新导航链接样式
+      function updateNavLinkStyles(activeModule) {
+        // 桌面端导航
+        const navLinks = document.querySelectorAll('.nav-link');
+        navLinks.forEach(link => {
+          link.classList.toggle('text-primary', link.getAttribute('data-target') === activeModule);
+          link.classList.toggle('text-gray-600', link.getAttribute('data-target') !== activeModule);
+          link.classList.toggle('font-medium', link.getAttribute('data-target') === activeModule);
+        });
+        
+        // 移动端导航
+        const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+        mobileNavLinks.forEach(link => {
+          link.classList.toggle('text-primary', link.getAttribute('data-target') === activeModule);
+          link.classList.toggle('text-gray-600', link.getAttribute('data-target') !== activeModule);
+          link.classList.toggle('font-medium', link.getAttribute('data-target') === activeModule);
+        });
+      }
+      
       // 移动端菜单切换
       const mobileMenuButton = document.getElementById('mobile-menu-button');
       const mobileMenu = document.getElementById('mobile-menu');
       
       if (mobileMenuButton && mobileMenu) {
-        mobileMenuButton.addEventListener('click', function() {
-          mobileMenu.classList.toggle('hidden');
-        });
+        mobileMenuButton.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
       }
       
       // 处理个人头像上传
-      const profileImageUpload = document.getElementById('profile-image-upload');
-      const profileImage = document.getElementById('profile-image');
-      const changeProfileBtn = document.getElementById('change-profile-btn');
-      
-      if (profileImageUpload && profileImage && changeProfileBtn) {
-        changeProfileBtn.addEventListener('click', function() {
-          profileImageUpload.click();
-        });
-        
-        profileImageUpload.addEventListener('change', function(e) {
-          const file = e.target.files[0];
-          if (file) {
-            const reader = new FileReader();
-            reader.onload = function(event) {
-              profileImage.src = event.target.result;
-            };
-            reader.readAsDataURL(file);
-          }
-        });
-      }
+      setupImageUpload('profile-image-upload', 'profile-image');
       
       // 处理物品图片上传预览
-      const itemImageUpload = document.getElementById('item-image');
-      const itemImagePreview = document.getElementById('item-image-preview');
+      setupImageUpload('item-image', 'item-image-preview');
       
-      if (itemImageUpload && itemImagePreview) {
-        itemImageUpload.addEventListener('change', function(e) {
-          const file = e.target.files[0];
-          if (file) {
-            const reader = new FileReader();
-            reader.onload = function(event) {
-              // 清除预览区域的图标
-              itemImagePreview.innerHTML = '';
-              
-              // 创建并添加图片元素
-              const img = document.createElement('img');
-              img.src = event.target.result;
-              img.className = 'w-full h-full object-cover';
-              img.alt = '物品图片预览';
-              itemImagePreview.appendChild(img);
-            };
-            reader.readAsDataURL(file);
-          }
-        });
+      // 处理关系图片上传预览
+      setupImageUpload('relation-image', 'relation-image-preview');
+      
+      // 图片上传通用函数
+      function setupImageUpload(inputId, previewId) {
+        const input = document.getElementById(inputId);
+        const preview = document.getElementById(previewId);
+        
+        if (input && preview) {
+          input.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+              const reader = new FileReader();
+              reader.onload = function(event) {
+                preview.innerHTML = '';
+                const img = document.createElement('img');
+                img.src = event.target.result;
+                img.className = 'w-full h-full object-cover';
+                img.alt = '图片预览';
+                preview.appendChild(img);
+              };
+              reader.readAsDataURL(file);
+            }
+          });
+        }
       }
       
       // 处理添加物品表单提交
@@ -699,7 +730,7 @@
             scene: formData.get('item-scene'),
             quantity: formData.get('item-quantity'),
             status: formData.get('item-status'),
-            image: itemImagePreview.querySelector('img') ? itemImagePreview.querySelector('img').src : 'https://picsum.photos/400/300?random=' + Math.random()
+            image: document.getElementById('item-image-preview').querySelector('img')?.src || 'https://picsum.photos/400/300?random=' + Math.random()
           };
           
           // 保存到本地存储
@@ -714,32 +745,31 @@
           
           // 重置表单
           this.reset();
-          
-          // 重置图片预览
-          if (itemImagePreview) {
-            itemImagePreview.innerHTML = '<i class="fa fa-image text-gray-400 text-4xl"></i>';
-          }
+          document.getElementById('item-image-preview').innerHTML = '<i class="fa fa-image text-gray-400 text-4xl"></i>';
           
           // 更新物品网格
           updateItemsGrid();
           
-          // 显示成功消息
           showNotification('物品添加成功！', 'success');
         });
       }
       
       // 更新物品网格的函数
-      function updateItemsGrid() {
+      function updateItemsGrid(category = 'all') {
         const itemsGrid = document.getElementById('items-grid');
         
         if (itemsGrid) {
           if (items.length > 0) {
-            itemsGrid.innerHTML = ''; // 清空占位提示
+            itemsGrid.innerHTML = '';
+            
+            // 过滤物品
+            const filteredItems = category === 'all' ? items : items.filter(item => item.scene === category);
             
             // 动态生成物品卡片
-            items.forEach(item => {
+            filteredItems.forEach(item => {
               const card = document.createElement('div');
               card.className = 'bg-white rounded-lg overflow-hidden shadow hover:shadow-md transition-all duration-300';
+              card.dataset.scene = item.scene;
               card.innerHTML = `
                 <div class="h-48 overflow-hidden">
                   <img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover">
@@ -756,7 +786,6 @@
               itemsGrid.appendChild(card);
             });
           } else {
-            // 没有物品数据时显示占位提示
             itemsGrid.innerHTML = `
               <div class="text-center text-gray-500 col-span-full py-12">
                 <i class="fa fa-box text-4xl mb-3 opacity-30"></i>
@@ -792,7 +821,6 @@
       
       // 显示通知
       function showNotification(message, type = 'info') {
-        // 创建通知元素
         const notification = document.createElement('div');
         notification.className = `fixed top-4 right-4 px-4 py-2 rounded-lg shadow-lg transform transition-all duration-500 translate-y-[-100px] opacity-0 z-50 ${
           type === 'success' ? 'bg-green-500 text-white' : 
@@ -800,21 +828,12 @@
           'bg-blue-500 text-white'
         }`;
         notification.textContent = message;
-        
-        // 添加到页面
         document.body.appendChild(notification);
         
-        // 显示动画
-        setTimeout(() => {
-          notification.classList.remove('translate-y-[-100px]', 'opacity-0');
-        }, 10);
-        
-        // 3秒后隐藏
+        setTimeout(() => notification.classList.remove('translate-y-[-100px]', 'opacity-0'), 10);
         setTimeout(() => {
           notification.classList.add('translate-y-[-100px]', 'opacity-0');
-          setTimeout(() => {
-            document.body.removeChild(notification);
-          }, 500);
+          setTimeout(() => document.body.removeChild(notification), 500);
         }, 3000);
       }
       
@@ -836,23 +855,17 @@
       function updateProgressBars() {
         const maxValue = Math.max(items.length, relations.length, moods.length) || 1;
         
-        // 更新物品进度条
-        const itemsProgress = document.querySelector('#total-items + div .bg-primary');
-        if (itemsProgress) {
-          itemsProgress.style.width = `${(items.length / maxValue) * 100}%`;
-        }
+        document.querySelectorAll('[id$="-items"] + div .bg-primary').forEach(progress => {
+          progress.style.width = `${(items.length / maxValue) * 100}%`;
+        });
         
-        // 更新关系进度条
-        const relationsProgress = document.querySelector('#total-relations + div .bg-primary');
-        if (relationsProgress) {
-          relationsProgress.style.width = `${(relations.length / maxValue) * 100}%`;
-        }
+        document.querySelectorAll('[id$="-relations"] + div .bg-primary').forEach(progress => {
+          progress.style.width = `${(relations.length / maxValue) * 100}%`;
+        });
         
-        // 更新心情进度条
-        const moodsProgress = document.querySelector('#total-moods-count + div .bg-primary');
-        if (moodsProgress) {
-          moodsProgress.style.width = `${(moods.length / maxValue) * 100}%`;
-        }
+        document.querySelectorAll('[id$="-moods-count"] + div .bg-primary').forEach(progress => {
+          progress.style.width = `${(moods.length / maxValue) * 100}%`;
+        });
       }
       
       // 初始化物品网格
@@ -868,30 +881,13 @@
         const closeBtn = document.getElementById('close-' + modalId.replace('-modal', '-modal'));
         const cancelBtn = document.getElementById('cancel-' + modalId.replace('-modal', '-btn'));
         
-        if (modal && openBtn) {
-          openBtn.addEventListener('click', function() {
-            modal.classList.remove('hidden');
-          });
-        }
+        if (modal && openBtn) openBtn.addEventListener('click', () => modal.classList.remove('hidden'));
+        if (modal && closeBtn) closeBtn.addEventListener('click', () => modal.classList.add('hidden'));
+        if (modal && cancelBtn) cancelBtn.addEventListener('click', () => modal.classList.add('hidden'));
         
-        if (modal && closeBtn) {
-          closeBtn.addEventListener('click', function() {
-            modal.classList.add('hidden');
-          });
-        }
-        
-        if (modal && cancelBtn) {
-          cancelBtn.addEventListener('click', function() {
-            modal.classList.add('hidden');
-          });
-        }
-        
-        // 点击模态框外部关闭
         if (modal) {
           modal.addEventListener('click', function(e) {
-            if (e.target === modal) {
-              modal.classList.add('hidden');
-            }
+            if (e.target === modal) modal.classList.add('hidden');
           });
         }
       });
@@ -900,26 +896,20 @@
       const categoryBtns = document.querySelectorAll('.category-btn');
       categoryBtns.forEach(btn => {
         btn.addEventListener('click', function() {
-          // 移除所有按钮的active状态
-          categoryBtns.forEach(b => b.classList.remove('active', 'bg-primary', 'text-white'));
-          categoryBtns.forEach(b => b.classList.add('bg-gray-100', 'text-gray-700'));
+          // 更新按钮状态
+          categoryBtns.forEach(b => {
+            b.classList.toggle('active', b === this);
+            b.classList.toggle('bg-primary', b === this);
+            b.classList.toggle('text-white', b === this);
+            b.classList.toggle('bg-gray-100', b !== this);
+            b.classList.toggle('text-gray-700', b !== this);
+          });
           
-          // 添加当前按钮的active状态
-          this.classList.add('active', 'bg-primary', 'text-white');
-          this.classList.remove('bg-gray-100', 'text-gray-700');
-          
-          // 这里可以添加过滤物品的逻辑
-          const category = this.textContent.trim();
-          filterItems(category);
+          // 过滤物品
+          const category = this.getAttribute('data-category');
+          updateItemsGrid(category);
         });
       });
-      
-      // 过滤物品函数
-      function filterItems(category) {
-        // 实际项目中应根据分类过滤物品
-        console.log('过滤物品:', category);
-        // 此处简化处理，不实现实际过滤功能
-      }
       
       // 处理关系图表
       function initRelationsChart() {
@@ -927,29 +917,15 @@
         const placeholder = document.getElementById('relations-placeholder');
         
         if (ctx && placeholder) {
-          // 如果有数据则显示图表，否则显示占位符
           if (relations.length > 0) {
             placeholder.classList.add('hidden');
             ctx.classList.remove('hidden');
             
-            // 销毁旧图表（如果存在）
-            if (relationsChart) {
-              relationsChart.destroy();
-            }
+            if (relationsChart) relationsChart.destroy();
             
-            // 准备数据
             const platformData = {};
-            const typeData = {};
+            relations.forEach(relation => platformData[relation.platform] = (platformData[relation.platform] || 0) + 1);
             
-            relations.forEach(relation => {
-              // 统计平台分布
-              platformData[relation.platform] = (platformData[relation.platform] || 0) + 1;
-              
-              // 统计关系类型分布
-              typeData[relation.type] = (typeData[relation.type] || 0) + 1;
-            });
-            
-            // 创建图表
             relationsChart = new Chart(ctx, {
               type: 'bar',
               data: {
@@ -977,52 +953,86 @@
               options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                scales: {
-                  y: {
-                    beginAtZero: true
-                  }
-                },
-                plugins: {
-                  legend: {
-                    display: false
-                  }
-                }
+                scales: { y: { beginAtZero: true } },
+                plugins: { legend: { display: false } }
               }
             });
           } else {
             placeholder.classList.remove('hidden');
-            if (ctx.classList.contains('hidden') === false) {
-              ctx.classList.add('hidden');
-            }
+            if (ctx.classList.contains('hidden') === false) ctx.classList.add('hidden');
           }
         }
       }
       
-      // 初始化关系图表
-      initRelationsChart();
-      
-      // 平滑滚动
-      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-          e.preventDefault();
-          
-          // 关闭移动端菜单（如果打开）
-          if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
-            mobileMenu.classList.add('hidden');
-          }
-          
-          // 滚动到目标位置
-          const targetId = this.getAttribute('href');
-          const targetElement = document.querySelector(targetId);
-          
-          if (targetElement) {
-            window.scrollTo({
-              top: targetElement.offsetTop - 80, // 考虑导航栏高度
-              behavior: 'smooth'
+      // 初始化关系陈列
+      function updateRelationsGrid() {
+        const relationsGrid = document.getElementById('relations-grid');
+        
+        if (relationsGrid) {
+          if (relations.length > 0) {
+            relationsGrid.innerHTML = '';
+            
+            relations.forEach(relation => {
+              const card = document.createElement('div');
+              card.className = 'relation-card';
+              card.innerHTML = `
+                <img src="${relation.image || 'https://picsum.photos/200/200?random=' + relation.id}" alt="${relation.name}">
+                <div class="flex-1">
+                  <h3 class="font-semibold text-gray-800">${relation.name}</h3>
+                  <p class="text-sm text-gray-500 mt-1">
+                    <i class="fa fa-globe mr-1 text-gray-400"></i> ${relation.platform}
+                  </p>
+                  <p class="text-sm text-gray-500 mt-1">
+                    <i class="fa fa-user mr-1 text-gray-400"></i> ${getRelationTypeName(relation.type)}
+                  </p>
+                  <p class="text-sm text-gray-500 mt-1">
+                    <i class="fa fa-comments mr-1 text-gray-400"></i> ${getFrequencyText(relation.frequency)}
+                  </p>
+                  ${relation.note ? `<p class="text-sm text-gray-600 mt-2">${relation.note}</p>` : ''}
+                </div>
+              `;
+              relationsGrid.appendChild(card);
             });
+          } else {
+            relationsGrid.innerHTML = `
+              <div class="text-center text-gray-500 col-span-full py-12">
+                <i class="fa fa-users text-4xl mb-3 opacity-30"></i>
+                <p>暂无关系数据</p>
+              </div>
+            `;
           }
-        });
-      });
+        }
+      }
+      
+      // 辅助函数：获取关系类型名称
+      function getRelationTypeName(type) {
+        const typeMap = {
+          '朋友': '朋友',
+          '家人': '家人',
+          '同事': '同事',
+          '同学': '同学',
+          '合作伙伴': '合作伙伴',
+          '其他': '其他'
+        };
+        return typeMap[type] || type;
+      }
+      
+      // 辅助函数：获取互动频率文本
+      function getFrequencyText(frequency) {
+        const frequencyMap = {
+          '每天': '每天互动',
+          '每周': '每周互动',
+          '每月': '每月互动',
+          '每季度': '每季度互动',
+          '每年': '每年互动',
+          '很少': '很少互动'
+        };
+        return frequencyMap[frequency] || frequency;
+      }
+      
+      // 初始化关系图表和陈列
+      initRelationsChart();
+      updateRelationsGrid();
       
       // 初始化心情记录功能
       const moodBtns = document.querySelectorAll('.mood-btn');
@@ -1031,13 +1041,8 @@
       if (moodBtns && selectedMoodInput) {
         moodBtns.forEach(btn => {
           btn.addEventListener('click', function() {
-            // 移除所有按钮的active状态
             moodBtns.forEach(b => b.classList.remove('ring-2', 'ring-primary'));
-            
-            // 添加当前按钮的active状态
             this.classList.add('ring-2', 'ring-primary');
-            
-            // 设置选中的心情
             selectedMoodInput.value = this.getAttribute('data-mood');
           });
         });
@@ -1060,7 +1065,6 @@
         addMoodForm.addEventListener('submit', function(e) {
           e.preventDefault();
           
-          // 获取表单数据
           const mood = selectedMoodInput.value;
           const date = document.getElementById('mood-date').value;
           const note = document.getElementById('mood-note').value;
@@ -1070,7 +1074,6 @@
             return;
           }
           
-          // 创建新心情记录
           const newMood = {
             id: Date.now(),
             mood: mood,
@@ -1078,22 +1081,15 @@
             note: note
           };
           
-          // 添加到数组并保存到本地存储
           moods.push(newMood);
           localStorage.setItem('moods', JSON.stringify(moods));
           
-          // 更新数据概览
           updateDataOverview();
-          
-          // 关闭模态框
           document.getElementById('add-mood-modal').classList.add('hidden');
-          
-          // 重置表单
           this.reset();
           moodBtns.forEach(btn => btn.classList.remove('ring-2', 'ring-primary'));
           selectedMoodInput.value = '';
           
-          // 设置默认日期为今天
           if (moodDateInput) {
             const today = new Date();
             const yyyy = today.getFullYear();
@@ -1102,10 +1098,7 @@
             moodDateInput.value = `${yyyy}-${mm}-${dd}`;
           }
           
-          // 更新心情列表
           updateMoodsList();
-          
-          // 显示成功消息
           showNotification('心情记录成功！', 'success');
         });
       }
@@ -1116,12 +1109,10 @@
         
         if (moodsList) {
           if (moods.length > 0) {
-            moodsList.innerHTML = ''; // 清空占位提示
+            moodsList.innerHTML = '';
             
-            // 按日期排序（最新的在前）
             const sortedMoods = [...moods].sort((a, b) => new Date(b.date) - new Date(a.date));
             
-            // 动态生成心情卡片
             sortedMoods.forEach(mood => {
               const card = document.createElement('div');
               card.className = 'bg-white rounded-lg p-4 shadow hover:shadow-md transition-all duration-300';
@@ -1138,10 +1129,8 @@
               moodsList.appendChild(card);
             });
             
-            // 更新心情统计
             updateMoodStats();
           } else {
-            // 没有心情记录时显示占位提示
             moodsList.innerHTML = `
               <div class="text-center text-gray-500 py-12">
                 <i class="fa fa-heart-o text-4xl mb-3 opacity-30"></i>
@@ -1149,7 +1138,6 @@
               </div>
             `;
             
-            // 重置心情统计
             document.getElementById('total-moods').textContent = '0';
             document.getElementById('mood-very-happy').textContent = '0';
             document.getElementById('mood-happy').textContent = '0';
@@ -1192,7 +1180,6 @@
         
         if (totalMoods) totalMoods.textContent = moods.length;
         
-        // 统计各种心情的数量
         const moodCounts = {
           'very-happy': 0,
           'happy': 0,
@@ -1201,9 +1188,7 @@
           'very-sad': 0
         };
         
-        moods.forEach(mood => {
-          moodCounts[mood.mood] = (moodCounts[mood.mood] || 0) + 1;
-        });
+        moods.forEach(mood => moodCounts[mood.mood] = (moodCounts[mood.mood] || 0) + 1);
         
         if (veryHappyCount) veryHappyCount.textContent = moodCounts['very-happy'];
         if (happyCount) happyCount.textContent = moodCounts['happy'];
@@ -1218,7 +1203,7 @@
       const exportItemsBtn = document.getElementById('export-items-btn');
       if (exportItemsBtn) {
         exportItemsBtn.addEventListener('click', function() {
-          exportToExcel(items, '个人物品数据');
+          exportItemsWithImages();
         });
       }
       
@@ -1236,14 +1221,78 @@
         });
       }
       
-      // 导出到Excel
-      function exportToExcel(data, sheetName) {
-        if (!data || data.length === 0) {
-          showNotification('没有数据可导出', 'info');
+      // 导出物品数据和图片
+      function exportItemsWithImages() {
+        if (items.length === 0) {
+          showNotification('没有物品数据可导出', 'info');
           return;
         }
         
-        // 转换数据为适合导出的格式
+        const workbook = XLSX.utils.book_new();
+        const worksheet = XLSX.utils.json_to_sheet(items.map(item => ({
+          '名称': item.name,
+          '场景': getSceneName(item.scene),
+          '数量': item.quantity,
+          '状态': item.status
+        })));
+        
+        XLSX.utils.book_append_sheet(workbook, worksheet, '个人物品数据');
+        
+        const zip = new JSZip();
+        const excelBlob = XLSX.write(workbook, { bookType: 'xlsx', type: 'blob' });
+        zip.file('个人物品数据.xlsx', excelBlob);
+        
+        // 处理图片
+        const imagePromises = items.map(async item => {
+          if (item.image && item.image.startsWith('http')) {
+            try {
+              const response = await fetch(item.image);
+              if (response.ok) {
+                const blob = await response.blob();
+                const imageName = `${item.name}.${getImageExtension(blob.type)}`;
+                zip.file(imageName, blob);
+              }
+            } catch (error) {
+              console.error(`无法获取图片: ${item.image}`, error);
+            }
+          } else if (item.image && item.image.startsWith('data:')) {
+            const base64Data = item.image.split(',')[1];
+            const imageName = `${item.name}.png`; // 假设为png格式
+            zip.file(imageName, base64Data, { base64: true });
+          }
+        });
+        
+        Promise.all(imagePromises).then(() => {
+          zip.generateAsync({ type: 'blob' }).then(blob => {
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = '个人物品数据与图片.zip';
+            link.click();
+            URL.revokeObjectURL(link.href);
+            
+            showNotification('个人物品数据与图片导出成功！', 'success');
+          });
+        });
+      }
+      
+      // 获取图片扩展名
+      function getImageExtension(mimeType) {
+        const extMap = {
+          'image/jpeg': 'jpg',
+          'image/png': 'png',
+          'image/gif': 'gif',
+          'image/webp': 'webp'
+        };
+        return extMap[mimeType] || 'jpg';
+      }
+      
+      // 导出到Excel
+      function exportToExcel(data, sheetName) {
+        if (!data || data.length === 0) {
+          showNotification(`没有${sheetName}可导出`, 'info');
+          return;
+        }
+        
         const exportData = data.map(item => {
           if (sheetName === '个人物品数据') {
             return {
@@ -1256,8 +1305,8 @@
             return {
               '名称': item.name,
               '平台': item.platform,
-              '关系类型': item.type,
-              '互动频率': item.frequency,
+              '关系类型': getRelationTypeName(item.type),
+              '互动频率': getFrequencyText(item.frequency),
               '备注': item.note
             };
           } else if (sheetName === '心情记录数据') {
@@ -1270,167 +1319,21 @@
           return item;
         });
         
-        // 创建工作簿和工作表
         const wb = XLSX.utils.book_new();
         const ws = XLSX.utils.json_to_sheet(exportData);
-        
-        // 添加工作表到工作簿
         XLSX.utils.book_append_sheet(wb, ws, sheetName);
-        
-        // 导出文件
         XLSX.writeFile(wb, `${sheetName}.xlsx`);
         
         showNotification(`${sheetName}导出成功！`, 'success');
       }
       
-      // 处理导入功能
-      const importItemsFile = document.getElementById('import-items-file');
-      if (importItemsFile) {
-        importItemsFile.addEventListener('change', function(e) {
-          const file = e.target.files[0];
-          if (file) {
-            importFromExcel(file, 'items');
-          }
-        });
-      }
-      
-      const importRelationsFile = document.getElementById('import-relations-file');
-      if (importRelationsFile) {
-        importRelationsFile.addEventListener('change', function(e) {
-          const file = e.target.files[0];
-          if (file) {
-            importFromExcel(file, 'relations');
-          }
-        });
-      }
-      
-      const importMoodsFile = document.getElementById('import-moods-file');
-      if (importMoodsFile) {
-        importMoodsFile.addEventListener('change', function(e) {
-          const file = e.target.files[0];
-          if (file) {
-            importFromExcel(file, 'moods');
-          }
-        });
-      }
-      
-      // 从Excel导入
-      function importFromExcel(file, dataType) {
-        const reader = new FileReader();
-        
-        reader.onload = function(e) {
-          try {
-            const data = new Uint8Array(e.target.result);
-            const workbook = XLSX.read(data, { type: 'array' });
-            
-            // 获取第一个工作表
-            const firstSheetName = workbook.SheetNames[0];
-            const worksheet = workbook.Sheets[firstSheetName];
-            
-            // 转换为JSON
-            const jsonData = XLSX.utils.sheet_to_json(worksheet);
-            
-            if (jsonData.length === 0) {
-              showNotification('文件中没有数据', 'info');
-              return;
-            }
-            
-            // 根据数据类型处理导入的数据
-            if (dataType === 'items') {
-              // 转换导入的数据格式
-              const importedItems = jsonData.map(item => ({
-                id: Date.now(),
-                name: item['名称'] || '',
-                scene: getSceneKey(item['场景'] || '衣橱'),
-                quantity: item['数量'] || 1,
-                status: item['状态'] || '可用',
-                image: 'https://picsum.photos/400/300?random=' + Math.random()
-              }));
-              
-              // 添加到现有数据
-              items = [...items, ...importedItems];
-              localStorage.setItem('items', JSON.stringify(items));
-              
-              // 更新UI
-              updateItemsGrid();
-              updateDataOverview();
-              
-              showNotification(`成功导入${importedItems.length}条物品数据！`, 'success');
-            } else if (dataType === 'relations') {
-              // 处理关系数据导入
-              relations = [...relations, ...jsonData.map(item => ({
-                id: Date.now(),
-                name: item['名称'] || '',
-                platform: item['平台'] || '微信',
-                type: item['关系类型'] || '朋友',
-                frequency: item['互动频率'] || '每周',
-                note: item['备注'] || ''
-              }))];
-              localStorage.setItem('relations', JSON.stringify(relations));
-              
-              // 更新图表
-              initRelationsChart();
-              updateDataOverview();
-              
-              showNotification(`成功导入${jsonData.length}条关系数据！`, 'success');
-            } else if (dataType === 'moods') {
-              // 处理心情数据导入
-              moods = [...moods, ...jsonData.map(item => ({
-                id: Date.now(),
-                mood: getMoodKey(item['心情状态'] || 'normal'),
-                date: item['日期'] || new Date().toISOString().split('T')[0],
-                note: item['备注'] || ''
-              }))];
-              localStorage.setItem('moods', JSON.stringify(moods));
-              
-              // 更新UI
-              updateMoodsList();
-              updateDataOverview();
-              
-              showNotification(`成功导入${jsonData.length}条心情数据！`, 'success');
-            }
-            
-          } catch (error) {
-            console.error('导入错误:', error);
-            showNotification('导入失败，请检查文件格式', 'error');
-          }
-        };
-        
-        reader.readAsArrayBuffer(file);
-      }
-      
-      // 辅助函数：获取场景键
-      function getSceneKey(sceneName) {
-        const sceneMap = {
-          '衣橱': 'wardrobe',
-          '卧室': 'bedroom',
-          '客厅': 'living',
-          '厨房': 'kitchen',
-          '浴室': 'bathroom'
-        };
-        return sceneMap[sceneName] || 'wardrobe';
-      }
-      
-      // 辅助函数：获取心情键
-      function getMoodKey(moodName) {
-        const moodMap = {
-          '非常开心': 'very-happy',
-          '开心': 'happy',
-          '一般': 'normal',
-          '难过': 'sad',
-          '非常难过': 'very-sad'
-        };
-        return moodMap[moodName] || 'normal';
-      }
-      
-      // 处理关系表单提交（示例代码，需要根据实际情况完善）
+      // 处理关系表单提交
       const addRelationForm = document.getElementById('add-relation-form');
       
       if (addRelationForm) {
         addRelationForm.addEventListener('submit', function(e) {
           e.preventDefault();
           
-          // 获取表单数据
           const formData = new FormData(this);
           const relation = {
             id: Date.now(),
@@ -1438,30 +1341,28 @@
             platform: formData.get('relation-platform'),
             type: formData.get('relation-type'),
             frequency: formData.get('relation-frequency'),
-            note: formData.get('relation-note')
+            note: formData.get('relation-note'),
+            image: document.getElementById('relation-image-preview').querySelector('img')?.src || 'https://picsum.photos/200/200?random=' + Date.now()
           };
           
-          // 保存到本地存储
           relations.push(relation);
           localStorage.setItem('relations', JSON.stringify(relations));
           
-          // 更新数据概览
           updateDataOverview();
-          
-          // 关闭模态框
           document.getElementById('add-relation-modal').classList.add('hidden');
-          
-          // 重置表单
           this.reset();
+          document.getElementById('relation-image-preview').innerHTML = '<i class="fa fa-user text-gray-400 text-4xl"></i>';
           
-          // 更新关系图表
           initRelationsChart();
+          updateRelationsGrid();
           
-          // 显示成功消息
           showNotification('关系添加成功！', 'success');
         });
       }
+      
+      // 初始化模块切换功能
+      setupModuleSwitching();
     });
   </script>
 </body>
-</html>    
+</html>
