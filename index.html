@@ -550,63 +550,17 @@
     </div>
   </footer>
 
-  <!-- 登录模态框 -->
-  <div id="login-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
-    <div class="bg-white rounded-xl shadow-xl max-w-md w-full mx-4 transform transition-all duration-300 scale-95 opacity-0" id="modal-content">
-      <div class="relative p-6">
-        <button id="close-modal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
-          <i class="fa fa-times"></i>
-        </button>
-        
-        <div class="text-center mb-6">
-          <h3 class="text-2xl font-bold text-neutral">登录</h3>
-          <p class="text-gray-600 mt-2">登录到你的物品库账户</p>
-        </div>
-        
-        <form id="login-form" class="space-y-4">
-          <div>
-            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">邮箱</label>
-            <input type="email" id="email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors" placeholder="输入你的邮箱">
-          </div>
-          
-          <div>
-            <label for="password" class="block text-sm font-medium text-gray-700 mb-1">密码</label>
-            <input type="password" id="password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors" placeholder="输入你的密码">
-          </div>
-          
-          <div class="flex items-center justify-between">
-            <div class="flex items-center">
-              <input type="checkbox" id="remember-me" class="mr-2">
-              <label for="remember-me" class="text-sm text-gray-600">记住我</label>
-            </div>
-            <a href="#" class="text-sm text-primary hover:text-primary/80">忘记密码?</a>
-          </div>
-          
-          <button type="submit" class="w-full bg-primary hover:bg-primary/90 text-white font-medium py-3 px-4 rounded-lg transition-colors">
-            登录
-          </button>
-        </form>
-        
-        <div class="mt-6 text-center">
-          <p class="text-gray-600">
-            还没有账户? <a href="#" class="text-primary hover:text-primary/80 font-medium">注册</a>
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- JavaScript -->
   <script>
     // 导航栏滚动效果
     const navbar = document.getElementById('navbar');
     window.addEventListener('scroll', () => {
       if (window.scrollY > 50) {
-        navbar.classList.add('py-2');
-        navbar.classList.remove('py-3');
+        navbar.classList.add('py-2', 'shadow-lg');
+        navbar.classList.remove('py-3', 'shadow-md');
       } else {
-        navbar.classList.add('py-3');
-        navbar.classList.remove('py-2');
+        navbar.classList.add('py-3', 'shadow-md');
+        navbar.classList.remove('py-2', 'shadow-lg');
       }
     });
     
@@ -674,7 +628,25 @@
     
     addItemForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      // 这里可以添加表单验证和提交逻辑
+      
+      // 获取表单数据
+      const formData = {
+        name: document.getElementById('item-name').value,
+        category: document.getElementById('item-category').value,
+        description: document.getElementById('item-description').value,
+        brand: document.getElementById('item-brand').value,
+        purchaseDate: document.getElementById('item-purchase-date').value
+      };
+      
+      // 简单验证
+      if (!formData.name || !formData.category) {
+        alert('请填写物品名称和选择分类');
+        return;
+      }
+      
+      // 这里可以添加AJAX请求，将数据发送到服务器
+      console.log('表单数据:', formData);
+      
       alert('物品添加成功！');
       addItemForm.reset();
       previewContainer.classList.add('hidden');
@@ -682,7 +654,22 @@
     
     loginForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      // 这里可以添加登录验证和提交逻辑
+      
+      // 获取登录数据
+      const loginData = {
+        email: document.getElementById('email').value,
+        password: document.getElementById('password').value
+      };
+      
+      // 简单验证
+      if (!loginData.email || !loginData.password) {
+        alert('请填写邮箱和密码');
+        return;
+      }
+      
+      // 这里可以添加登录验证逻辑
+      console.log('登录数据:', loginData);
+      
       alert('登录成功！');
       closeModalFunc();
     });
@@ -709,22 +696,18 @@
       });
     });
     
-    // 物品轮播
+    // 物品轮播（模拟功能）
     const prevItem = document.getElementById('prev-item');
     const nextItem = document.getElementById('next-item');
-    const itemCards = document.querySelectorAll('.grid-cols-1 > div');
     
-    // 这里可以添加轮播逻辑
+    // 实际项目中，这里可以实现真正的轮播逻辑
     prevItem.addEventListener('click', () => {
-      // 上一个物品
-      alert('上一个物品');
+      alert('上一个物品（实际项目中会切换到上一组物品）');
     });
     
     nextItem.addEventListener('click', () => {
-      // 下一个物品
-      alert('下一个物品');
+      alert('下一个物品（实际项目中会切换到下一组物品）');
     });
   </script>
 </body>
-</html>
-    
+</html>    
