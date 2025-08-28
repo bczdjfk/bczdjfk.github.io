@@ -10,9 +10,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Firebase SDK（Realtime Database 必需） -->
-<!-- 引入兼容普通脚本的 UMD 版本 SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <!-- 引入兼容普通脚本的 UMD 版本 SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     
     <!-- Tailwind 样式配置 -->
     <script>
@@ -218,16 +218,16 @@
 
         // 2. Firebase 初始化（！！替换成你的配置！！）
         // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyC9qmIpZHCx4iqILHexLfatHv9B2B-Avf8",
-  authDomain: "poppy-s-website.firebaseapp.com",
-  databaseURL: "https://poppy-s-website-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "poppy-s-website",
-  storageBucket: "poppy-s-website.firebasestorage.app",
-  messagingSenderId: "581751272741",
-  appId: "1:581751272741:web:2849051f9dc87e3ff556cc",
-  measurementId: "G-ET5X5ERTWD"
-};
+        const firebaseConfig = {
+        apiKey: "AIzaSyC9qmIpZHCx4iqILHexLfatHv9B2B-Avf8",
+        authDomain: "poppy-s-website.firebaseapp.com",
+        databaseURL: "https://poppy-s-website-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "poppy-s-website",
+        storageBucket: "poppy-s-website.firebasestorage.app",
+        messagingSenderId: "581751272741",
+        appId: "1:581751272741:web:2849051f9dc87e3ff556cc",
+        measurementId: "G-ET5X5ERTWD"
+    };
         // 初始化Firebase
         firebase.initializeApp(firebaseConfig);
         // 获取Realtime Database实例
