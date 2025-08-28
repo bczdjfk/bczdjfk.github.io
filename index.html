@@ -1,35 +1,323 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Poppy's home></title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css"rel="stylesheet">
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            primary: '#3B82F6',
-            secondary: '#10B981',
-            dark: '#1E293B',
-            light: '#F8FAFC'
-          },
-          fontFamily: {
-            inter: ['Inter', 'system-ui', 'sans-serif'], 
-          },
-        },
-      }
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的个人网页</title>
+    <!-- 外部资源（样式与图标） -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDK（Realtime Database 必需） -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js"></script>
+    
+    <!-- Tailwind 样式配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#FF7D00',
+                        dark: '#1D2939',
+                        light: '#F9FAFB',
+                        muted: '#667085'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
     </script>
-    <style type="text/tailwindcss">  
-     @layer utilities {
-     .content-auto {
-         content-visibility: auto;
-      }
-     .text-shadow {
-      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      }
-     .
-      
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .hover-lift { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+            .hover-lift:hover { transform: translateY(-5px); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); }
+            .text-shadow { text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        }
+    </style>
+</head>
+<body class="font-inter bg-light text-dark">
+    <!-- 导航栏 -->
+    <header class="fixed w-full top-0 z-50 bg-white/90 backdrop-blur-sm shadow-sm">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="#" class="flex items-center gap-2 text-primary font-bold text-xl">
+                <i class="fa fa-user-circle-o"></i>
+                <span>我的个人主页</span>
+            </a>
+            <!-- 桌面导航 -->
+            <nav class="hidden md:flex gap-8">
+                <a href="#about" class="hover:text-primary transition-colors">关于我</a>
+                <a href="#gallery" class="hover:text-primary transition-colors">作品展示</a>
+                <a href="#messages" class="hover:text-primary transition-colors">留言板</a>
+            </nav>
+            <!-- 移动端菜单按钮 -->
+            <button id="menuBtn" class="md:hidden text-xl">
+                <i class="fa fa-bars"></i>
+            </button>
+        </div>
+        <!-- 移动端导航菜单 -->
+        <div id="mobileMenu" class="hidden md:hidden bg-white border-t px-4 py-3">
+            <a href="#about" class="block py-2 hover:text-primary">关于我</a>
+            <a href="#gallery" class="block py-2 hover:text-primary">作品展示</a>
+            <a href="#messages" class="block py-2 hover:text-primary">留言板</a>
+        </div>
+    </header>
+
+    <!-- 首页Banner -->
+    <section class="pt-32 pb-20 bg-gradient-to-br from-primary/5 to-primary/10">
+        <div class="container mx-auto px-4 flex flex-col md:flex-row items-center gap-10">
+            <div class="md:w-1/2 text-center md:text-left">
+                <h1 class="text-[clamp(2rem,5vw,3.5rem)] font-bold mb-6 text-shadow">
+                    你好，我是<span class="text-primary">个人主页主人</span>
+                </h1>
+                <p class="text-lg text-muted mb-8 max-w-lg mx-auto md:mx-0">
+                    这里记录我的生活、作品与思考，欢迎留下你的足迹～
+                </p>
+                <a href="#messages" class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
+                    给我留言
+                </a>
+            </div>
+            <div class="md:w-1/2">
+                <img src="https://picsum.photos/seed/profile/600/600" alt="个人照片" class="w-full max-w-md mx-auto rounded-2xl shadow-xl hover-lift">
+            </div>
+        </div>
+    </section>
+
+    <!-- 关于我 -->
+    <section id="about" class="py-20">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold mb-4">关于我</h2>
+                <div class="w-20 h-1 bg-primary mx-auto rounded-full"></div>
+            </div>
+            <div class="max-w-3xl mx-auto bg-white p-8 rounded-2xl shadow-lg hover-lift">
+                <p class="text-lg mb-6 leading-relaxed">
+                    大家好！我是一名热爱生活的创作者，喜欢用镜头记录风景、用文字表达想法。平时热衷于旅行、摄影和学习新技能，希望通过这个网页和更多志同道合的人交流。
+                </p>
+                <p class="text-lg leading-relaxed">
+                    如果你对我的作品感兴趣，或者有合作想法，欢迎通过留言板联系我，我会尽快回复～
+                </p>
+                <!-- 社交账号 -->
+                <div class="flex gap-4 justify-center mt-10">
+                    <a href="#" class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-colors">
+                        <i class="fa fa-weibo"></i>
+                    </a>
+                    <a href="#" class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-colors">
+                        <i class="fa fa-wechat"></i>
+                    </a>
+                    <a href="#" class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-colors">
+                        <i class="fa fa-github"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 作品展示 -->
+    <section id="gallery" class="py-20 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold mb-4">作品展示</h2>
+                <div class="w-20 h-1 bg-primary mx-auto rounded-full mb-6"></div>
+                <p class="text-muted max-w-2xl mx-auto">记录生活中的美好瞬间，每一张照片都有专属故事</p>
+            </div>
+            <!-- 作品网格 -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- 作品1 -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-md hover-lift">
+                    <img src="https://picsum.photos/seed/work1/600/400" alt="旅行风景" class="w-full h-64 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2">山间晨雾</h3>
+                        <p class="text-muted">在云南徒步时拍摄，清晨的雾穿过树林，像仙境一样～</p>
+                    </div>
+                </div>
+                <!-- 作品2 -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-md hover-lift">
+                    <img src="https://picsum.photos/seed/work2/600/400" alt="城市夜景" class="w-full h-64 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2">城市灯火</h3>
+                        <p class="text-muted">上海外滩的夜景，江风与灯光交织，很治愈的夜晚</p>
+                    </div>
+                </div>
+                <!-- 作品3 -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-md hover-lift">
+                    <img src="https://picsum.photos/seed/work3/600/400" alt="静物摄影" class="w-full h-64 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2">午后咖啡</h3>
+                        <p class="text-muted">周末在家煮的咖啡，搭配阳光，享受慢生活的惬意</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 留言板 -->
+    <section id="messages" class="py-20">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold mb-4">留言板</h2>
+                <div class="w-20 h-1 bg-primary mx-auto rounded-full mb-6"></div>
+                <p class="text-muted max-w-2xl mx-auto">欢迎留下你的想法，所有留言都会在这里展示～</p>
+            </div>
+            <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-8">
+                <!-- 留言表单 -->
+                <div class="lg:col-span-2 bg-white p-8 rounded-2xl shadow-lg hover-lift">
+                    <h3 class="text-2xl font-semibold mb-6">写下你的留言</h3>
+                    <form id="messageForm">
+                        <div class="mb-4">
+                            <label for="name" class="block mb-2 text-sm font-medium">姓名</label>
+                            <input type="text" id="name" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" placeholder="请输入你的姓名" required>
+                        </div>
+                        <div class="mb-4">
+                            <label for="email" class="block mb-2 text-sm font-medium">邮箱</label>
+                            <input type="email" id="email" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" placeholder="请输入你的邮箱" required>
+                        </div>
+                        <div class="mb-6">
+                            <label for="content" class="block mb-2 text-sm font-medium">留言内容</label>
+                            <textarea id="content" rows="5" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" placeholder="请输入你的留言" required></textarea>
+                        </div>
+                        <button type="submit" class="w-full py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors flex items-center justify-center">
+                            <i class="fa fa-paper-plane mr-2"></i> 提交留言
+                        </button>
+                    </form>
+                </div>
+                <!-- 留言列表 -->
+                <div class="lg:col-span-3 bg-white p-8 rounded-2xl shadow-lg hover-lift">
+                    <h3 class="text-2xl font-semibold mb-6">最新留言</h3>
+                    <div id="messageList" class="space-y-6">
+                        <!-- 留言会通过JS动态加载 -->
+                        <div class="text-center py-10 text-muted">
+                            <i class="fa fa-comments-o text-4xl mb-4 opacity-30"></i>
+                            <p>还没有留言，快来抢沙发吧～</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="bg-dark text-white py-10">
+        <div class="container mx-auto px-4 text-center">
+            <p>© 2024 我的个人网页 | 用热爱记录生活</p>
+        </div>
+    </footer>
+
+    <!-- 核心交互JS（含Realtime Database逻辑） -->
+    <script>
+        // 1. 移动端菜单切换
+        document.getElementById('menuBtn').addEventListener('click', () => {
+            const mobileMenu = document.getElementById('mobileMenu');
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // 2. Firebase 初始化（！！替换成你的配置！！）
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyC9qmIpZHCx4iqILHexLfatHv9B2B-Avf8",
+  authDomain: "poppy-s-website.firebaseapp.com",
+  databaseURL: "https://poppy-s-website-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "poppy-s-website",
+  storageBucket: "poppy-s-website.firebasestorage.app",
+  messagingSenderId: "581751272741",
+  appId: "1:581751272741:web:2849051f9dc87e3ff556cc",
+  measurementId: "G-ET5X5ERTWD"
+};
+        // 初始化Firebase
+        firebase.initializeApp(firebaseConfig);
+        // 获取Realtime Database实例
+        const db = firebase.database();
+        // 留言数据存储节点（所有留言存在messages下）
+        const messagesRef = db.ref('messages');
+
+        // 3. 提交留言到Realtime Database
+        document.getElementById('messageForm').addEventListener('submit', (e) => {
+            e.preventDefault(); // 阻止表单默认刷新
+            // 获取表单数据
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const content = document.getElementById('content').value.trim();
+            
+            // 简单验证
+            if (!name || !email || !content) {
+                alert('请填写所有必填字段！');
+                return;
+            }
+
+            // 写入数据库（自动生成唯一ID）
+            messagesRef.push({
+                name: name,
+                email: email,
+                content: content,
+                timestamp: firebase.database.ServerValue.TIMESTAMP // 服务端时间戳（避免客户端时间偏差）
+            }, (error) => {
+                if (error) {
+                    alert('留言失败，请稍后再试～');
+                    console.error('留言失败：', error);
+                } else {
+                    alert('留言成功！感谢你的互动～');
+                    // 清空表单
+                    document.getElementById('messageForm').reset();
+                }
+            });
+        });
+
+        // 4. 从Realtime Database加载留言（实时同步）
+        function loadMessages() {
+            const messageList = document.getElementById('messageList');
+            // 监听"新增留言"事件（child_added：每次有新留言就触发）
+            messagesRef.orderByChild('timestamp').on('child_added', (snapshot) => {
+                const messageData = snapshot.val(); // 获取留言数据
+                const messageId = snapshot.key; // 获取留言唯一ID（可选，用于删除等操作）
+                
+                // 格式化时间（时间戳转本地时间）
+                const time = new Date(messageData.timestamp).toLocaleString('zh-CN', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                // 创建留言DOM元素
+                const messageItem = document.createElement('div');
+                messageItem.className = 'bg-gray-50 p-6 rounded-xl shadow-sm hover-lift';
+                messageItem.innerHTML = `
+                    <div class="flex justify-between items-start mb-3">
+                        <h4 class="font-semibold text-lg">${escapeHtml(messageData.name)}</h4>
+                        <span class="text-sm text-muted">${time}</span>
+                    </div>
+                    <p class="text-muted">${escapeHtml(messageData.content)}</p>
+                `;
+
+                // 清空"无留言"提示，添加新留言
+                if (messageList.querySelector('.text-center')) {
+                    messageList.innerHTML = '';
+                }
+                messageList.appendChild(messageItem);
+            });
+
+            // 监听"留言被删除"事件（可选，如需删除功能可启用）
+            messagesRef.on('child_removed', (snapshot) => {
+                // 此处可添加删除留言的DOM逻辑
+            });
+        }
+
+        // 5. 防XSS攻击辅助函数（避免恶意脚本注入）
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // 6. 页面加载完成后自动加载留言
+        window.addEventListener('DOMContentLoaded', () => {
+            loadMessages();
+        });
+    </script>
+</body>
+</html>
