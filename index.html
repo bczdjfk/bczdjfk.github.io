@@ -3,153 +3,567 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的个人网页</title>
-    <!-- 外部资源（样式与图标） -->
+    <title>我的生活记录 | 文艺风格个人网站</title>
+    <!-- 外部资源 -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Firebase SDK（Realtime Database 必需） -->
-    <!-- 引入兼容普通脚本的 UMD 版本 SDK -->
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     
-    <!-- Tailwind 样式配置 -->
+    <!-- Tailwind 配置 -->
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        primary: '#165DFF',
-                        secondary: '#FF7D00',
-                        dark: '#1D2939',
-                        light: '#F9FAFB',
-                        muted: '#667085'
+                        primary: '#A67C52', // 大地色
+                        secondary: '#8C6A3D', // 原木色
+                        accent: '#D4B896', // 卡其色
+                        paper: '#F5F1EB', // 纸张色
+                        brown: '#3E2723', // 深棕色
+                        'light-brown': '#8D6E63'
                     },
                     fontFamily: {
-                        inter: ['Inter', 'sans-serif'],
+                        handwriting: ['Ma Shan Zheng', 'cursive'],
+                        serif: ['Noto Serif SC', 'serif'],
                     },
+                    backgroundImage: {
+                        'paper-texture': "url('data:image/svg+xml,%3Csvg width=\'100\' height=\'100\' viewBox=\'0 0 100 100\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z\' fill=\'%239C92AC\' fill-opacity=\'0.05\' fill-rule=\'evenodd\'/%3E%3C/svg%3E')",
+                    },
+                    boxShadow: {
+                        'soft': '0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)',
+                        'paper': '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)',
+                    }
                 }
             }
         }
     </script>
     <style type="text/tailwindcss">
         @layer utilities {
-            .hover-lift { transition: transform 0.3s ease, box-shadow 0.3s ease; }
-            .hover-lift:hover { transform: translateY(-5px); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); }
-            .text-shadow { text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+            .paper-card {
+                background-color: #F5F1EB;
+                background-image: url('data:image/svg+xml,%3Csvg width=\'100\' height=\'100\' viewBox=\'0 0 100 100\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z\' fill=\'%239C92AC\' fill-opacity=\'0.05\' fill-rule=\'evenodd\'/%3E%3C/svg%3E');
+                box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+                border: 1px solid rgba(0,0,0,0.05);
+            }
+            .handwritten {
+                font-family: 'Ma Shan Zheng', cursive;
+            }
+            .border-natural {
+                border: 1px solid #D4B896;
+            }
+            .btn-natural {
+                background: #A67C52;
+                color: white;
+                border-radius: 4px;
+                padding: 10px 20px;
+                border: none;
+                box-shadow: 0 2px 0 #8C6A3D;
+                transition: all 0.2s;
+            }
+            .btn-natural:hover {
+                background: #8C6A3D;
+                transform: translateY(1px);
+                box-shadow: 0 1px 0 #8C6A3D;
+            }
+            .divider {
+                height: 1px;
+                background: linear-gradient(to right, transparent, #D4B896, transparent);
+            }
+            .natural-shadow {
+                box-shadow: 0 2px 15px -3px rgba(166, 124, 82, 0.1), 0 10px 20px -2px rgba(166, 124, 82, 0.05);
+            }
+        }
+        
+        body {
+            background-color: #F9F7F4;
+            color: #3E2723;
+        }
+        
+        /* 标签页样式 */
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .tab-button {
+            background: transparent;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            color: #8D6E63;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        .tab-button.active {
+            color: #A67C52;
+            border-bottom: 2px solid #A67C52;
         }
     </style>
 </head>
-<body class="font-inter bg-light text-dark">
+<body class="font-serif">
     <!-- 导航栏 -->
-    <header class="fixed w-full top-0 z-50 bg-white/90 backdrop-blur-sm shadow-sm">
+    <header class="fixed w-full top-0 z-50 bg-paper/90 backdrop-blur-sm">
         <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-            <a href="#" class="flex items-center gap-2 text-primary font-bold text-xl">
-                <i class="fa fa-user-circle-o"></i>
-                <span>我的个人主页</span>
+            <a href="#" class="flex items-center gap-2 text-brown">
+                <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
+                    <i class="fa fa-leaf text-white text-sm"></i>
+                </div>
+                <span class="handwritten text-xl">我的生活记录</span>
             </a>
             <!-- 桌面导航 -->
             <nav class="hidden md:flex gap-8">
-                <a href="#about" class="hover:text-primary transition-colors">关于我</a>
-                <a href="#gallery" class="hover:text-primary transition-colors">作品展示</a>
-                <a href="#messages" class="hover:text-primary transition-colors">留言板</a>
+                <a href="#life" class="hover:text-primary transition-colors text-light-brown">吃喝玩乐</a>
+                <a href="#media" class="hover:text-primary transition-colors text-light-brown">书影音</a>
+                <a href="#work" class="hover:text-primary transition-colors text-light-brown">工作</a>
+                <a href="#about" class="hover:text-primary transition-colors text-light-brown">关于我</a>
+                <a href="#messages" class="hover:text-primary transition-colors text-light-brown">留言板</a>
             </nav>
             <!-- 移动端菜单按钮 -->
-            <button id="menuBtn" class="md:hidden text-xl">
+            <button id="menuBtn" class="md:hidden text-xl text-light-brown">
                 <i class="fa fa-bars"></i>
             </button>
         </div>
         <!-- 移动端导航菜单 -->
-        <div id="mobileMenu" class="hidden md:hidden bg-white border-t px-4 py-3">
-            <a href="#about" class="block py-2 hover:text-primary">关于我</a>
-            <a href="#gallery" class="block py-2 hover:text-primary">作品展示</a>
-            <a href="#messages" class="block py-2 hover:text-primary">留言板</a>
+        <div id="mobileMenu" class="hidden md:hidden bg-paper border-t border-accent px-4 py-3">
+            <a href="#life" class="block py-2 hover:text-primary text-light-brown">吃喝玩乐</a>
+            <a href="#media" class="block py-2 hover:text-primary text-light-brown">书影音</a>
+            <a href="#work" class="block py-2 hover:text-primary text-light-brown">工作</a>
+            <a href="#about" class="block py-2 hover:text-primary text-light-brown">关于我</a>
+            <a href="#messages" class="block py-2 hover:text-primary text-light-brown">留言板</a>
         </div>
     </header>
 
     <!-- 首页Banner -->
-    <section class="pt-32 pb-20 bg-gradient-to-br from-primary/5 to-primary/10">
+    <section class="pt-32 pb-20 bg-paper">
         <div class="container mx-auto px-4 flex flex-col md:flex-row items-center gap-10">
             <div class="md:w-1/2 text-center md:text-left">
-                <h1 class="text-[clamp(2rem,5vw,3.5rem)] font-bold mb-6 text-shadow">
-                    你好，我是<span class="text-primary">个人主页主人</span>
+                <h1 class="text-4xl md:text-5xl font-normal mb-6 handwritten text-brown leading-tight">
+                    你好，我是<span class="text-primary">生活记录者</span>
                 </h1>
-                <p class="text-lg text-muted mb-8 max-w-lg mx-auto md:mx-0">
-                    这里记录我的生活、作品与思考，欢迎留下你的足迹～
+                <p class="text-lg text-light-brown mb-8 max-w-lg mx-auto md:mx-0 leading-relaxed">
+                    这里记录我的生活点滴、兴趣爱好与工作思考，欢迎你来到这里，分享片刻宁静。
                 </p>
-                <a href="#messages" class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
-                    给我留言
+                <a href="#messages" class="btn-natural inline-flex items-center gap-2">
+                    <i class="fa fa-pencil"></i> 给我留言
                 </a>
             </div>
-            <div class="md:w-1/2">
-                <img src="https://picsum.photos/seed/profile/600/600" alt="个人照片" class="w-full max-w-md mx-auto rounded-2xl shadow-xl hover-lift">
+            <div class="md:w-1/2 mt-10 md:mt-0">
+                <div class="relative">
+                    <img src="https://picsum.photos/seed/profile/600/600" alt="个人照片" class="w-full max-w-md mx-auto rounded-lg natural-shadow">
+                    <div class="absolute -bottom-4 -right-4 w-20 h-20 bg-accent rounded-lg -z-10"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 吃喝玩乐 -->
+    <section id="life" class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-normal mb-4 handwritten text-brown">吃喝玩乐</h2>
+                <div class="divider w-32 mx-auto my-6"></div>
+                <p class="text-light-brown max-w-2xl mx-auto">记录生活中的美食、旅行与乐趣</p>
+            </div>
+            
+            <!-- 标签页导航 -->
+            <div class="flex justify-center mb-12 overflow-x-auto">
+                <div class="flex space-x-1 rounded-lg bg-paper p-1">
+                    <button class="tab-button active" data-tab="eat">吃</button>
+                    <button class="tab-button" data-tab="drink">喝</button>
+                    <button class="tab-button" data-tab="fun">玩</button>
+                    <button class="tab-button" data-tab="enjoy">乐</button>
+                </div>
+            </div>
+            
+            <!-- 标签页内容 -->
+            <div class="tab-content active" id="eat-tab">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- 美食项目1 -->
+                    <div class="paper-card rounded-lg overflow-hidden">
+                        <div class="relative overflow-hidden">
+                            <img src="https://picsum.photos/seed/food1/600/400" alt="家常菜" class="w-full h-64 object-cover">
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-normal mb-2 handwritten text-brown">周末家常菜</h3>
+                            <p class="text-light-brown mb-4">周末在家做的红烧肉和清炒时蔬，简单却充满家的味道。</p>
+                            <div class="flex justify-between items-center text-sm text-light-brown">
+                                <span><i class="fa fa-calendar mr-1"></i> 2023年11月</span>
+                                <span><i class="fa fa-heart mr-1 text-red-400"></i> 42</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 美食项目2 -->
+                    <div class="paper-card rounded-lg overflow-hidden">
+                        <div class="relative overflow-hidden">
+                            <img src="https://picsum.photos/seed/food2/600/400" alt="烘焙" class="w-full h-64 object-cover">
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-normal mb-2 handwritten text-brown">手工烘焙</h3>
+                            <p class="text-light-brown mb-4">第一次尝试做提拉米苏，虽然外形不够完美，但味道很赞。</p>
+                            <div class="flex justify-between items-center text-sm text-light-brown">
+                                <span><i class="fa fa-calendar mr-1"></i> 2023年10月</span>
+                                <span><i class="fa fa-heart mr-1 text-red-400"></i> 36</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 美食项目3 -->
+                    <div class="paper-card rounded-lg overflow-hidden">
+                        <div class="relative overflow-hidden">
+                            <img src="https://picsum.photos/seed/food3/600/400" alt="探店" class="w-full h-64 object-cover">
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-normal mb-2 handwritten text-brown">小巷美食</h3>
+                            <p class="text-light-brown mb-4">发现了一家藏在胡同里的私房菜馆，环境温馨，菜品精致。</p>
+                            <div class="flex justify-between items-center text-sm text-light-brown">
+                                <span><i class="fa fa-calendar mr-1"></i> 2023年9月</span>
+                                <span><i class="fa fa-heart mr-1 text-red-400"></i> 28</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="drink-tab">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- 饮品项目1 -->
+                    <div class="paper-card rounded-lg overflow-hidden">
+                        <div class="relative overflow-hidden">
+                            <img src="https://picsum.photos/seed/drink1/600/400" alt="咖啡" class="w-full h-64 object-cover">
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-normal mb-2 handwritten text-brown">手冲咖啡</h3>
+                            <p class="text-light-brown mb-4">周末早晨的手冲咖啡时光，尝试了新的咖啡豆，果香浓郁。</p>
+                            <div class="flex justify-between items-center text-sm text-light-brown">
+                                <span><i class="fa fa-calendar mr-1"></i> 2023年11月</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 饮品项目2 -->
+                    <div class="paper-card rounded-lg overflow-hidden">
+                        <div class="relative overflow-hidden">
+                            <img src="https://picsum.photos/seed/drink2/600/400" alt="茶" class="w-full h-64 object-cover">
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-normal mb-2 handwritten text-brown">午后茶时光</h3>
+                            <p class="text-light-brown mb-4">朋友送的乌龙茶，配上一本好书，度过了一个惬意的下午。</p>
+                            <div class="flex justify-between items-center text-sm text-light-brown">
+                                <span><i class="fa fa-calendar mr-1"></i> 2023年10月</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="fun-tab">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- 游玩项目1 -->
+                    <div class="paper-card rounded-lg overflow-hidden">
+                        <div class="relative overflow-hidden">
+                            <img src="https://picsum.photos/seed/travel1/600/400" alt="旅行" class="w-full h-64 object-cover">
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-normal mb-2 handwritten text-brown">古镇漫步</h3>
+                            <p class="text-light-brown mb-4">周末去了附近的一个古镇，石板路、老房子，仿佛时间在这里慢了下来。</p>
+                            <div class="flex justify-between items-center text-sm text-light-brown">
+                                <span><i class="fa fa-calendar mr-1"></i> 2023年10月</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 游玩项目2 -->
+                    <div class="paper-card rounded-lg overflow-hidden">
+                        <div class="relative overflow-hidden">
+                            <img src="https://picsum.photos/seed/travel2/600/400" alt="公园" class="w-full h-64 object-cover">
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-normal mb-2 handwritten text-brown">秋日公园</h3>
+                            <p class="text-light-brown mb-4">秋天的公园，落叶满地，阳光透过树叶洒下来，很美。</p>
+                            <div class="flex justify-between items-center text-sm text-light-brown">
+                                <span><i class="fa fa-calendar mr-1"></i> 2023年9月</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="enjoy-tab">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- 娱乐项目1 -->
+                    <div class="paper-card rounded-lg overflow-hidden">
+                        <div class="relative overflow-hidden">
+                            <img src="https://picsum.photos/seed/hobby1/600/400" alt="手工艺" class="w-full h-64 object-cover">
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-normal mb-2 handwritten text-brown">手作陶瓷</h3>
+                            <p class="text-light-brown mb-4">在陶艺工作室度过的一个下午，亲手制作的茶杯，每一个都是独一无二的。</p>
+                            <div class="flex justify-between items-center text-sm text-light-brown">
+                                <span><i class="fa fa-calendar mr-1"></i> 2023年11月</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 娱乐项目2 -->
+                    <div class="paper-card rounded-lg overflow-hidden">
+                        <div class="relative overflow-hidden">
+                            <img src="https://picsum.photos/seed/hobby2/600/400" alt="植物" class="w-full h-64 object-cover">
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-normal mb-2 handwritten text-brown">阳台小花园</h3>
+                            <p class="text-light-brown mb-4">在家里的阳台上种植的多肉植物，每天看着它们成长，心情也变得平静。</p>
+                            <div class="flex justify-between items-center text-sm text-light-brown">
+                                <span><i class="fa fa-calendar mr-1"></i> 2023年8月</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 书影音 -->
+    <section id="media" class="py-20 bg-paper">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-normal mb-4 handwritten text-brown">书影音</h2>
+                <div class="divider w-32 mx-auto my-6"></div>
+                <p class="text-light-brown max-w-2xl mx-auto">记录阅读、观影与音乐欣赏的时光</p>
+            </div>
+            
+            <!-- 标签页导航 -->
+            <div class="flex justify-center mb-12 overflow-x-auto">
+                <div class="flex space-x-1 rounded-lg bg-white p-1">
+                    <button class="tab-button active" data-tab="books">书</button>
+                    <button class="tab-button" data-tab="movies">影</button>
+                    <button class="tab-button" data-tab="music">音</button>
+                </div>
+            </div>
+            
+            <!-- 标签页内容 -->
+            <div class="tab-content active" id="books-tab">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- 书籍1 -->
+                    <div class="paper-card rounded-lg overflow-hidden">
+                        <div class="relative overflow-hidden">
+                            <img src="https://picsum.photos/seed/book1/600/400" alt="书籍" class="w-full h-64 object-cover">
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-normal mb-2 handwritten text-brown">《人间草木》</h3>
+                            <p class="text-light-brown mb-4">汪曾祺的散文集，文字朴实温暖，读来如沐春风。</p>
+                            <div class="flex justify-between items-center text-sm text-light-brown">
+                                <span><i class="fa fa-calendar mr-1"></i> 2023年11月</span>
+                                <span>★★★★☆</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 书籍2 -->
+                    <div class="paper-card rounded-lg overflow-hidden">
+                        <div class="relative overflow-hidden">
+                            <img src="https://picsum.photos/seed/book2/600/400" alt="书籍" class="w-full h-64 object-cover">
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-normal mb-2 handwritten text-brown">《活着》</h3>
+                            <p class="text-light-brown mb-4">余华的代表作，讲述了一个人如何在苦难中坚持活下去的故事。</p>
+                            <div class="flex justify-between items-center text-sm text-light-brown">
+                                <span><i class="fa fa-calendar mr-1"></i> 2023年10月</span>
+                                <span>★★★★★</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="movies-tab">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- 电影1 -->
+                    <div class="paper-card rounded-lg overflow-hidden">
+                        <div class="relative overflow-hidden">
+                            <img src="https://picsum.photos/seed/movie1/600/400" alt="电影" class="w-full h-64 object-cover">
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-normal mb-2 handwritten text-brown">《海蒂和爷爷》</h3>
+                            <p class="text-light-brown mb-4">一部温暖治愈的电影，阿尔卑斯山的风景美得令人窒息。</p>
+                            <div class="flex justify-between items-center text-sm text-light-brown">
+                                <span><i class="fa fa-calendar mr-1"></i> 2023年11月</span>
+                                <span>★★★★☆</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 电影2 -->
+                    <div class="paper-card rounded-lg overflow-hidden">
+                        <div class="relative overflow-hidden">
+                            <img src="https://picsum.photos/seed/movie2/600/400" alt="电影" class="w-full h-64 object-cover">
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-normal mb-2 handwritten text-brown">《寻梦环游记》</h3>
+                            <p class="text-light-brown mb-4">关于家庭、梦想和记忆的动画电影，音乐很动人。</p>
+                            <div class="flex justify-between items-center text-sm text-light-brown">
+                                <span><i class="fa fa-calendar mr-1"></i> 2023年10月</span>
+                                <span>★★★★★</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="music-tab">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- 音乐1 -->
+                    <div class="paper-card rounded-lg overflow-hidden">
+                        <div class="relative overflow-hidden">
+                            <img src="https://picsum.photos/seed/music1/600/400" alt="音乐" class="w-full h-64 object-cover">
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-normal mb-2 handwritten text-brown">《平凡之路》</h3>
+                            <p class="text-light-brown mb-4">朴树的这首歌总能给我力量，尤其是在迷茫的时候。</p>
+                            <div class="flex justify-between items-center text-sm text-light-brown">
+                                <span><i class="fa fa-calendar mr-1"></i> 2023年11月</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 音乐2 -->
+                    <div class="paper-card rounded-lg overflow-hidden">
+                        <div class="relative overflow-hidden">
+                            <img src="https://picsum.photos/seed/music2/600/400" alt="音乐" class="w-full h-64 object-cover">
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-normal mb-2 handwritten text-brown">古典音乐欣赏</h3>
+                            <p class="text-light-brown mb-4">最近开始听古典音乐，贝多芬的月光奏鸣曲让人平静。</p>
+                            <div class="flex justify-between items-center text-sm text-light-brown">
+                                <span><i class="fa fa-calendar mr-1"></i> 2023年10月</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 工作 -->
+    <section id="work" class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-normal mb-4 handwritten text-brown">工作</h2>
+                <div class="divider w-32 mx-auto my-6"></div>
+                <p class="text-light-brown max-w-2xl mx-auto">记录我的职业成长与项目经验</p>
+            </div>
+            
+            <div class="max-w-4xl mx-auto">
+                <!-- 工作经历 -->
+                <div class="paper-card rounded-lg p-8 mb-8">
+                    <h3 class="text-2xl font-normal mb-6 handwritten text-brown">工作经历</h3>
+                    
+                    <div class="mb-6 pb-6 border-b border-accent">
+                        <div class="flex justify-between items-start mb-2">
+                            <h4 class="text-xl font-semibold text-brown">UI/UX设计师</h4>
+                            <span class="text-light-brown">2021年至今</span>
+                        </div>
+                        <p class="text-light-brown mb-2">某科技公司 · 产品设计部</p>
+                        <p class="text-light-brown">负责公司核心产品的用户体验设计，参与从需求分析到设计落地的全过程。</p>
+                    </div>
+                    
+                    <div class="mb-6 pb-6 border-b border-accent">
+                        <div class="flex justify-between items-start mb-2">
+                            <h4 class="text-xl font-semibold text-brown">平面设计师</h4>
+                            <span class="text-light-brown">2019-2021年</span>
+                        </div>
+                        <p class="text-light-brown mb-2">某广告公司 · 创意部</p>
+                        <p class="text-light-brown">负责品牌视觉设计、海报设计、画册设计等，服务过多家知名企业。</p>
+                    </div>
+                </div>
+                
+                <!-- 技能 -->
+                <div class="paper-card rounded-lg p-8">
+                    <h3 class="text-2xl font-normal mb-6 handwritten text-brown">技能专长</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="text-lg font-semibold text-brown mb-3">设计技能</h4>
+                            <ul class="space-y-2 text-light-brown">
+                                <li class="flex items-center">
+                                    <i class="fa fa-check text-primary mr-2"></i>
+                                    <span>UI/UX设计</span>
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fa fa-check text-primary mr-2"></i>
+                                    <span>品牌视觉设计</span>
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fa fa-check text-primary mr-2"></i>
+                                    <span>插画设计</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <h4 class="text-lg font-semibold text-brown mb-3">工具软件</h4>
+                            <ul class="space-y-2 text-light-brown">
+                                <li class="flex items-center">
+                                    <i class="fa fa-check text-primary mr-2"></i>
+                                    <span>Figma</span>
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fa fa-check text-primary mr-2"></i>
+                                    <span>Adobe Creative Suite</span>
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fa fa-check text-primary mr-2"></i>
+                                    <span>Sketch</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
 
     <!-- 关于我 -->
-    <section id="about" class="py-20">
+    <section id="about" class="py-20 bg-paper">
         <div class="container mx-auto px-4">
             <div class="text-center mb-16">
-                <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold mb-4">关于我</h2>
-                <div class="w-20 h-1 bg-primary mx-auto rounded-full"></div>
+                <h2 class="text-3xl md:text-4xl font-normal mb-4 handwritten text-brown">关于我</h2>
+                <div class="divider w-32 mx-auto my-6"></div>
+                <p class="text-light-brown max-w-2xl mx-auto">一个热爱生活、喜欢手作的平凡人</p>
             </div>
-            <div class="max-w-3xl mx-auto bg-white p-8 rounded-2xl shadow-lg hover-lift">
-                <p class="text-lg mb-6 leading-relaxed">
-                    大家好！我是一名热爱生活的创作者，喜欢用镜头记录风景、用文字表达想法。平时热衷于旅行、摄影和学习新技能，希望通过这个网页和更多志同道合的人交流。
-                </p>
-                <p class="text-lg leading-relaxed">
-                    如果你对我的作品感兴趣，或者有合作想法，欢迎通过留言板联系我，我会尽快回复～
-                </p>
-                <!-- 社交账号 -->
-                <div class="flex gap-4 justify-center mt-10">
-                    <a href="#" class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-colors">
-                        <i class="fa fa-weibo"></i>
-                    </a>
-                    <a href="#" class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-colors">
-                        <i class="fa fa-wechat"></i>
-                    </a>
-                    <a href="#" class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-colors">
-                        <i class="fa fa-github"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 作品展示 -->
-    <section id="gallery" class="py-20 bg-gray-50">
-        <div class="container mx-auto px-4">
-            <div class="text-center mb-16">
-                <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold mb-4">作品展示</h2>
-                <div class="w-20 h-1 bg-primary mx-auto rounded-full mb-6"></div>
-                <p class="text-muted max-w-2xl mx-auto">记录生活中的美好瞬间，每一张照片都有专属故事</p>
-            </div>
-            <!-- 作品网格 -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- 作品1 -->
-                <div class="bg-white rounded-xl overflow-hidden shadow-md hover-lift">
-                    <img src="https://picsum.photos/seed/work1/600/400" alt="旅行风景" class="w-full h-64 object-cover">
-                    <div class="p-6">
-                        <h3 class="text-xl font-semibold mb-2">山间晨雾</h3>
-                        <p class="text-muted">在云南徒步时拍摄，清晨的雾穿过树林，像仙境一样～</p>
+            <div class="max-w-4xl mx-auto paper-card p-8 md:p-12 rounded-lg">
+                <div class="flex flex-col md:flex-row gap-8 items-center">
+                    <div class="md:w-1/3">
+                        <div class="rounded-lg overflow-hidden natural-shadow">
+                            <img src="https://picsum.photos/seed/about/400/500" alt="关于我" class="w-full h-auto">
+                        </div>
                     </div>
-                </div>
-                <!-- 作品2 -->
-                <div class="bg-white rounded-xl overflow-hidden shadow-md hover-lift">
-                    <img src="https://picsum.photos/seed/work2/600/400" alt="城市夜景" class="w-full h-64 object-cover">
-                    <div class="p-6">
-                        <h3 class="text-xl font-semibold mb-2">城市灯火</h3>
-                        <p class="text-muted">上海外滩的夜景，江风与灯光交织，很治愈的夜晚</p>
-                    </div>
-                </div>
-                <!-- 作品3 -->
-                <div class="bg-white rounded-xl overflow-hidden shadow-md hover-lift">
-                    <img src="https://picsum.photos/seed/work3/600/400" alt="静物摄影" class="w-full h-64 object-cover">
-                    <div class="p-6">
-                        <h3 class="text-xl font-semibold mb-2">午后咖啡</h3>
-                        <p class="text-muted">周末在家煮的咖啡，搭配阳光，享受慢生活的惬意</p>
+                    <div class="md:w-2/3">
+                        <h3 class="text-2xl font-normal mb-6 handwritten text-brown">我的故事</h3>
+                        <p class="text-lg mb-6 leading-relaxed text-light-brown">
+                            我是一名热爱生活的创作者，喜欢用手作记录时光，用文字表达情感。我相信生活中的每一处细节都值得被温柔对待。
+                        </p>
+                        <p class="text-lg mb-8 leading-relaxed text-light-brown">
+                            平时喜欢摄影、手工艺和写作，这些爱好让我学会慢下来，感受生活中的美好。如果你也喜欢这种慢生活，欢迎通过留言板与我交流～
+                        </p>
+                        
+                        <!-- 兴趣标签 -->
+                        <div class="flex flex-wrap gap-3 mb-8">
+                            <span class="px-4 py-2 bg-accent/30 text-brown rounded-full text-sm border-natural">手工艺</span>
+                            <span class="px-4 py-2 bg-accent/30 text-brown rounded-full text-sm border-natural">摄影</span>
+                            <span class="px-4 py-2 bg-accent/30 text-brown rounded-full text-sm border-natural">写作</span>
+                            <span class="px-4 py-2 bg-accent/30 text-brown rounded-full text-sm border-natural">植物</span>
+                        </div>
+                        
+                        <!-- 社交账号 -->
+                        <div class="flex gap-4">
+                            <a href="#" class="w-10 h-10 rounded-full bg-accent/30 flex items-center justify-center text-brown hover:bg-primary hover:text-white transition-colors border-natural">
+                                <i class="fa fa-weibo"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 rounded-full bg-accent/30 flex items-center justify-center text-brown hover:bg-primary hover:text-white transition-colors border-natural">
+                                <i class="fa fa-wechat"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 rounded-full bg-accent/30 flex items-center justify-center text-brown hover:bg-primary hover:text-white transition-colors border-natural">
+                                <i class="fa fa-instagram"></i>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -157,43 +571,44 @@
     </section>
 
     <!-- 留言板 -->
-    <section id="messages" class="py-20">
+    <section id="messages" class="py-20 bg-white">
         <div class="container mx-auto px-4">
             <div class="text-center mb-16">
-                <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold mb-4">留言板</h2>
-                <div class="w-20 h-1 bg-primary mx-auto rounded-full mb-6"></div>
-                <p class="text-muted max-w-2xl mx-auto">欢迎留下你的想法，所有留言都会在这里展示～</p>
+                <h2 class="text-3xl md:text-4xl font-normal mb-4 handwritten text-brown">留言板</h2>
+                <div class="divider w-32 mx-auto my-6"></div>
+                <p class="text-light-brown max-w-2xl mx-auto">欢迎分享你的想法，期待与你的交流</p>
             </div>
             <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-8">
                 <!-- 留言表单 -->
-                <div class="lg:col-span-2 bg-white p-8 rounded-2xl shadow-lg hover-lift">
-                    <h3 class="text-2xl font-semibold mb-6">写下你的留言</h3>
+                <div class="lg:col-span-2 paper-card rounded-lg p-8">
+                    <h3 class="text-2xl font-normal mb-2 handwritten text-brown">写下你的留言</h3>
+                    <p class="text-light-brown mb-6">期待听到你的声音</p>
                     <form id="messageForm">
                         <div class="mb-4">
-                            <label for="name" class="block mb-2 text-sm font-medium">姓名</label>
-                            <input type="text" id="name" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" placeholder="请输入你的姓名" required>
+                            <label for="name" class="block mb-2 text-sm font-medium text-brown">姓名</label>
+                            <input type="text" id="name" class="w-full px-4 py-3 border border-accent rounded-lg focus:outline-none focus:ring-1 focus:ring-primary bg-white" placeholder="请输入你的姓名" required>
                         </div>
                         <div class="mb-4">
-                            <label for="email" class="block mb-2 text-sm font-medium">邮箱</label>
-                            <input type="email" id="email" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" placeholder="请输入你的邮箱" required>
+                            <label for="email" class="block mb-2 text-sm font-medium text-brown">邮箱</label>
+                            <input type="email" id="email" class="w-full px-4 py-3 border border-accent rounded-lg focus:outline-none focus:ring-1 focus:ring-primary bg-white" placeholder="请输入你的邮箱" required>
                         </div>
                         <div class="mb-6">
-                            <label for="content" class="block mb-2 text-sm font-medium">留言内容</label>
-                            <textarea id="content" rows="5" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" placeholder="请输入你的留言" required></textarea>
+                            <label for="content" class="block mb-2 text-sm font-medium text-brown">留言内容</label>
+                            <textarea id="content" rows="5" class="w-full px-4 py-3 border border-accent rounded-lg focus:outline-none focus:ring-1 focus:ring-primary bg-white" placeholder="请输入你的留言" required></textarea>
                         </div>
-                        <button type="submit" class="w-full py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors flex items-center justify-center">
+                        <button type="submit" class="w-full btn-natural flex items-center justify-center">
                             <i class="fa fa-paper-plane mr-2"></i> 提交留言
                         </button>
                     </form>
                 </div>
                 <!-- 留言列表 -->
-                <div class="lg:col-span-3 bg-white p-8 rounded-2xl shadow-lg hover-lift">
-                    <h3 class="text-2xl font-semibold mb-6">最新留言</h3>
-                    <div id="messageList" class="space-y-6">
+                <div class="lg:col-span-3 paper-card rounded-lg p-8">
+                    <h3 class="text-2xl font-normal mb-6 handwritten text-brown">最新留言</h3>
+                    <div id="messageList" class="space-y-6 max-h-[500px] overflow-y-auto pr-2">
                         <!-- 留言会通过JS动态加载 -->
-                        <div class="text-center py-10 text-muted">
-                            <i class="fa fa-comments-o text-4xl mb-4 opacity-30"></i>
-                            <p>还没有留言，快来抢沙发吧～</p>
+                        <div class="text-center py-10 text-light-brown">
+                            <i class="fa fa-comments text-4xl mb-4 opacity-30"></i>
+                            <p>还没有留言，快来留下第一条吧～</p>
                         </div>
                     </div>
                 </div>
@@ -202,13 +617,33 @@
     </section>
 
     <!-- 页脚 -->
-    <footer class="bg-dark text-white py-10">
-        <div class="container mx-auto px-4 text-center">
-            <p>© 2024 我的个人网页 | 用热爱记录生活</p>
+    <footer class="bg-paper py-12 border-t border-accent">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-6 md:mb-0">
+                    <a href="#" class="flex items-center gap-2 text-brown">
+                        <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
+                            <i class="fa fa-leaf text-white text-sm"></i>
+                        </div>
+                        <span class="handwritten text-xl">我的生活记录</span>
+                    </a>
+                    <p class="mt-2 text-light-brown">用双手创造，用心记录生活</p>
+                </div>
+                <div class="flex gap-6">
+                    <a href="#life" class="text-light-brown hover:text-primary transition-colors">吃喝玩乐</a>
+                    <a href="#media" class="text-light-brown hover:text-primary transition-colors">书影音</a>
+                    <a href="#work" class="text-light-brown hover:text-primary transition-colors">工作</a>
+                    <a href="#about" class="text-light-brown hover:text-primary transition-colors">关于我</a>
+                </div>
+            </div>
+            <div class="divider mt-8"></div>
+            <div class="mt-8 text-center text-light-brown text-sm">
+                <p>© 2024 我的生活记录 | 用热爱记录生活</p>
+            </div>
         </div>
     </footer>
 
-    <!-- 核心交互JS（含Realtime Database逻辑） -->
+    <!-- 核心交互JS -->
     <script>
         // 1. 移动端菜单切换
         document.getElementById('menuBtn').addEventListener('click', () => {
@@ -216,18 +651,39 @@
             mobileMenu.classList.toggle('hidden');
         });
 
-        // 2. Firebase 初始化（！！替换成你的配置！！）
-        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        // 2. 标签页切换功能
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', () => {
+                // 移除所有标签按钮的active类
+                document.querySelectorAll('.tab-button').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                // 为当前点击的按钮添加active类
+                button.classList.add('active');
+                
+                // 隐藏所有标签内容
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                
+                // 显示对应的标签内容
+                const tabId = button.getAttribute('data-tab') + '-tab';
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+
+        // 3. Firebase 初始化（！！替换成你的配置！！）
         const firebaseConfig = {
-        apiKey: "AIzaSyC9qmIpZHCx4iqILHexLfatHv9B2B-Avf8",
-        authDomain: "poppy-s-website.firebaseapp.com",
-        databaseURL: "https://poppy-s-website-default-rtdb.asia-southeast1.firebasedatabase.app",
-        projectId: "poppy-s-website",
-        storageBucket: "poppy-s-website.firebasestorage.app",
-        messagingSenderId: "581751272741",
-        appId: "1:581751272741:web:2849051f9dc87e3ff556cc",
-        measurementId: "G-ET5X5ERTWD"
-    };
+            apiKey: "AIzaSyC9qmIpZHCx4iqILHexLfatHv9B2B-Avf8",
+            authDomain: "poppy-s-website.firebaseapp.com",
+            databaseURL: "https://poppy-s-website-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "poppy-s-website",
+            storageBucket: "poppy-s-website.firebasestorage.app",
+            messagingSenderId: "581751272741",
+            appId: "1:581751272741:web:2849051f9dc87e3ff556cc",
+            measurementId: "G-ET5X5ERTWD"
+        };
         // 初始化Firebase
         firebase.initializeApp(firebaseConfig);
         // 获取Realtime Database实例
@@ -235,7 +691,7 @@
         // 留言数据存储节点（所有留言存在messages下）
         const messagesRef = db.ref('messages');
 
-        // 3. 提交留言到Realtime Database
+        // 4. 提交留言到Realtime Database
         document.getElementById('messageForm').addEventListener('submit', (e) => {
             e.preventDefault(); // 阻止表单默认刷新
             // 获取表单数据
@@ -254,7 +710,7 @@
                 name: name,
                 email: email,
                 content: content,
-                timestamp: firebase.database.ServerValue.TIMESTAMP // 服务端时间戳（避免客户端时间偏差）
+                timestamp: firebase.database.ServerValue.TIMESTAMP // 服务端时间戳
             }, (error) => {
                 if (error) {
                     alert('留言失败，请稍后再试～');
@@ -267,15 +723,15 @@
             });
         });
 
-        // 4. 从Realtime Database加载留言（实时同步）
+        // 5. 从Realtime Database加载留言（实时同步）
         function loadMessages() {
             const messageList = document.getElementById('messageList');
-            // 监听"新增留言"事件（child_added：每次有新留言就触发）
+            // 监听"新增留言"事件
             messagesRef.orderByChild('timestamp').on('child_added', (snapshot) => {
-                const messageData = snapshot.val(); // 获取留言数据
-                const messageId = snapshot.key; // 获取留言唯一ID（可选，用于删除等操作）
+                const messageData = snapshot.val();
+                const messageId = snapshot.key;
                 
-                // 格式化时间（时间戳转本地时间）
+                // 格式化时间
                 const time = new Date(messageData.timestamp).toLocaleString('zh-CN', {
                     year: 'numeric',
                     month: 'long',
@@ -286,38 +742,69 @@
 
                 // 创建留言DOM元素
                 const messageItem = document.createElement('div');
-                messageItem.className = 'bg-gray-50 p-6 rounded-xl shadow-sm hover-lift';
+                messageItem.className = 'paper-card p-6 rounded-lg';
                 messageItem.innerHTML = `
                     <div class="flex justify-between items-start mb-3">
-                        <h4 class="font-semibold text-lg">${escapeHtml(messageData.name)}</h4>
-                        <span class="text-sm text-muted">${time}</span>
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-accent/30 flex items-center justify-center text-brown font-bold border-natural">
+                                ${escapeHtml(messageData.name).charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-brown">${escapeHtml(messageData.name)}</h4>
+                                <p class="text-xs text-light-brown">${escapeHtml(messageData.email)}</p>
+                            </div>
+                        </div>
+                        <span class="text-sm text-light-brown">${time}</span>
                     </div>
-                    <p class="text-muted">${escapeHtml(messageData.content)}</p>
+                    <p class="text-light-brown mt-4">${escapeHtml(messageData.content)}</p>
                 `;
 
                 // 清空"无留言"提示，添加新留言
                 if (messageList.querySelector('.text-center')) {
                     messageList.innerHTML = '';
                 }
-                messageList.appendChild(messageItem);
+                messageList.prepend(messageItem);
             });
 
-            // 监听"留言被删除"事件（可选，如需删除功能可启用）
+            // 监听"留言被删除"事件
             messagesRef.on('child_removed', (snapshot) => {
                 // 此处可添加删除留言的DOM逻辑
             });
         }
 
-        // 5. 防XSS攻击辅助函数（避免恶意脚本注入）
+        // 6. 防XSS攻击辅助函数
         function escapeHtml(text) {
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
         }
 
-        // 6. 页面加载完成后自动加载留言
+        // 7. 页面加载完成后自动加载留言
         window.addEventListener('DOMContentLoaded', () => {
             loadMessages();
+        });
+        
+        // 8. 分段跳转导航
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                if(targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if(targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'auto' // 不使用平滑滚动
+                    });
+                    
+                    // 移动端点击后关闭菜单
+                    const mobileMenu = document.getElementById('mobileMenu');
+                    if(!mobileMenu.classList.contains('hidden')) {
+                        mobileMenu.classList.add('hidden');
+                    }
+                }
+            });
         });
     </script>
 </body>
