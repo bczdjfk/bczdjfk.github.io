@@ -9,21 +9,17 @@
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-    
     <!-- Tailwind 配置 -->
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        primary: '#A67C52', // 大地色
-                        secondary: '#8C6A3D', // 原木色
-                        accent: '#D4B896', // 卡其色
-                        paper: '#F5F1EB', // 纸张色
-                        brown: '#3E2723', // 深棕色
+                        primary: '#A67C52',
+                        secondary: '#8C6A3D',
+                        accent: '#D4B896',
+                        paper: '#F5F1EB',
+                        brown: '#3E2723',
                         'light-brown': '#8D6E63'
                     },
                     fontFamily: {
@@ -41,6 +37,10 @@
             }
         }
     </script>
+
+
+
+
     <style type="text/tailwindcss">
         @layer utilities {
             .paper-card {
@@ -76,6 +76,107 @@
             .natural-shadow {
                 box-shadow: 0 2px 15px -3px rgba(166, 124, 82, 0.1), 0 10px 20px -2px rgba(166, 124, 82, 0.05);
             }
+            /* 单页应用样式 */
+            .page-section {
+                display: none;
+                min-height: calc(100vh - 80px);
+                padding-top: 80px;
+            }
+            .page-section.active {
+                display: block;
+            }
+            
+            /* 球体样式 */
+            .sphere-container {
+                position: relative;
+                width: 300px;
+                height: 300px;
+                margin: 0 auto;
+                perspective: 1000px;
+            }
+            
+            .sphere {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                transform-style: preserve-3d;
+                animation: rotate 20s infinite linear;
+            }
+            
+            @keyframes rotate {
+                0% {
+                    transform: rotateY(0deg) rotateX(10deg);
+                }
+                100% {
+                    transform: rotateY(360deg) rotateX(10deg);
+                }
+            }
+            
+            .sphere-point {
+                position: absolute;
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                color: white;
+                transform-style: preserve-3d;
+                cursor: default;
+                transition: all 0.3s ease;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            }
+            
+            .sphere-point:hover {
+                transform: scale(1.2);
+            }
+            
+            .tag-brown {
+                background-color: #A67C52;
+            }
+            .tag-light {
+                background-color: #F5F1EB;
+                color: #3E2723;
+            }
+            .tag-accent {
+                background-color: #D4B896;
+                color: #3E2723;
+            }
+            
+            /* 模态框样式 */
+            .modal {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0,0,0,0.5);
+                z-index: 1000;
+                align-items: center;
+                justify-content: center;
+            }
+            .modal.active {
+                display: flex;
+            }
+            .modal-content {
+                background-color: #F5F1EB;
+                padding: 30px;
+                border-radius: 10px;
+                max-width: 600px;
+                width: 90%;
+                box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+                position: relative;
+            }
+            .modal-close {
+                position: absolute;
+                top: 15px;
+                right: 15px;
+                font-size: 24px;
+                cursor: pointer;
+                color: #8D6E63;
+            }
         }
         
         body {
@@ -103,13 +204,22 @@
             color: #A67C52;
             border-bottom: 2px solid #A67C52;
         }
+        /* 导航激活状态 */
+        .nav-link.active {
+            color: #A67C52;
+            font-weight: 600;
+        }
     </style>
+
+
+
+
 </head>
 <body class="font-serif">
     <!-- 导航栏 -->
     <header class="fixed w-full top-0 z-50 bg-paper/90 backdrop-blur-sm">
         <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-            <a href="#" class="flex items-center gap-2 text-brown">
+            <a href="#" class="flex items-center gap-2 text-brown" id="homeLink">
                 <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
                     <i class="fa fa-leaf text-white text-sm"></i>
                 </div>
@@ -117,11 +227,11 @@
             </a>
             <!-- 桌面导航 -->
             <nav class="hidden md:flex gap-8">
-                <a href="#life" class="hover:text-primary transition-colors text-light-brown">吃喝玩乐</a>
-                <a href="#media" class="hover:text-primary transition-colors text-light-brown">书影音</a>
-                <a href="#work" class="hover:text-primary transition-colors text-light-brown">作为牛马的一面</a>
-                <a href="#about" class="hover:text-primary transition-colors text-light-brown">关于我</a>
-                <a href="#messages" class="hover:text-primary transition-colors text-light-brown">留言板</a>
+                <a href="#life" class="nav-link hover:text-primary transition-colors text-light-brown" data-page="life">吃喝玩乐</a>
+                <a href="#media" class="nav-link hover:text-primary transition-colors text-light-brown" data-page="media">书影音</a>
+                <a href="#work" class="nav-link hover:text-primary transition-colors text-light-brown" data-page="work">作为牛马的一面</a>
+                <a href="#about" class="nav-link hover:text-primary transition-colors text-light-brown" data-page="about">关于我</a>
+                <a href="#messages" class="nav-link hover:text-primary transition-colors text-light-brown" data-page="messages">留言板</a>
             </nav>
             <!-- 移动端菜单按钮 -->
             <button id="menuBtn" class="md:hidden text-xl text-light-brown">
@@ -130,53 +240,232 @@
         </div>
         <!-- 移动端导航菜单 -->
         <div id="mobileMenu" class="hidden md:hidden bg-paper border-t border-accent px-4 py-3">
-            <a href="#life" class="block py-2 hover:text-primary text-light-brown">吃喝玩乐</a>
-            <a href="#media" class="block py-2 hover:text-primary text-light-brown">书影音</a>
-            <a href="#work" class="block py-2 hover:text-primary text-light-brown">作为牛马的一面</a>
-            <a href="#about" class="block py-2 hover:text-primary text-light-brown">关于我</a>
-            <a href="#messages" class="block py-2 hover:text-primary text-light-brown">留言板</a>
+            <a href="#life" class="nav-link block py-2 hover:text-primary text-light-brown" data-page="life">吃喝玩乐</a>
+            <a href="#media" class="nav-link block py-2 hover:text-primary text-light-brown" data-page="media">书影音</a>
+            <a href="#work" class="nav-link block py-2 hover:text-primary text-light-brown" data-page="work">牛马面</a>
+            <a href="#about" class="nav-link block py-2 hover:text-primary text-light-brown" data-page="about">关于我</a>
+            <a href="#messages" class="nav-link block py-2 hover:text-primary text-light-brown" data-page="messages">留言板</a>
         </div>
     </header>
 
-    <!-- 首页Banner -->
-    <section class="pt-32 pb-20 bg-paper">
-        <div class="container mx-auto px-4 flex flex-col md:flex-row items-center gap-10">
-            <div class="md:w-1/2 text-center md:text-left">
-                <h1 class="text-4xl md:text-5xl font-normal mb-6 handwritten text-brown leading-tight">
-                    这个人很无聊，但也想留下什么……
+
+
+
+    <!-- 首页Banner - 球体标签云 -->
+    <section id="home" class="page-section active pt-32 pb-20 bg-paper min-h-screen">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h1 class="text-4xl md:text-5xl font-normal mb-4 handwritten text-brown leading-tight">
+                    文字收藏馆
                 </h1>
-                <p class="text-lg text-light-brown mb-8 max-w-lg mx-auto md:mx-0 leading-relaxed">
-                    如果我遇到了很喜欢的话，我会放在这里。嗯，是招租位的意思。
+                <p class="text-lg text-light-brown max-w-lg mx-auto leading-relaxed">
+                    那些触动心灵的句子，值得被小心收藏
                 </p>
-                <a href="#messages" class="btn-natural inline-flex items-center gap-2">
-                    <i class="fa fa-pencil"></i> 给我留言
-                </a>
             </div>
-            <div class="md:w-1/2 mt-10 md:mt-0">
-                <div class="relative">
-                    <img src="imagee/S.jpeg" alt="个人照片" class="w-full max-w-md mx-auto rounded-lg natural-shadow">
-                    <div class="absolute -bottom-4 -right-4 w-20 h-20 bg-accent rounded-lg -z-10"></div>
+            
+            <!-- 球体标签云 -->
+            <div class="sphere-container">
+                <div class="sphere" id="sphere">
+                    <!-- 球体上的点将通过JavaScript动态生成 -->
                 </div>
+            </div>
+            
+            <!-- 随机展示按钮 -->
+            <div class="text-center mt-16">
+                <button id="randomBtn" class="btn-natural">
+                    <i class="fa fa-random mr-2"></i>随机一句
+                </button>
+            </div>
+            
+            <!-- 提示文字 -->
+            <div class="text-center mt-12">
+                <p class="text-light-brown italic">点击按钮随机展示一句收藏文字</p>
             </div>
         </div>
     </section>
 
+    <!-- 模态框 -->
+    <div class="modal" id="quoteModal">
+        <div class="modal-content paper-card">
+            <span class="modal-close" id="modalClose">&times;</span>
+            <div class="text-center">
+                <h3 class="text-2xl font-normal mb-6 handwritten text-brown" id="modalTitle">文字收藏</h3>
+                <p class="text-lg text-light-brown leading-relaxed" id="modalContent"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 核心交互JS -->
+    <script>
+        // 单页应用导航功能
+        function showPage(pageId) {
+            // 隐藏所有页面
+            document.querySelectorAll('.page-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // 显示目标页面
+            const targetPage = document.getElementById(pageId);
+            if (targetPage) {
+                targetPage.classList.add('active');
+            }
+            
+            // 更新导航激活状态
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // 为当前页面对应的导航链接添加激活状态
+            document.querySelectorAll(`.nav-link[data-page="${pageId}"]`).forEach(link => {
+                link.classList.add('active');
+            });
+            
+            // 如果是首页，也激活首页链接
+            if (pageId === 'home') {
+                document.getElementById('homeLink').classList.add('active');
+            }
+        }
+
+        // 文字内容数据
+        const quotes = [
+            { text: "找到真正的自己", content: "我们终此一生，就是要摆脱他人的期待，找到真正的自己。 ——《无声告白》" },
+            { text: "灿烂与寂寞", content: "生命中曾经有过的所有灿烂，原来终究，都需要用寂寞来偿还。 ——《百年孤独》" },
+            { text: "千千万万遍", content: "为你，千千万万遍。 ——《追风筝的人》" },
+            { text: "月亮与六便士", content: "满地都是六便士，他却抬头看见了月亮。 ——《月亮与六便士》" },
+            { text: "起舞的日子", content: "每一个不曾起舞的日子，都是对生命的辜负。 ——尼采" },
+            { text: "仰望星空", content: "生活在阴沟里，依然有仰望星空的权利。 ——王尔德" },
+            { text: "山和大海", content: "我曾经跨过山和大海，也穿过人山人海。 ——《平凡之路》" },
+            { text: "细水长流", content: "等到风景都看透，也许你会陪我看细水长流。 ——《红豆》" },
+            { text: "侥幸与人生", content: "我拥有的都是侥幸，我失去的都是人生。 ——《关于我爱你》" },
+            { text: "躲雨的屋檐", content: "最美的不是下雨天，是曾与你躲过雨的屋檐。 ——《不能说的秘密》" },
+            { text: "世界漆黑", content: "如果世界漆黑，其实我很美。 ——《丑八怪》" },
+            { text: "忽远又忽近", content: "我们之间的距离好像忽远又忽近。 ——《我的秘密》" },
+            { text: "青青草地", content: "我听见雨滴落在青青草地。 ——《小幸运》" },
+            { text: "有去无回的旅行", content: "岁月是一场有去无回的旅行，好的坏的都是风景。 ——《岁月神偷》" },
+            { text: "有恃无恐", content: "得不到的永远在骚动，被偏爱的都有恃无恐。 ——《红玫瑰》" },
+            { text: "吹过的晚风", content: "我吹过你吹过的晚风，那我们算不算相拥。 ——《错位时空》" }
+        ];
+
+        // 1. 移动端菜单切换
+        document.getElementById('menuBtn').addEventListener('click', () => {
+            const mobileMenu = document.getElementById('mobileMenu');
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // 2. 单页应用导航
+        document.querySelectorAll('.nav-link, #homeLink, #footerHomeLink, [data-page]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const pageId = link.getAttribute('data-page') || 'home';
+                showPage(pageId);
+                
+                // 移动端点击后关闭菜单
+                const mobileMenu = document.getElementById('mobileMenu');
+                if(!mobileMenu.classList.contains('hidden')) {
+                    mobileMenu.classList.add('hidden');
+                }
+            });
+        });
+
+        // 3. 创建球体标签云
+        function createSphere() {
+            const sphere = document.getElementById('sphere');
+            const radius = 120; // 球体半径
+            const points = quotes.length;
+            
+            // 清空球体
+            sphere.innerHTML = '';
+            
+            // 创建球体上的点
+            for (let i = 0; i < points; i++) {
+                // 球面坐标计算
+                const phi = Math.acos(-1 + (2 * i) / points);
+                const theta = Math.sqrt(points * Math.PI) * phi;
+                
+                // 转换为笛卡尔坐标
+                const x = radius * Math.cos(theta) * Math.sin(phi);
+                const y = radius * Math.sin(theta) * Math.sin(phi);
+                const z = radius * Math.cos(phi);
+                
+                // 创建点元素
+                const point = document.createElement('div');
+                point.className = 'sphere-point';
+                point.style.left = `calc(50% + ${x}px)`;
+                point.style.top = `calc(50% + ${y}px)`;
+                point.style.transform = `translateZ(${z}px)`;
+                
+                // 随机分配颜色类
+                const colorClasses = ['tag-brown', 'tag-light', 'tag-accent'];
+                point.classList.add(colorClasses[i % colorClasses.length]);
+                
+                // 添加简短的文字
+                point.textContent = quotes[i].text.substring(0, 2);
+                point.setAttribute('data-content', quotes[i].content);
+                
+                sphere.appendChild(point);
+            }
+        }
+
+        // 4. 随机展示内容
+        document.getElementById('randomBtn').addEventListener('click', () => {
+            const randomIndex = Math.floor(Math.random() * quotes.length);
+            const randomQuote = quotes[randomIndex];
+            
+            document.getElementById('modalContent').textContent = randomQuote.content;
+            document.getElementById('quoteModal').classList.add('active');
+        });
+
+        // 5. 关闭模态框
+        document.getElementById('modalClose').addEventListener('click', () => {
+            document.getElementById('quoteModal').classList.remove('active');
+        });
+
+        // 6. 点击模态框外部关闭
+        document.getElementById('quoteModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('quoteModal')) {
+                document.getElementById('quoteModal').classList.remove('active');
+            }
+        });
+
+        // 初始化球体
+        window.addEventListener('DOMContentLoaded', () => {
+            createSphere();
+            // 默认显示首页
+            showPage('home');
+        });
+    </script>
+</body>
+
+
+
     <!-- 吃喝玩乐 -->
-    <section id="life" class="py-20 bg-white">
+    <section id="life" class="page-section py-20 bg-paper">
         <div class="container mx-auto px-4">
             <div class="text-center mb-16">
                 <h2 class="text-3xl md:text-4xl font-normal mb-4 handwritten text-brown">吃喝玩乐</h2>
                 <div class="divider w-32 mx-auto my-6"></div>
-                <p class="text-light-brown max-w-2xl mx-auto">记录生活中的美食、旅行与乐趣</p>
+                <p class="text-light-brown max-w-2xl mx-auto">好吃的！好喝的！好玩的！有意思的！</p>
             </div>
             
             <!-- 标签页导航 -->
             <div class="flex justify-center mb-12 overflow-x-auto">
                 <div class="flex space-x-1 rounded-lg bg-paper p-1">
-                    <button class="tab-button active" data-tab="eat">吃</button>
-                    <button class="tab-button" data-tab="drink">喝</button>
-                    <button class="tab-button" data-tab="fun">玩</button>
-                    <button class="tab-button" data-tab="enjoy">乐</button>
+                    <button class="tab-button active flex items-center gap-2" data-tab="eat">
+                        <i class="fa fa-cutlery"></i>
+                        <span>吃</span>
+                    </button>
+                    <button class="tab-button flex items-center gap-2" data-tab="drink">
+                        <i class="fa fa-coffee"></i>
+                        <span>喝</span>
+                    </button>
+                    <button class="tab-button flex items-center gap-2" data-tab="fun">
+                        <i class="fa fa-gamepad"></i>
+                        <span>玩</span>
+                    </button>
+                    <button class="tab-button flex items-center gap-2" data-tab="enjoy">
+                        <i class="fa fa-music"></i>
+                        <span>乐</span>
+                    </button>
                 </div>
             </div>
             
@@ -324,7 +613,7 @@
     </section>
 
     <!-- 书影音 -->
-    <section id="media" class="py-20 bg-paper">
+    <section id="media" class="page-section py-20 bg-paper">
         <div class="container mx-auto px-4">
             <div class="text-center mb-16">
                 <h2 class="text-3xl md:text-4xl font-normal mb-4 handwritten text-brown">书影音</h2>
@@ -335,9 +624,18 @@
             <!-- 标签页导航 -->
             <div class="flex justify-center mb-12 overflow-x-auto">
                 <div class="flex space-x-1 rounded-lg bg-white p-1">
-                    <button class="tab-button active" data-tab="books">书</button>
-                    <button class="tab-button" data-tab="movies">影</button>
-                    <button class="tab-button" data-tab="music">音</button>
+                    <button class="tab-button active flex items-center gap-2" data-tab="books">
+                        <i class="fa fa-book"></i>
+                        <span>书</span>
+                    </button>
+                    <button class="tab-button flex items-center gap-2" data-tab="movies">
+                        <i class="fa fa-film"></i>
+                        <span>影</span>
+                    </button>
+                    <button class="tab-button flex items-center gap-2" data-tab="music">
+                        <i class="fa fa-music"></i>
+                        <span>音</span>
+                    </button>
                 </div>
             </div>
             
@@ -442,10 +740,10 @@
     </section>
 
     <!-- 工作 -->
-    <section id="work" class="py-20 bg-white">
+    <section id="work" class="page-section py-20 bg-paper">
         <div class="container mx-auto px-4">
             <div class="text-center mb-16">
-                <h2 class="text-3xl md:text-4xl font-normal mb-4 handwritten text-brown">工作</h2>
+                <h2 class="text-3xl md:text-4xl font-normal mb-4 handwritten text-brown">作为牛马的一面</h2>
                 <div class="divider w-32 mx-auto my-6"></div>
                 <p class="text-light-brown max-w-2xl mx-auto">记录我的职业成长与项目经验</p>
             </div>
@@ -521,7 +819,7 @@
     </section>
 
     <!-- 关于我 -->
-    <section id="about" class="py-20 bg-paper">
+    <section id="about" class="page-section py-20 bg-paper">
         <div class="container mx-auto px-4">
             <div class="text-center mb-16">
                 <h2 class="text-3xl md:text-4xl font-normal mb-4 handwritten text-brown">关于我</h2>
@@ -571,7 +869,7 @@
     </section>
 
     <!-- 留言板 -->
-    <section id="messages" class="py-20 bg-white">
+    <section id="messages" class="page-section py-20 bg-paper">
         <div class="container mx-auto px-4">
             <div class="text-center mb-16">
                 <h2 class="text-3xl md:text-4xl font-normal mb-4 handwritten text-brown">留言板</h2>
@@ -616,42 +914,113 @@
         </div>
     </section>
 
+
+
+
     <!-- 页脚 -->
     <footer class="bg-paper py-12 border-t border-accent">
         <div class="container mx-auto px-4">
             <div class="flex flex-col md:flex-row justify-between items-center">
                 <div class="mb-6 md:mb-0">
-                    <a href="#" class="flex items-center gap-2 text-brown">
+                    <a href="#" class="flex items-center gap-2 text-brown" id="footerHomeLink">
                         <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
                             <i class="fa fa-leaf text-white text-sm"></i>
                         </div>
-                        <span class="handwritten text-xl">我的生活记录</span>
+                        <span class="handwritten text-xl">Poppy's home</span>
                     </a>
-                    <p class="mt-2 text-light-brown">用双手创造，用心记录生活</p>
                 </div>
                 <div class="flex gap-6">
-                    <a href="#life" class="text-light-brown hover:text-primary transition-colors">吃喝玩乐</a>
-                    <a href="#media" class="text-light-brown hover:text-primary transition-colors">书影音</a>
-                    <a href="#work" class="text-light-brown hover:text-primary transition-colors">工作</a>
-                    <a href="#about" class="text-light-brown hover:text-primary transition-colors">关于我</a>
+                    <a href="#life" class="nav-link text-light-brown hover:text-primary transition-colors" data-page="life">吃喝玩乐</a>
+                    <a href="#media" class="nav-link text-light-brown hover:text-primary transition-colors" data-page="media">书影音</a>
+                    <a href="#work" class="nav-link text-light-brown hover:text-primary transition-colors" data-page="work">牛马面</a>
+                    <a href="#about" class="nav-link text-light-brown hover:text-primary transition-colors" data-page="about">关于我</a>
                 </div>
             </div>
             <div class="divider mt-8"></div>
             <div class="mt-8 text-center text-light-brown text-sm">
-                <p>© 2024 我的生活记录 | 用热爱记录生活</p>
+                <p>© 2024 Poppy's home</p>
             </div>
         </div>
     </footer>
 
+
+
+
+
     <!-- 核心交互JS -->
     <script>
+        // 单页应用导航功能
+        function showPage(pageId) {
+            // 隐藏所有页面
+            document.querySelectorAll('.page-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // 显示目标页面
+            const targetPage = document.getElementById(pageId);
+            if (targetPage) {
+                targetPage.classList.add('active');
+            }
+            
+            // 更新导航激活状态
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // 为当前页面对应的导航链接添加激活状态
+            document.querySelectorAll(`.nav-link[data-page="${pageId}"]`).forEach(link => {
+                link.classList.add('active');
+            });
+            
+            // 如果是首页，也激活首页链接
+            if (pageId === 'home') {
+                document.getElementById('homeLink').classList.add('active');
+            }
+        }
+
         // 1. 移动端菜单切换
         document.getElementById('menuBtn').addEventListener('click', () => {
             const mobileMenu = document.getElementById('mobileMenu');
             mobileMenu.classList.toggle('hidden');
         });
 
-        // 2. 标签页切换功能
+        // 2. 单页应用导航
+        document.querySelectorAll('.nav-link, #homeLink, #footerHomeLink, [data-page]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const pageId = link.getAttribute('data-page') || 'home';
+                showPage(pageId);
+                
+                // 移动端点击后关闭菜单
+                const mobileMenu = document.getElementById('mobileMenu');
+                if(!mobileMenu.classList.contains('hidden')) {
+                    mobileMenu.classList.add('hidden');
+                }
+            });
+        });
+
+        // 3. 标签点击显示模态框
+        document.querySelectorAll('.tag-item').forEach(tag => {
+            tag.addEventListener('click', () => {
+                const content = tag.getAttribute('data-content');
+                document.getElementById('modalContent').textContent = content;
+                document.getElementById('quoteModal').classList.add('active');
+            });
+        });
+
+        // 4. 关闭模态框
+        document.getElementById('modalClose').addEventListener('click', () => {
+            document.getElementById('quoteModal').classList.remove('active');
+        });
+
+        // 5. 点击模态框外部关闭
+        document.getElementById('quoteModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('quoteModal')) {
+                document.getElementById('quoteModal').classList.remove('active');
+            }
+        });
+
+        // 6. 标签页切换功能
         document.querySelectorAll('.tab-button').forEach(button => {
             button.addEventListener('click', () => {
                 // 移除所有标签按钮的active类
@@ -663,17 +1032,18 @@
                 button.classList.add('active');
                 
                 // 隐藏所有标签内容
-                document.querySelectorAll('.tab-content').forEach(content => {
+                const parentSection = button.closest('.page-section');
+                parentSection.querySelectorAll('.tab-content').forEach(content => {
                     content.classList.remove('active');
                 });
                 
                 // 显示对应的标签内容
                 const tabId = button.getAttribute('data-tab') + '-tab';
-                document.getElementById(tabId).classList.add('active');
+                parentSection.querySelector(`#${tabId}`).classList.add('active');
             });
         });
 
-        // 3. Firebase 初始化（！！替换成你的配置！！）
+        // 7. Firebase 初始化（！！替换成你的配置！！）
         const firebaseConfig = {
             apiKey: "AIzaSyC9qmIpZHCx4iqILHexLfatHv9B2B-Avf8",
             authDomain: "poppy-s-website.firebaseapp.com",
@@ -691,7 +1061,7 @@
         // 留言数据存储节点（所有留言存在messages下）
         const messagesRef = db.ref('messages');
 
-        // 4. 提交留言到Realtime Database
+        // 8. 提交留言到Realtime Database
         document.getElementById('messageForm').addEventListener('submit', (e) => {
             e.preventDefault(); // 阻止表单默认刷新
             // 获取表单数据
@@ -723,7 +1093,7 @@
             });
         });
 
-        // 5. 从Realtime Database加载留言（实时同步）
+        // 9. 从Realtime Database加载留言（实时同步）
         function loadMessages() {
             const messageList = document.getElementById('messageList');
             // 监听"新增留言"事件
@@ -772,39 +1142,18 @@
             });
         }
 
-        // 6. 防XSS攻击辅助函数
+        // 10. 防XSS攻击辅助函数
         function escapeHtml(text) {
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
         }
 
-        // 7. 页面加载完成后自动加载留言
+        // 11. 页面加载完成后自动加载留言
         window.addEventListener('DOMContentLoaded', () => {
             loadMessages();
-        });
-        
-        // 8. 分段跳转导航
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const targetId = this.getAttribute('href');
-                if(targetId === '#') return;
-                
-                const targetElement = document.querySelector(targetId);
-                if(targetElement) {
-                    window.scrollTo({
-                        top: targetElement.offsetTop - 80,
-                        behavior: 'auto' // 不使用平滑滚动
-                    });
-                    
-                    // 移动端点击后关闭菜单
-                    const mobileMenu = document.getElementById('mobileMenu');
-                    if(!mobileMenu.classList.contains('hidden')) {
-                        mobileMenu.classList.add('hidden');
-                    }
-                }
-            });
+            // 默认显示首页
+            showPage('home');
         });
     </script>
 </body>
